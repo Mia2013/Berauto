@@ -1,4 +1,6 @@
 
+using Scalar.AspNetCore;
+
 namespace Berauto.Backend
 {
     public class Program
@@ -29,6 +31,7 @@ namespace Berauto.Backend
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.MapScalarApiReference();
             }
 
             app.UseHttpsRedirection();
