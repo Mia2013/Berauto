@@ -76,7 +76,7 @@ const RegisterForm = () => {
     <form>
       <Container maxWidth="sm">
         <Box sx={{ p: 3 }} >
-          <Grid item xs={12} sx={{ textAlign: "center" }}>
+          <Grid size={{ xs: 12}}  sx={{ textAlign: "center" }}>
             <Box
               sx={{
                 display: "flex",
@@ -90,7 +90,7 @@ const RegisterForm = () => {
             </Box>
           </Grid>
 
-          <Grid xs={12} item sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <Grid size={{ xs: 12}}  sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
             <TextField
               label="Felhasználónév"
               inputRef={userNameRef}
