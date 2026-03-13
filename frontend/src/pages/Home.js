@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react'
-import { Box, Container, Typography } from '@mui/material'
+import React, { useState, useEffect } from 'react';
+import { Box, Container, Typography } from '@mui/material';
 import { getData } from '../API/apiCalls';
+import LoginForm from "../components/LoginForm";
 
 const Home = () => {
-
-  const [data, setData] = useState([]);
+const [data, setData] = useState([]);
 
   useEffect(() => {
-    getData("WeatherForecast").then((data_) => setData(data_));
+    getData("WeatherForecast").then((data_) => setData(data_)).catch(e=> console.log(e));
   }, [])
 
   return (
@@ -18,7 +18,7 @@ const Home = () => {
         {data.length > 0 && data.map(item => (
           <Typography>{item?.date}</Typography>
         ))}
-
+        <LoginForm />
       </Container>
     </Box>
   )
