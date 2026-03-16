@@ -58,7 +58,6 @@ const AuthProvider = ({ children }) => {
         <AuthContext.Provider value={{
             token,
             user,
-            role,
             isAdmin,
             isUgyintezo,
             isUser,

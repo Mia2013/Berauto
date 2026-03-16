@@ -4,13 +4,22 @@ import { BrowserRouter } from "react-router-dom";
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import CarRentProvider from './provider/CarRentProvider';
+import AuthProvider from './provider/AuthProvider';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-        <BrowserRouter> 
-  <React.StrictMode>
-    <App />
-  </React.StrictMode></BrowserRouter>
+  <BrowserRouter>
+    <AuthProvider>
+
+      <CarRentProvider>
+        <React.StrictMode>
+
+          <App />
+        </React.StrictMode>
+      </CarRentProvider>
+    </AuthProvider>
+  </BrowserRouter>
 
 );
 
