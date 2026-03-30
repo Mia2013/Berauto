@@ -1,6 +1,7 @@
 
 using Berauto.Models;
 using Scalar.AspNetCore;
+using System;
 
 namespace Berauto.Backend
 {
@@ -24,14 +25,8 @@ namespace Berauto.Backend
             {
                 Console.WriteLine(client);
             }
-        }
-    }
 
-    /* régi file tartalma:
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
+            //Web api creation
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -65,11 +60,12 @@ namespace Berauto.Backend
 
             app.UseAuthorization();
 
-
             app.MapControllers();
 
             app.Run();
         }
     }
-    */
+
+
+   
 }
