@@ -26,6 +26,7 @@ namespace Berauto.Backend
                 Console.WriteLine(client);
             }
 
+            /*
             //Web api creation
             var builder = WebApplication.CreateBuilder(args);
 
@@ -63,6 +64,7 @@ namespace Berauto.Backend
             app.MapControllers();
 
             app.Run();
+            */
         }
     }
 
