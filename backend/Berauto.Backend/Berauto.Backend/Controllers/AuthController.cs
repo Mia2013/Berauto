@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Berauto.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Berauto.Models;
 
 namespace Berauto.Backend.Controllers
 {
@@ -20,6 +21,7 @@ namespace Berauto.Backend.Controllers
             _dbManager = dbManager;
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public ActionResult Login([FromBody] LoginRequest request)
         {

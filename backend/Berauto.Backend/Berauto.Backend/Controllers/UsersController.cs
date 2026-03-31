@@ -1,4 +1,5 @@
 ﻿using Berauto.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Berauto.Backend.Controllers
@@ -29,6 +30,7 @@ namespace Berauto.Backend.Controllers
         }
 
         // GET: api/users/clients
+        [Authorize(Roles = "Admin")]
         [HttpGet("clients")]
         public ActionResult<List<User>> GetClients()
         {
@@ -36,6 +38,7 @@ namespace Berauto.Backend.Controllers
         }
 
         // POST: api/users
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult AddUser([FromBody] User user)
         {

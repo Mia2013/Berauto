@@ -1,4 +1,5 @@
 ﻿using Berauto.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Berauto.Backend.Controllers
@@ -15,6 +16,7 @@ namespace Berauto.Backend.Controllers
         }
 
         // GET: api/rentals
+        [Authorize]
         [HttpGet]
         public ActionResult<List<Rental>> GetAllRentals()
         {
@@ -29,6 +31,7 @@ namespace Berauto.Backend.Controllers
         }
 
         // POST: api/rentals
+        [Authorize]
         [HttpPost]
         public ActionResult CreateRental([FromBody] Rental rental)
         {

@@ -1,5 +1,6 @@
 ﻿using Berauto.Backend.DTOs;
 using Berauto.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Berauto.Backend.Controllers
@@ -65,6 +66,7 @@ namespace Berauto.Backend.Controllers
         }
 
         // POST: api/cars
+        [Authorize(Roles = "Admin,Officer")]
         [HttpPost]
         public ActionResult AddCar([FromBody] Car car)
         {
