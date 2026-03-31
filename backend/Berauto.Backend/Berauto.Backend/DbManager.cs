@@ -85,4 +85,11 @@ public class DbManager
         _db.Rentals.Add(rental);
         _db.SaveChanges();
     }
+
+    public User? GetUserByEmail(string email) =>
+    _db.Users
+        .Include(u => u.Role)
+        .FirstOrDefault(u => u.Email == email);
+
+
 }
