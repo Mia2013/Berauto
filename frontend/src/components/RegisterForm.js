@@ -76,75 +76,66 @@ const RegisterForm = () => {
     <form>
       <Container maxWidth="sm">
         <Box sx={{ p: 3 }} >
-          <Grid item xs={12} sx={{ textAlign: "center" }}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "column",
-                my: 5,
-              }}
-            >
-
-          <TitleComponent title="Regisztráció"  />
-            </Box>
-          </Grid>
-
-          <Grid xs={12} item sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <TextField
-              label="Felhasználónév"
-              inputRef={userNameRef}
-              variant="filled"
-              required
-              error={!!errors?.username}
-              helperText={errors?.username}
-            />
-
-            <FormControl variant="filled">
-              <InputLabel htmlFor="filled-adornment-password">Jelszó *</InputLabel>
-              <FilledInput
+          <Grid container >
+            <Grid size={12} >
+              <TitleComponent title="Regisztráció" />
+            </Grid>
+            <Grid size={12} sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <TextField
+                label="Felhasználónév"
+                inputRef={userNameRef}
+                variant="filled"
                 required
-                id="filled-adornment-password"
-                inputRef={passwordRef}
-                type={showPassword ? 'text' : 'password'}
-                error={!!errors?.password}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={
-                        showPassword ? 'hide the password' : 'display the password'
-                      }
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
+                error={!!errors?.username}
+                helperText={errors?.username}
               />
-              <Typography variant='caption' sx={{ color: "#D3302F", ml: 2 }}>{errors?.password}</Typography>
-            </FormControl>
-            <TextField
-              label="Email cím"
-              inputRef={emailRef}
-              variant="filled"
-              required
-              error={!!errors?.email}
-              helperText={errors?.email}
-            />
 
-            <TextField
-              label="Telefonszám"
-              inputRef={phoneRef}
-              variant="filled"
-              required
-              error={!!errors?.phone}
-              helperText={errors?.phone}
-            />
+              <FormControl variant="filled">
+                <InputLabel htmlFor="filled-adornment-password">Jelszó *</InputLabel>
+                <FilledInput
+                  required
+                  id="filled-adornment-password"
+                  inputRef={passwordRef}
+                  type={showPassword ? 'text' : 'password'}
+                  error={!!errors?.password}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword ? 'hide the password' : 'display the password'
+                        }
+                        onClick={handleClickShowPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+                <Typography variant='caption' sx={{ color: "#D3302F", ml: 2 }}>{errors?.password}</Typography>
+              </FormControl>
+              <TextField
+                label="Email cím"
+                inputRef={emailRef}
+                variant="filled"
+                required
+                error={!!errors?.email}
+                helperText={errors?.email}
+              />
 
-            <Button variant='contained' startIcon={<Send />}
-              onClick={handleRegister}
-            >Küldés</Button>
+              <TextField
+                label="Telefonszám"
+                inputRef={phoneRef}
+                variant="filled"
+                required
+                error={!!errors?.phone}
+                helperText={errors?.phone}
+              />
+
+              <Button variant='contained' startIcon={<Send />}
+                onClick={handleRegister}
+              >Küldés</Button>
+            </Grid>
           </Grid>
         </Box>
       </Container>

@@ -1,45 +1,60 @@
 import * as React from 'react';
-import { Card, CardHeader, CardMedia, CardContent, CardActions, IconButton, Typography } from '@mui/material';
+import { Link } from "react-router-dom";
+import { Card, CardMedia, CardContent, Typography, CardActionArea, Box } from '@mui/material';
 
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
+const CarCard = ({ car }) => {
+    const { brand, modell, fuel, img, year, id } = car;
 
-
-
-const CarCard = ({ registrationName, brand, modell, fuel }) => {
     return (
         <Card sx={{
             height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            width: '350px'
+            borderRadius: 4, 
+            boxShadow: '0 4px 20px rgba(0,0,0,0.05)', 
+            transition: 'transform 0.3s ease-in-out',
+            '&:hover': {
+                transform: 'scale(1.02)',
+            }
         }}>
-            <CardMedia
-                component="img"
-                sx={{
-                    height: 200,
-                    objectFit: 'cover',
-                }}
-                image={`${process.env.PUBLIC_URL}/cars/${brand}${modell.split(' ').join('')}.jpg`}
-                alt={brand}
-            />
-            <CardHeader
-                title={`${brand} ${modell}`}
-                subheader={registrationName}
-            />
-            <CardContent sx={{ flexGrow: 1 }}>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Üzemanyag: {fuel}
-                </Typography>
-            </CardContent>
-            <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                    <FavoriteIcon />
-                </IconButton>
-                <IconButton aria-label="share">
-                    <ShareIcon />
-                </IconButton>
-            </CardActions>
+            <CardActionArea component={Link} to={`/model/${id}`} sx={{ height: '100%' }}>
+                <CardMedia
+                    component="img"
+                    sx={{
+                        height: 220,
+                        objectFit: 'cover',
+                    }}
+                    image={`${process.env.PUBLIC_URL}/cars/${img}`}
+                    alt={brand}
+                />
+                <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ mb: 1 }}>
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1rem',
+                                color: 'primary.main',
+                                fontWeight: 700,
+                                display: 'block',
+                                mb: 0.5
+                            }}
+                        >
+                            {brand}
+                        </Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+                            {modell}
+                        </Typography>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                            {year}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            {fuel}
+                        </Typography>
+                    </Box>
+                </CardContent>
+            </CardActionArea>
         </Card>
     );
 }

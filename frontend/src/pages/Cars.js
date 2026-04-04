@@ -10,14 +10,11 @@ const Cars = () => {
     return (
         <Container sx={{ py: 4 }}>
             <TitleComponent title="Autók" />
-            <Grid container spacing={3} Í >
+            <Grid container spacing={3}  >
                 {cars.map((car) => (
-                    <Grid item key={car.id} xs={12} sm={6} md={4} >
+                    <Grid  key={car.id} size={{xs: 12, sm: 6, md: 4, lg: 3 }}>
                         <CarCard
-                            brand={car.brand}
-                            modell={car.modell}
-                            fuel={car.fuel}
-                            registrationName={car.registrationName}
+                            car={car}
                         />
                     </Grid>
                 ))}

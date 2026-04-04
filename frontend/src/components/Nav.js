@@ -5,7 +5,8 @@ import TitleComponent from "./TitleComponent";
 
 const Navigation = () => {
   const location = useLocation();  
-  const pages = [...pagesForPublic, ...pagesForAuthenticatedOnly];
+  const pages = [...pagesForPublic.filter(q => q.showInNavbar), 
+    ...pagesForAuthenticatedOnly.filter(q => q.showInNavbar)];
 
   return (
     <AppBar
