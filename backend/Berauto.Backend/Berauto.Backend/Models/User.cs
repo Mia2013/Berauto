@@ -13,6 +13,8 @@ public partial class User
 
     public string Email { get; set; } = null!;
 
+    public string? PasswordHash { get; set; }
+
     public string? Phone { get; set; }
 
     public string? Address { get; set; }
@@ -22,9 +24,9 @@ public partial class User
     public virtual ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 
     public virtual Role Role { get; set; } = null!;
-    
+
     public override string ToString()
     {
-        return $"{Name} ({Role}): {Email}";
+        return $"({Id}) {Name} {Email} {DrivingLicence}";
     }
 }

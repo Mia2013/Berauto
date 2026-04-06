@@ -17,8 +17,6 @@ public partial class CarRentalDbContext : DbContext
 
     public virtual DbSet<Car> Cars { get; set; }
 
-    public virtual DbSet<CarStatus> CarStatuses { get; set; }
-
     public virtual DbSet<Fuel> Fuels { get; set; }
 
     public virtual DbSet<Rental> Rentals { get; set; }
@@ -26,6 +24,8 @@ public partial class CarRentalDbContext : DbContext
     public virtual DbSet<RentalStatus> RentalStatuses { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
+
+    public virtual DbSet<Service> Services { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
@@ -37,9 +37,9 @@ public partial class CarRentalDbContext : DbContext
     {
         modelBuilder.Entity<Car>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Cars__3214EC0747D9C496");
+            entity.HasKey(e => e.Id).HasName("PK__Cars__3214EC0787730DBF");
 
-            entity.HasIndex(e => e.RegNum, "UQ__Cars__34C6A0A69870A7BF").IsUnique();
+            entity.HasIndex(e => e.RegNum, "UQ__Cars__34C6A0A632434E57").IsUnique();
 
             entity.Property(e => e.Brand).HasMaxLength(15);
             entity.Property(e => e.IsRentable).HasDefaultValue(true);
@@ -50,26 +50,11 @@ public partial class CarRentalDbContext : DbContext
                 .HasForeignKey(d => d.FuelId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Cars_Fuel");
-
-            entity.HasOne(d => d.Status).WithMany(p => p.Cars)
-                .HasForeignKey(d => d.StatusId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Cars_CarStatus");
-        });
-
-        modelBuilder.Entity<CarStatus>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__CarStatu__3214EC079E7141F3");
-
-            entity.ToTable("CarStatus");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Name).HasMaxLength(20);
         });
 
         modelBuilder.Entity<Fuel>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Fuel__3214EC071FF1B4E1");
+            entity.HasKey(e => e.Id).HasName("PK__Fuel__3214EC0702217EA1");
 
             entity.ToTable("Fuel");
 
@@ -79,7 +64,7 @@ public partial class CarRentalDbContext : DbContext
 
         modelBuilder.Entity<Rental>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Rentals__3214EC0749B7546D");
+            entity.HasKey(e => e.Id).HasName("PK__Rentals__3214EC071DC2A18A");
 
             entity.Property(e => e.HandoverDate).HasColumnType("datetime");
             entity.Property(e => e.RequestDate)
@@ -105,7 +90,7 @@ public partial class CarRentalDbContext : DbContext
 
         modelBuilder.Entity<RentalStatus>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__RentalSt__3214EC071B70ECB1");
+            entity.HasKey(e => e.Id).HasName("PK__RentalSt__3214EC0756923418");
 
             entity.ToTable("RentalStatus");
 
@@ -115,22 +100,39 @@ public partial class CarRentalDbContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Roles__3214EC079F686474");
+            entity.HasKey(e => e.Id).HasName("PK__Roles__3214EC079C2D18F2");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Name).HasMaxLength(20);
         });
 
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Services__3214EC07287D9E33");
+
+            entity.Property(e => e.EntryDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Maintenance).HasMaxLength(404);
+            entity.Property(e => e.ReturnDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Car).WithMany(p => p.Services)
+                .HasForeignKey(d => d.CarId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Services_Cars");
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC07F3940CC2");
+            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC07CEEDA8E8");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053463D6C556").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053456B896C0").IsUnique();
 
             entity.Property(e => e.Address).HasMaxLength(255);
             entity.Property(e => e.DrivingLicence).HasMaxLength(20);
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.PasswordHash).HasMaxLength(255);
             entity.Property(e => e.Phone).HasMaxLength(20);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
