@@ -26,6 +26,8 @@ const AuthProvider = ({ children }) => {
             setUser(decoded);
             return decoded;
         } catch (error) {
+            console.error("Token decoding error:", error);
+            return null;
             setAlert({ message: "Hiba történt!", severity: "error" });
         }
     };
@@ -58,6 +60,7 @@ const AuthProvider = ({ children }) => {
         <AuthContext.Provider value={{
             token,
             user,
+            role,
             isAdmin,
             isUgyintezo,
             isUser,

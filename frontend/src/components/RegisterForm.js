@@ -116,7 +116,6 @@ const RegisterForm = () => {
             helperText={validationErrors.email}
           />
         </Box>
-        {/* Első jelszó mező */}
         <FormControl variant="outlined" fullWidth error={!!validationErrors.password}>
           <InputLabel htmlFor="outlined-adornment-password">Jelszó *</InputLabel>
           <OutlinedInput
