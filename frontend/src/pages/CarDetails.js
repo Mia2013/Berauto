@@ -1,18 +1,20 @@
-import React, { useEffect } from 'react';
-import { useParams, useNavigate, Link } from "react-router-dom";
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useNavigate } from "react-router-dom";
 import { Container, Grid, Typography, Box, Button, Paper, Divider, Chip } from '@mui/material';
 
-import { useCarRent } from '../provider/CarRentProvider';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
+import { useCarRent } from '../provider/CarRentProvider';
+import RentCarForm from '../components/RentCarForm';
 
 const CarDetails = () => {
+  const [showRentCarForm, setShowRentCartForm] = useState(false);
   const { carId } = useParams();
   const navigate = useNavigate();
-
   const { carDetails, setCarDetails, cars } = useCarRent();
+  const formRef = useRef(null); 
 
   useEffect(() => {
     if (carId && cars.length > 0) {
@@ -22,8 +24,14 @@ const CarDetails = () => {
     }
   }, [carId]);
 
+  useEffect(() => {
+    if (showRentCarForm && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [showRentCarForm]);
+
   return (
-    <Container sx={{ py: 6 }}>
+    <Container sx={{ py: 6, zIndex: 1 }}>
       <Button onClick={() => navigate(-1)} sx={{ mb: 4 }}
         startIcon={<ArrowBackIcon />} > Vissza a kereséshez</Button>
       {
@@ -115,7 +123,8 @@ const CarDetails = () => {
                       borderRadius: 2,
                       boxShadow: 4
                     }}
-                    component={Link} to={`/rent/${carDetails.id}`}
+                    onClick={() => setShowRentCartForm(true)}
+                    disabled={showRentCarForm}
                   >
                     Lefoglalom az autót
                   </Button>
@@ -123,6 +132,16 @@ const CarDetails = () => {
               </Grid>
             </Grid>
           </Paper>)}
+      {showRentCarForm && (
+        <Box ref={formRef}>
+          <RentCarForm
+            carBrand={carDetails.brand}
+            carModell={carDetails.modell}
+            carId={carDetails.id}
+            setShowRentCartForm={setShowRentCartForm}
+          />
+        </Box>
+      )}
     </Container>
   );
 }

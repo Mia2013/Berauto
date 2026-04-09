@@ -33,14 +33,6 @@ export const pagesForPublic = [
     component: <CarDetails />,
     showInNavbar: false
   },
-  {
-    name: "Foglalas",
-    path: "/rent/:id",
-    component: <CarDetails />,
-    showInNavbar: false
-  },
-
-
 ];
 
 
