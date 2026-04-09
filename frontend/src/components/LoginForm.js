@@ -1,16 +1,21 @@
-import { useRef, useState } from 'react'
-import { Button, Grid, TextField, InputAdornment, IconButton, Container, Box, Typography, FilledInput, InputLabel, FormControl } from "@mui/material";
+import { useRef, useState } from 'react';
+import {
+    Button, TextField, InputAdornment, IconButton,
+    Box, Typography, Paper, FormControl, OutlinedInput, InputLabel
+} from "@mui/material";
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
 import Send from '@mui/icons-material/Send';
 
 import { postData } from '../API/apiCalls';
 import TitleComponent from './TitleComponent';
+import ValidationCaption from './ValidationCaption';
+import CustomAlert from './CustomAlert';
 
-const RegisterForm = () => {
+const LoginForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
-    const [alert, setAlert] = useState('');
+    const [alert, setAlert] = useState(null);
 
     const emailRef = useRef();
     const passwordRef = useRef();
@@ -25,99 +30,95 @@ const RegisterForm = () => {
         const formData = {
             email,
             password,
-        }
+        };
 
         if (validateRegisterFormData(formData)) {
             postData("login", formData)
                 .then((data) => {
-                    setAlert({ message: `Sikeres bejelentkezés! `, severity: "success" })
-                })
-                .then(() => {
+                    setAlert({ message: `Sikeres bejelentkezés!`, severity: "success" });
                     emailRef.current.value = "";
                     passwordRef.current.value = "";
+                    setErrors({});
                 })
                 .catch((e) => {
-                    setAlert({ message: e.message || "Hiba történt!", severity: "error" })
-                })
+                    setAlert({ message: e?.message || "Hiba történt!", severity: "error" });
+                });
         }
-    }
+    };
 
     const validateRegisterFormData = (formData) => {
         const { password, email } = formData;
         const validationErrors = {};
 
-        if (!password) {
-            validationErrors.password = 'A jelszó megadása kötelező!';
-        }
         if (!email) {
             validationErrors.email = 'Az email cím megadása kötelező!';
         }
+        if (!password) {
+            validationErrors.password = 'A jelszó megadása kötelező!';
+        }
+
         setErrors(validationErrors);
         return Object.keys(validationErrors).length === 0;
     };
 
     return (
-        <form>
-            <Container maxWidth="sm">
-                <Box sx={{ p: 3 }} >
-                    <Grid  size={{ xs: 12}} sx={{ textAlign: "center" }}>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                flexDirection: "column",
-                                my: 5,
-                            }}
-                        >
+        <Paper elevation={3} sx={{ px: 3, pt: 1, pb: 3, borderRadius: 4, mt: 3, maxWidth: 500, mx: 'auto' }}>
+            <TitleComponent title="Bejelentkezés" />
 
-                            <TitleComponent title="Bejelentkezés" />
-                        </Box>
-                    </Grid>
+            <Box component="form" noValidate onSubmit={handleLogin} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
 
-                    <Grid size={{ xs: 12}}  sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                        <TextField
-                            label="Email cím"
-                            inputRef={emailRef}
-                            variant="filled"
-                            required
-                            error={!!errors?.email}
-                            helperText={errors?.email}
-                        />
-                        <FormControl variant="filled">
-                            <InputLabel htmlFor="filled-adornment-password">Jelszó *</InputLabel>
-                            <FilledInput
-                                required
-                                id="filled-adornment-password"
-                                inputRef={passwordRef}
-                                type={showPassword ? 'text' : 'password'}
-                                error={!!errors?.password}
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            aria-label={
-                                                showPassword ? 'hide the password' : 'display the password'
-                                            }
-                                            onClick={handleClickShowPassword}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                            />
-                            <Typography variant='caption' sx={{ color: "#D3302F", ml: 2 }}>{errors?.password}</Typography>
-                        </FormControl>
+                <TextField
+                    fullWidth
+                    label="Email cím"
+                    inputRef={emailRef}
+                    variant="outlined"
+                    required
+                    error={!!errors?.email}
+                    helperText={errors?.email}
+                />
+
+                <FormControl variant="outlined" fullWidth error={!!errors?.password}>
+                    <InputLabel htmlFor="outlined-adornment-password">Jelszó *</InputLabel>
+                    <OutlinedInput
+                        id="outlined-adornment-password"
+                        inputRef={passwordRef}
+                        type={showPassword ? 'text' : 'password'}
+                        label="Jelszó *"
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label={showPassword ? 'hide the password' : 'display the password'}
+                                    onClick={handleClickShowPassword}
+                                    edge="end"
+                                >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                    {errors?.password && <ValidationCaption message={errors.password} />}
+                </FormControl>
 
 
+                <Button
+                    type="submit"
+                    variant='contained'
+                    startIcon={<Send />}
+                    sx={{
+                        py: 2,
+                        fontWeight: 'bold',
+                        borderRadius: 2,
+                        boxShadow: 4
+                    }}
+                >
+                    Bejelentkezés
+                </Button>
+            </Box>
+            {alert && (
+                <CustomAlert alert={alert} setAlert={setAlert} />
+            )}
+        </Paper>
+    );
+};
 
-                        <Button variant='contained' startIcon={<Send />}
-                            onClick={handleLogin}
-                        >Bejelentkezés</Button>
-                    </Grid>
-                </Box>
-            </Container>
-        </form>
-    )
-}
-
-export default RegisterForm;
+export default LoginForm;
