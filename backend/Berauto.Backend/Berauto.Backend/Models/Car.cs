@@ -21,17 +21,14 @@ public partial class Car
 
     public int FuelId { get; set; }
 
-    public int StatusId { get; set; }
-
     public virtual Fuel Fuel { get; set; } = null!;
 
     public virtual ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 
-    public virtual CarStatus Status { get; set; } = null!;
-    
+    public virtual ICollection<Service> Services { get; set; } = new List<Service>();
+
     public override string ToString()
     {
-        return $"{RegNum} - {Brand} {Model} {Fuel}";
+        return $"{Id} {Brand} {Model} {RegNum}";
     }
-
 }

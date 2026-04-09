@@ -10,9 +10,4 @@ public partial class Fuel
     public string Name { get; set; } = null!;
 
     public virtual ICollection<Car> Cars { get; set; } = new List<Car>();
-    
-    public override string ToString()
-    {
-        return $"{Name}";
-    }
 }
