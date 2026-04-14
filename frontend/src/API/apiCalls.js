@@ -4,7 +4,7 @@ export const endpoints ={
     login: "login",
     register: "register",
     cars: "cars",
-    rent: "rent",
+    rents: "rents",
     profile: "profile",
     addNewCar: "addNewCar"
 }

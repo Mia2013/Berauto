@@ -5,7 +5,8 @@ import TitleComponent from "./TitleComponent";
 
 const Navigation = () => {
   const location = useLocation();  
-  const pages = [...pagesForPublic, ...pagesForAuthenticatedOnly];
+  const pages = [...pagesForPublic.filter(q => q.showInNavbar), 
+    ...pagesForAuthenticatedOnly.filter(q => q.showInNavbar)];
 
   return (
     <AppBar
@@ -18,7 +19,7 @@ const Navigation = () => {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
-          <TitleComponent title="Bérautó" />
+          <TitleComponent title="Bérautó" marginY={0} />
 
           <Box sx={{ display: "flex", gap: 1 }}>
             {pages.map((page) => (
@@ -27,7 +28,7 @@ const Navigation = () => {
                 component={Link}  
                 to={page.path}
                 sx={{
-                  my: 2,
+                  my:1,
                   color:  "text.secondary",
                   display: "block",
                   fontWeight: location.pathname === page.path ? 800 : 500,

@@ -1,20 +1,29 @@
 import React from 'react'
-import { Typography } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 
-const TitleComponent = ({ title }) => {
+const TitleComponent = ({ title, marginY=3 }) => {
     return (
-        <Typography
-            variant="h6"
+        <Box
             sx={{
-                fontWeight: 800,
-                letterSpacing: ".1rem",
-                color: "primary.main",
-                textDecoration: "none",
-                textTransform: "uppercase"
+                display: "flex",
+                alignItems: "center",
+                flexDirection: "column",
+                my: marginY,
             }}
         >
-            {title}
-        </Typography>
+            <Typography
+                variant="h6"
+                sx={{
+                    fontWeight: 800,
+                    letterSpacing: ".1rem",
+                    color: "primary.main",
+                    textDecoration: "none",
+                    textTransform: "uppercase"
+                }}
+            >
+                {title}
+            </Typography>
+        </Box>
     )
 }
 

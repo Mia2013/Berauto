@@ -8,6 +8,8 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem("berauto_token") || "");
     const [user, setUser] = useState(null);
+    const [alert, setAlert] = useState();
+
     const navigate = useNavigate();
 
     const { isAdmin, isUgyintezo, isUser, isAuthenticated } = useMemo(() => ({
@@ -25,7 +27,7 @@ const AuthProvider = ({ children }) => {
             return decoded;
         } catch (error) {
             console.error("Token decoding error:", error);
-            return null;
+            setAlert({ message: "Hiba történt!", severity: "error" });
         }
     };
 
@@ -57,13 +59,14 @@ const AuthProvider = ({ children }) => {
         <AuthContext.Provider value={{
             token,
             user,
-            role,
             isAdmin,
             isUgyintezo,
             isUser,
             isAuthenticated,
             logIn,
-            logOut
+            logOut,
+            alert,
+            setAlert
         }}>
             {children}
         </AuthContext.Provider>
