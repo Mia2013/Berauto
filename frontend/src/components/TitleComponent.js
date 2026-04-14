@@ -1,14 +1,14 @@
 import React from 'react'
 import { Typography, Box } from '@mui/material';
 
-const TitleComponent = ({ title }) => {
+const TitleComponent = ({ title, marginY=3 }) => {
     return (
         <Box
             sx={{
                 display: "flex",
                 alignItems: "center",
                 flexDirection: "column",
-                my: 5,
+                my: marginY,
             }}
         >
             <Typography

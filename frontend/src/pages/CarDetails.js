@@ -14,7 +14,7 @@ const CarDetails = () => {
   const { carId } = useParams();
   const navigate = useNavigate();
   const { carDetails, setCarDetails, cars } = useCarRent();
-  const formRef = useRef(null); 
+  const formRef = useRef(null);
 
   useEffect(() => {
     if (carId && cars.length > 0) {
@@ -56,7 +56,8 @@ const CarDetails = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} md={6} sx={{ p: { xs: 3, md: 5 }, display: 'flex', flexDirection: 'column' }}>
+              <Grid size={{ xs: 12, md: 6 }}
+                sx={{ p: { xs: 3, md: 5 }, display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ mb: 2 }}>
                   <Chip label={carDetails.fuel} color="primary" variant="outlined" size="small" sx={{ mb: 1 }} />
 
@@ -80,7 +81,7 @@ const CarDetails = () => {
 
                 <Divider sx={{ my: 2 }} />
                 <Box sx={{ flexGrow: 1 }}>
-                  <Grid container spacing={2} sx={{ my: 1 }}>
+                  <Grid spacing={2} sx={{ my: 1 }}>
                     <Grid size={{ xs: 12, md: 6 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <CalendarTodayIcon color="action" />

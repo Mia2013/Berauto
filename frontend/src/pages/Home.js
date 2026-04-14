@@ -1,27 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Container, Typography } from '@mui/material';
-import { getData } from '../API/apiCalls';
+import { Box, Container, Typography, Divider } from '@mui/material';
 import LoginForm from "../components/LoginForm";
-
+import { useAuth } from '../provider/AuthProvider';
+import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 const Home = () => {
-const [data, setData] = useState([]);
-
-  useEffect(() => {
-    getData("WeatherForecast").then((data_) => setData(data_)).catch(e=> console.log(e));
-  }, [])
+  const { isAuthenticated, user } = useAuth();
 
   return (
-    <Box sx={{ mt: 3 }}>
-      <Container>
-        <div>Home</div>
-        <Typography>backend válasz próba:</Typography>
-        {data.length > 0 && data.map(item => (
-          <Typography>{item?.date}</Typography>
-        ))}
-        <LoginForm />
+    <Box sx={{
+      mt: { xs: 4, md: 8 },
+      mb: 4,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }}>
+      <Container maxWidth="md">
+        <Box sx={{ textAlign: 'center', mb: 5 }}>
+          <DirectionsCarFilledIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+
+          <Typography
+            variant="h3"
+            component="h1"
+            gutterBottom
+            sx={{ fontWeight: 'bold', color: 'text.primary' }}
+          >
+            Útrakész szabadság, bárhol, bármikor
+          </Typography>
+
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            sx={{ mb: 3, fontWeight: '400', maxWidth: '700px', mx: 'auto' }}
+          >
+            Válasszon prémium flottánkból, és élvezze a gondtalan autózás élményét.
+            Regisztrált tagként exkluzív kedvezményekkel és villámgyors foglalással várjuk.
+          </Typography>
+
+          <Divider sx={{ width: '100px', mx: 'auto', borderBottomWidth: 3, bgcolor: 'primary.main' }} />
+        </Box>
+
+        <Box>
+          {!isAuthenticated ? (
+            (
+              <>
+                <Box sx={{
+                  maxWidth: 500,
+                  mx: 'auto',
+                  mb: -2,
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 1
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'info.main' }}>
+                    <InfoOutlinedIcon fontSize="small" />
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
+                      Személyes fiók
+                    </Typography>
+                  </Box>
+
+                  <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                    A korábbi foglalásai kezeléséhez, a bérlési előzmények megtekintéséhez vagy új autó kölcsönzéséhez, kérjük, jelentkezzen be.
+                  </Typography>
+                </Box>
+                <LoginForm />
+
+              </>
+            )
+          ) : (
+            <Typography variant="h5" textAlign="center">
+              Üdvözöljük újra {user?.Name}! Jó utat kívánunk!
+            </Typography>
+          )}
+        </Box>
       </Container>
     </Box>
-  )
-}
+  );
+};
 
 export default Home;

@@ -1,4 +1,6 @@
 import { useRef, useState } from 'react';
+import { Link } from "react-router-dom";
+
 import {
     Button, TextField, InputAdornment, IconButton,
     Box, Typography, Paper, FormControl, OutlinedInput, InputLabel
@@ -7,7 +9,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
 import Send from '@mui/icons-material/Send';
 
-import { postData } from '../API/apiCalls';
+import { postData, endpoints } from '../API/apiCalls';
 import TitleComponent from './TitleComponent';
 import ValidationCaption from './ValidationCaption';
 import CustomAlert from './CustomAlert';
@@ -33,7 +35,7 @@ const LoginForm = () => {
         };
 
         if (validateRegisterFormData(formData)) {
-            postData("login", formData)
+            postData(endpoints.login, formData)
                 .then((data) => {
                     setAlert({ message: `Sikeres bejelentkezés!`, severity: "success" });
                     emailRef.current.value = "";
@@ -62,11 +64,19 @@ const LoginForm = () => {
     };
 
     return (
-        <Paper elevation={3} sx={{ px: 3, pt: 1, pb: 3, borderRadius: 4, mt: 3, maxWidth: 500, mx: 'auto' }}>
+        <Paper elevation={3}
+            sx={{
+                px: 3,
+                pt: 1,
+                pb: 3,
+                borderRadius: 4,
+                mt: 3,
+                maxWidth: 500,
+                mx: 'auto'
+            }}>
             <TitleComponent title="Bejelentkezés" />
 
             <Box component="form" noValidate onSubmit={handleLogin} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-
                 <TextField
                     fullWidth
                     label="Email cím"
@@ -113,7 +123,27 @@ const LoginForm = () => {
                 >
                     Bejelentkezés
                 </Button>
-            </Box>
+
+                <Box sx={{ textAlign: 'center', mt: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                        Ha még nincs felhasználói fiókja, akkor{' '}
+                        <Link
+                            to="/register"
+                            underline="hover"
+                            sx={{
+                                fontWeight: 'bold',
+                                color: 'primary.main',
+                                cursor: 'pointer',
+                                transition: '0.2s',
+                                '&:hover': {
+                                    color: 'primary.dark',
+                                }
+                            }}
+                        >
+                            regisztráljon!
+                        </Link>
+                    </Typography>
+                </Box>            </Box>
             {alert && (
                 <CustomAlert alert={alert} setAlert={setAlert} />
             )}
