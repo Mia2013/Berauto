@@ -118,7 +118,7 @@ const RegisterForm = () => {
           <Grid size={{ xs: 12, md: 8 }} sx={{ p: { xs: 3, md: 6 }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <TitleComponent title="Regisztráció" />
 
-            <Box component="form" onSubmit={handleRegister} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+            <Box component="form" onSubmit={handleRegister} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
 
               <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
                 <TextField fullWidth label="Felhasználónév"

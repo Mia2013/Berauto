@@ -73,8 +73,8 @@ const CarRentProvider = ({ children }) => {
     const [rents, setRents] = useState([]);
     const [carDetails, setCarDetails] = useState(null);
 
-    const getCars = async () => {
-        getData(endpoints.cars)
+    const getCars = async (query={}) => {
+        getData(endpoints.cars, query)
             .then(data => setCars(data))
             .catch((e) => setAlert({ message: "Hiba történt az oldal betöltése közben!", severity: "error" }))
     }
