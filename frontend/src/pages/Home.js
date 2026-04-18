@@ -38,43 +38,43 @@ const Home = () => {
 
           <Divider sx={{ width: '100px', mx: 'auto', borderBottomWidth: 3, bgcolor: 'primary.main' }} />
         </Box>
+      </Container>
 
-        <Box>
-          {!isAuthenticated ? (
-            (
-              <>
-                <Box sx={{
-                  maxWidth: 500,
-                  mx: 'auto',
-                  mb: -2,
-                  textAlign: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 1
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'info.main' }}>
-                    <InfoOutlinedIcon fontSize="small" />
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
-                      Személyes fiók
-                    </Typography>
-                  </Box>
-
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                    A korábbi foglalásai kezeléséhez, a bérlési előzmények megtekintéséhez vagy új autó kölcsönzéséhez, kérjük, jelentkezzen be.
+      <Box>
+        {!isAuthenticated ? (
+          (
+            <>
+              <Box sx={{
+                maxWidth: 500,
+                mx: 'auto',
+                mb: -2,
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 1
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'info.main' }}>
+                  <InfoOutlinedIcon fontSize="small" />
+                  <Typography variant="button" sx={{ fontWeight: "bolder" }}>
+                    Személyes fiók
                   </Typography>
                 </Box>
-                <LoginForm />
 
-              </>
-            )
-          ) : (
-            <Typography variant="h5" textAlign="center">
-              Üdvözöljük újra {user?.Name}! Jó utat kívánunk!
-            </Typography>
-          )}
-        </Box>
-      </Container>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                  A korábbi foglalásai kezeléséhez, a bérlési előzmények megtekintéséhez vagy új autó kölcsönzéséhez, kérjük, jelentkezzen be.
+                </Typography>
+              </Box>
+              <LoginForm />
+
+            </>
+          )
+        ) : (
+          <Typography variant="h5" textAlign="center">
+            Üdvözöljük újra {user?.Name}! Jó utat kívánunk!
+          </Typography>
+        )}
+      </Box>
     </Box>
   );
 };

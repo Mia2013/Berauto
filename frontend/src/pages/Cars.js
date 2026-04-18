@@ -1,26 +1,66 @@
-import { useEffect } from 'react'
-import { Container, Grid } from '@mui/material';
-import TitleComponent from '../components/TitleComponent';
+import { useEffect, useState } from 'react';
+import { Container, Grid, Typography, Box } from '@mui/material';
+import dayjs from 'dayjs';
+
 import { useCarRent } from '../provider/CarRentProvider';
 import CarCard from '../components/CarCard';
+import CarFilter from '../components/CarFilter';
+import TitleComponent from '../components/TitleComponent';
 
 const Cars = () => {
-    const { cars } = useCarRent();
+  const { cars, getCars } = useCarRent();
+  const [startDate, setStartDate] = useState(dayjs().add(1, 'day'));
+  const [endDate, setEndDate] = useState(dayjs().add(2, 'day'));
 
-    return (
-        <Container sx={{ py: 4 }}>
-            <TitleComponent title="Autók" />
-            <Grid container spacing={3}  >
-                {cars.map((car) => (
-                    <Grid  key={car.id} size={{xs: 12, sm: 6, md: 4, lg: 3 }}>
-                        <CarCard
-                            car={car}
-                        />
-                    </Grid>
-                ))}
-            </Grid>
-        </Container>
-    )
+  useEffect(() => {
+    getCars();
+  }, []);
+
+  const handleFilterByDate = () => {
+    const query = {
+      startDate: startDate.format('YYYY.MM.DD'),
+      endDate: endDate.format('YYYY.MM.DD'),
+    };
+    getCars(query);
+  };
+
+  return (
+    <Container maxWidth="xl" sx={{ py: 6 }}>
+      <Box sx={{ mb: 4 }}>
+        <TitleComponent title="Elérhető flottánk" />
+      </Box>
+      <Grid container spacing={4}>
+        <Grid size={{ xs: 12, md: 3, }}>
+          <CarFilter
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            handleClick={handleFilterByDate}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 9, }}>
+          <Grid container spacing={3}>
+            {cars.length > 0 ? (
+              cars.map((car) => (
+                <Grid key={car.id} size={{ xs: 12, sm: 6, lg: 4 }}>
+                  <CarCard car={car} />
+                </Grid>
+              ))
+            ) : (
+              <Grid size={12}>
+                <Typography variant="h6" color="text.secondary">
+                  Sajnos nincs elérhető autónk a megadott időszakra
+                </Typography>
+              </Grid>
+            )}
+          </Grid>
+        </Grid>
+
+      </Grid>
+    </Container>
+  );
 }
 
 export default Cars;

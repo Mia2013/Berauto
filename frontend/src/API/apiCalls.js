@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const endpoints ={
+export const endpoints = {
     login: "login",
     register: "register",
     cars: "cars",
