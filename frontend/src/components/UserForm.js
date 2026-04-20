@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import {
     Button, TextField, InputAdornment, IconButton,
     Box, Paper, FormControl, OutlinedInput, InputLabel,
-    Grid, Typography, Container, Divider
+    Grid, Typography, Container
 } from "@mui/material";
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
@@ -15,6 +15,7 @@ import { useAuth } from '../provider/AuthProvider';
 import ValidationCaption from './ValidationCaption';
 import CustomAlert from './CustomAlert';
 import TitleComponent from './TitleComponent';
+import FormDivider from './FormDivider';
 
 const UserForm = () => {
     const { user, isAuthenticated } = useAuth();
@@ -163,18 +164,15 @@ const UserForm = () => {
                                 />
                                 <TextField
                                     fullWidth label="Email cím"
-                                    type="email" inputRef={emailRef}
+                                    type="email" 
+                                    inputRef={emailRef}
                                     defaultValue={isAuthenticated ? user?.email : ''}
                                     error={!!validationErrors.email}
                                     helperText={validationErrors.email}
                                 />
                             </Box>
 
-                            <Divider sx={{ my: 1 }}>
-                                <Typography variant="caption" color="text.disabled">
-                                    {isAuthenticated ? "JELSZÓ MÓDOSÍTÁSA (OPCIONÁLIS)" : "JELSZÓ ADATOK"}
-                                </Typography>
-                            </Divider>
+                            <FormDivider text={isAuthenticated ? "JELSZÓ MÓDOSÍTÁSA (OPCIONÁLIS)" : "JELSZÓ ADATOK"} />
 
                             <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
                                 <FormControl variant="outlined" fullWidth error={!!validationErrors.password}>
@@ -205,9 +203,7 @@ const UserForm = () => {
                                 </FormControl>
                             </Box>
 
-                            <Divider sx={{ my: 1 }}>
-                                <Typography variant="caption" color="text.disabled">SZEMÉLYES ADATOK</Typography>
-                            </Divider>
+                            <FormDivider text="SZEMÉLYES ADATOK" />
 
                             <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
                                 <TextField fullWidth label="Vezetéknév" inputRef={lastNameRef} defaultValue={isAuthenticated ? user?.lastName : ''} error={!!validationErrors.lastName} helperText={validationErrors.lastName} />
