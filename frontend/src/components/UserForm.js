@@ -1,14 +1,14 @@
 import { useRef, useState } from 'react';
 import {
     Button, TextField, InputAdornment, IconButton,
-    Box, Paper, FormControl, OutlinedInput, InputLabel, 
+    Box, Paper, FormControl, OutlinedInput, InputLabel,
     Grid, Typography, Container, Divider
 } from "@mui/material";
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
 import Send from '@mui/icons-material/Send';
 import SaveIcon from '@mui/icons-material/Save';
- import LogoutIcon from '@mui/icons-material/Logout';
+import LogoutBtn from "./LogoutBtn";
 
 import { endpoints, postData } from '../API/apiCalls';
 import { useAuth } from '../provider/AuthProvider';
@@ -17,7 +17,7 @@ import CustomAlert from './CustomAlert';
 import TitleComponent from './TitleComponent';
 
 const UserForm = () => {
-    const { user, isAuthenticated, logOut } = useAuth();
+    const { user, isAuthenticated } = useAuth();
 
     const [showPassword, setShowPassword] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
@@ -146,15 +146,8 @@ const UserForm = () => {
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <TitleComponent title={UI.formTitle} />
                             {isAuthenticated && (
-                                <Button
-                                    variant="outlined"
-                                    color="inherit"
-                                    startIcon={<LogoutIcon />}
-                                    onClick={logOut}
-                                    sx={{ borderRadius: 2 }}
-                                >
-                                    Kijelentkezés
-                                </Button>
+                                <LogoutBtn />
+
                             )}
                         </Box>
 

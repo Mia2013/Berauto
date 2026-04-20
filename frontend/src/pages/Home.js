@@ -71,7 +71,7 @@ const Home = () => {
           )
         ) : (
           <Typography variant="h5" textAlign="center">
-            Üdvözöljük újra {user?.Name}! Jó utat kívánunk!
+            Üdvözöljük újra {user?.firstName} {user?.lastName}! Jó utat kívánunk!
           </Typography>
         )}
       </Box>
