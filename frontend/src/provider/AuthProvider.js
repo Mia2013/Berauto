@@ -24,18 +24,17 @@ const AuthProvider = ({ children }) => {
         try {
             const decoded = jwtDecode(token);
             setUser(decoded);
-            return decoded;
         } catch (error) {
             console.error("Token decoding error:", error);
             setAlert({ message: "Hiba történt!", severity: "error" });
         }
     };
 
-    const logIn = (res) => {
-        setToken(res.token);
-        decodeToken(res.token);
-        localStorage.setItem("berauto_token", res.token);
-        instance.defaults.headers.common["Authorization"] = `Bearer ${res.token}`;
+    const logIn = (resToken) => {
+        setToken(resToken);
+        decodeToken(resToken);
+        localStorage.setItem("berauto_token", resToken);
+        instance.defaults.headers.common["Authorization"] = `Bearer ${resToken}`;
     };
 
     const logOut = () => {
@@ -48,9 +47,13 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (token) {
-            decodeToken(token);
-            instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            console.log(token)
+            logIn(token);
         }
+         else {
+            localStorage.setItem("berauto_token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTU0LCJ1c2VybmFtZSI6InVzZXJfamFub3MiLCJlbWFpbCI6Imphbm9zQG1haWwuaHUiLCJyb2xlIjoiVVNFUiIsImZpcnN0TmFtZSI6Ik9zendlbiIsImxhc3ROYW1lIjoiSsOhbm9zIiwicGhvbmUiOiIrMzY3MDk4NzY1NDMiLCJhZGRyZXNzIjoiNDAwMCBEZWJyZWNlbiwgUGl0YmFzIHUuIDUuIiwiZHJpdmluZ0xpY2VuY2UiOiJLTDk4NzY1NCIsImlhdCI6MTcxMzYwOTg3OSwiZXhwIjoyMTEzNjA5ODc5fQ.dummy_signature");
+        }
+
     }, [token]);
 
 

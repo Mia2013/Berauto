@@ -1,17 +1,12 @@
 import React from 'react'
 import { Box, Container } from '@mui/material'
+ import UserForm from '../components/UserForm';
 
 const Profile = () => {
     return (
-        <Box sx={{ mt: 3 }}>
+       <Box>
             <Container>
-
-                <div>Profile</div>
-                <div>Profile</div>
-                <div>Profile</div>
-                <div>Profile</div>
-                <div>Profile</div>
-
+                <UserForm    />
             </Container>
         </Box>
     )
