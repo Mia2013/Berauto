@@ -1,4 +1,5 @@
 import React from "react";
+import { ROLES } from "../constants/constants";
 
 const Home = React.lazy(() => import("./Home"));
 const Register = React.lazy(() => import("./Register"));
@@ -6,44 +7,40 @@ const Profile = React.lazy(() => import("./Profile"));
 const Cars = React.lazy(() => import("./Cars"));
 const CarDetails = React.lazy(() => import("./CarDetails"));
 
-export const pagesForPublic = [
-  {
-    name: "Kezdőlap",
-    path: "/",
-    component: <Home />,
-    showInNavbar: true
-  },
-  {
-    name: "Regisztáció",
-    path: "/register",
-    component: <Register />,
-    showInNavbar: true
-
-  },
-  {
-    name: "Autók",
-    path: "/cars",
-    component: <Cars />,
-    showInNavbar: true
-
-  },
-  {
-    name: "Autó részletek",
-    path: "/model/:carId",
-    component: <CarDetails />,
-    showInNavbar: false
-  },
-];
-
-
-export const pagesForAuthenticatedOnly = [
-  {
-    name: "Profil",
-    path: "/profile",
-    component: <Profile />,
-    showInNavbar: true
-
-  }
-
-
+export const allPages = [
+    {
+        name: "Kezdőlap",
+        path: "/",
+        component: <Home />,
+        showInNavbar: true,
+        roles: [ROLES.GUEST, ROLES.USER, ROLES.ADMIN, ROLES.UGYINTEZO]
+    },
+    {
+        name: "Regisztráció",
+        path: "/register",
+        component: <Register />,
+        showInNavbar: true,
+        roles: [ROLES.GUEST]
+    },
+    {
+        name: "Autók",
+        path: "/cars",
+        component: <Cars />,
+        showInNavbar: true,
+        roles: [ROLES.GUEST, ROLES.USER, ROLES.ADMIN, ROLES.UGYINTEZO]
+    },
+    {
+        name: "Profil",
+        path: "/profile",
+        component: <Profile />,
+        showInNavbar: true,
+        roles: [ROLES.USER, ROLES.ADMIN, ROLES.UGYINTEZO]
+    },
+    {
+        name: "Autó részletek",
+        path: "/model/:carId",
+        component: <CarDetails />,
+        showInNavbar: false,
+        roles: [ROLES.GUEST, ROLES.USER, ROLES.ADMIN, ROLES.UGYINTEZO]
+    }
 ];

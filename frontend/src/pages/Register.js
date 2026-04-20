@@ -1,12 +1,12 @@
 import React from 'react'
 import { Box, Container } from '@mui/material'
-import RegisterForm from "../components/RegisterForm";
+import UserForm from "../components/UserForm";
 
 const Register = () => {
     return (
         <Box>
             <Container>
-                <RegisterForm />
+                <UserForm />
             </Container>
         </Box>
     )

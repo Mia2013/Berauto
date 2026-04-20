@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { instance } from "../API/apiCalls";
 import { ROLES } from "../constants/constants";
+
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
@@ -20,22 +21,21 @@ const AuthProvider = ({ children }) => {
     }), [user, token]);
 
 
-    const decodeToken = (token) => {
+    const decodeToken = (_token) => {
         try {
-            const decoded = jwtDecode(token);
+            const decoded = jwtDecode(_token);
             setUser(decoded);
-            return decoded;
         } catch (error) {
             console.error("Token decoding error:", error);
             setAlert({ message: "Hiba történt!", severity: "error" });
         }
     };
 
-    const logIn = (res) => {
-        setToken(res.token);
-        decodeToken(res.token);
-        localStorage.setItem("berauto_token", res.token);
-        instance.defaults.headers.common["Authorization"] = `Bearer ${res.token}`;
+    const logIn = (resToken) => {
+        setToken(resToken);
+        decodeToken(resToken);
+        localStorage.setItem("berauto_token", resToken);
+        instance.defaults.headers.common["Authorization"] = `Bearer ${resToken}`;
     };
 
     const logOut = () => {
@@ -48,25 +48,18 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (token) {
-            decodeToken(token);
-            instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            logIn(token);
+        } else {
+            const testToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTU0LCJ1c2VybmFtZSI6InVzZXJfamFub3MiLCJlbWFpbCI6Imphbm9zQG1haWwuaHUiLCJyb2xlIjoidXNlciIsImZpcnN0TmFtZSI6Ik9zendlbiIsImxhc3ROYW1lIjoiSsOhbm9zIiwicGhvbmUiOiIrMzY3MDk4NzY1NDMiLCJhZGRyZXNzIjoiNDAwMCBEZWJyZWNlbiwgUGl0YmFzIHUuIDUuIiwiZHJpdmluZ0xpY2VuY2UiOiJLTDk4NzY1NCIsImlhdCI6MTcxMzYwOTg3OSwiZXhwIjoyMTEzNjA5ODc5fQ.dummy_signature";
+            logIn(testToken);
         }
-    }, [token]);
-
-
+    }, []);
 
     return (
         <AuthContext.Provider value={{
-            token,
-            user,
-            isAdmin,
-            isUgyintezo,
-            isUser,
-            isAuthenticated,
-            logIn,
-            logOut,
-            alert,
-            setAlert
+            token, user,
+            isAdmin, isUgyintezo, isUser, isAuthenticated,
+            logIn, logOut, alert, setAlert
         }}>
             {children}
         </AuthContext.Provider>
@@ -74,7 +67,4 @@ const AuthProvider = ({ children }) => {
 };
 
 export default AuthProvider;
-
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
