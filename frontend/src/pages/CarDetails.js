@@ -75,7 +75,7 @@ const CarDetails = () => {
                     {carDetails.brand}
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
-                    {carDetails.modell}
+                    {carDetails.model}
                   </Typography>
                 </Box>
 
@@ -137,7 +137,7 @@ const CarDetails = () => {
         <Box ref={formRef}>
           <RentCarForm
             carBrand={carDetails.brand}
-            carModell={carDetails.modell}
+            carModel={carDetails.model}
             carId={carDetails.id}
             setShowRentCartForm={setShowRentCartForm}
           />

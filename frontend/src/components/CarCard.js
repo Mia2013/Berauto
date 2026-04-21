@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Card, CardMedia, CardContent, Typography, CardActionArea, Box } from '@mui/material';
 
 const CarCard = ({ car }) => {
-    const { brand, modell, fuel, img, year, id } = car;
+    const { brand, model, fuel, img, year, id } = car;
 
     return (
         <Card sx={{
@@ -36,7 +36,7 @@ const CarCard = ({ car }) => {
                         {brand}
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                        {modell}
+                        {model}
                     </Typography>
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>

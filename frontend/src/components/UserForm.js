@@ -146,10 +146,7 @@ const UserForm = () => {
                     <Grid size={{ xs: 12, md: 8 }} sx={{ p: { xs: 3, md: 6 }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <TitleComponent title={UI.formTitle} />
-                            {isAuthenticated && (
-                                <LogoutBtn />
-
-                            )}
+                            <LogoutBtn />
                         </Box>
 
                         <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -164,7 +161,7 @@ const UserForm = () => {
                                 />
                                 <TextField
                                     fullWidth label="Email cím"
-                                    type="email" 
+                                    type="email"
                                     inputRef={emailRef}
                                     defaultValue={isAuthenticated ? user?.email : ''}
                                     error={!!validationErrors.email}

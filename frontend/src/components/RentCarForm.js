@@ -12,7 +12,7 @@ import CarRentalIcon from '@mui/icons-material/CarRental';
 import TitleComponent from './TitleComponent';
 import FormDivider from './FormDivider';
 
-const RentCarForm = ({ carBrand, carModell, setShowRentCartForm, carId }) => {
+const RentCarForm = ({ carBrand, carModel, setShowRentCartForm, carId }) => {
     const { user, isUser } = useAuth();
 
     const firstNameRef = useRef();
@@ -54,7 +54,7 @@ const RentCarForm = ({ carBrand, carModell, setShowRentCartForm, carId }) => {
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="hu">
             <Paper elevation={3} sx={{ p: 3, borderRadius: 4, mt: 3 }}>
-                <TitleComponent title={`Foglalás véglegesítése: ${carBrand} ${carModell}`} />
+                <TitleComponent title={`Foglalás véglegesítése: ${carBrand} ${carModel}`} />
 
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     <FormDivider text="IDŐSZAK" />

@@ -6,7 +6,9 @@ export const endpoints = {
     cars: "cars",
     rents: "rents",
     profile: "profile",
-    addNewCar: "addNewCar"
+    addNewCar: "add-new-car",
+    updateCarRent: "update-car-rent",
+    getInvoice: "get-invoice"
 }
 
 export const instance = axios.create({
