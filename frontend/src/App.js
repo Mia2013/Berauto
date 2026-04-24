@@ -5,6 +5,7 @@ import { CssBaseline } from "@mui/material";
 import { allPages } from "./pages/pages";
 import Navigation from "./components/Nav";
 import Loading from "./components/Loading";
+import Footer from "./components/Footer";
 function App() {
 
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Suspense>
+      <Footer />
     </div>
   );
 }

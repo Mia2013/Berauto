@@ -28,7 +28,6 @@ const ManageRentals = () => {
         const current = STATUS_UI[status];
         if (current) {
             return <Chip label={current.label} color={current.color} size="small" variant="outlined" />;
-
         }
     };
 
@@ -56,90 +55,96 @@ const ManageRentals = () => {
                 </Tooltip>
             ),
             [RENT_STATUSES.IN_PROGRESS]: (
-                <Tooltip title="Visszavétel">
+                <Tooltip title="Autó visszavétele">
                     <IconButton color="warning" onClick={() => updateRentStatus(rent.id, RENT_STATUSES.RETURNED)}>
                         <AssignmentReturnIcon />
                     </IconButton>
                 </Tooltip>
             ),
             [RENT_STATUSES.RETURNED]: (
-                <Tooltip title="Számlázás készítése">
+                <Tooltip title="Számlázás">
                     <IconButton color="info" onClick={() => navigate("/invoice", { state: { rent } })}>
                         <ReceiptIcon />
                     </IconButton>
                 </Tooltip>
             )
         };
-
-        return actionMap[rent.status] || null;
+        return actionMap[rent.status];
     };
 
     const columns = useMemo(() => [
         {
+            field: 'actions',
+            headerName: 'Műveletek',
+            minWidth: 120,
+            sortable: false,
+            renderCell: (params) => getStatusActions(params.row),
+            filterable: false
+        },
+        {
+            field: 'status',
+            headerName: 'Státusz',
+            minWidth: 120,
+            renderCell: (params) => getStatusChip(params.value)
+        },
+
+        {
             field: 'user',
             headerName: 'Bérlő',
-            flex: 1.2,
             minWidth: 150,
             valueGetter: (params) => `${params.lastName} ${params.firstName}`
         },
         {
             field: 'phone',
             headerName: 'Telefonszám',
-            flex: 1,
-            minWidth: 120,
+            minWidth: 130,
             valueGetter: (params, row) => row.user.phone
         },
         {
             field: 'email',
             headerName: 'Email cím',
-            flex: 1.5,
-            minWidth: 180,
+            minWidth: 200,
             valueGetter: (params, row) => row.user.email
         },
         {
             field: 'brand',
             headerName: 'Márka',
-            flex: 1,
-            minWidth: 100,
+            minWidth: 110,
             valueGetter: (params, row) => row.car.brand
         },
         {
             field: 'model',
             headerName: 'Modell',
-            flex: 1,
-            minWidth: 100,
+            minWidth: 110,
             valueGetter: (params, row) => row.car.model
         },
         {
             field: 'plate',
             headerName: 'Rendszám',
-            flex: 0.8,
             minWidth: 100,
-            valueGetter: (params, row) => row.car.registrationName
-        },
-        { field: 'startDate', headerName: 'Kezdete', flex: 1, minWidth: 110 },
-        { field: 'endDate', headerName: 'Vége', flex: 1, minWidth: 110 },
-        {
-            field: 'status',
-            headerName: 'Státusz',
-            flex: 1.2,
-            minWidth: 130,
-            renderCell: (params) => getStatusChip(params.value)
+            valueGetter: (params, row) => row.car.plate
         },
         {
-            field: 'actions',
-            headerName: 'Műveletek',
-            flex: 1,
-            minWidth: 120,
-            sortable: false,
-            renderCell: (params) => getStatusActions(params.row)
-        }
+            field: 'startDate',
+            headerName: 'Kezdete',
+            minWidth: 110
+        },
+        {
+            field: 'endDate',
+            headerName: 'Vége',
+            minWidth: 110
+        },
+        {
+            field: 'endDate',
+            headerName: 'Vége',
+            minWidth: 110
+        },
+
     ], [updateRentStatus, generateInvoice]);
 
     return (
-        <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box sx={{ p: 3 }}>
             <TitleComponent title="Bérlések kezelése" />
-
             <DataGrid
                 rows={rents}
                 columns={columns}
@@ -147,13 +152,12 @@ const ManageRentals = () => {
                 initialState={{
                     pagination: { paginationModel: { pageSize: 10 } },
                 }}
-                pageSizeOptions={[5, 10, 25, 50]}
+                pageSizeOptions={[5, 10, 25, 50, 100]}
                 disableRowSelectionOnClick
-
             />
 
             {alert && <CustomAlert alert={alert} setAlert={setAlert} />}
-        </Container>
+        </Box>
     );
 };
 

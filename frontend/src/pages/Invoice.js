@@ -33,7 +33,7 @@ const Invoice = () => {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Container maxWidth="lg" sx={{ py: 3 }}>
             <Button
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(-1)}
@@ -76,7 +76,7 @@ const Invoice = () => {
                             variant="h6"
                         > BÉRLEMÉNY</Typography>
                         <Typography variant="h6">Márka, típus: {rent.car.brand} {rent.car.model}</Typography>
-                        <Typography variant="h6">Rendszám: {rent.car.registrationName}</Typography>
+                        <Typography variant="h6">Rendszám: {rent.car.plate}</Typography>
                         <Typography variant="h6">Időszak: {rent.startDate} - {rent.endDate}</Typography>
                     </Grid>
 

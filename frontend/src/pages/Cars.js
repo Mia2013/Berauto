@@ -25,7 +25,7 @@ const Cars = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 6 }}>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
       <Box sx={{ mb: 4 }}>
         <TitleComponent title="Elérhető flottánk" />
       </Box>
@@ -43,7 +43,7 @@ const Cars = () => {
         <Grid size={{ xs: 12, md: 9, }}>
           <Grid container spacing={3}>
             {cars.length > 0 ? (
-              cars.map((car) => (
+              cars.filter(car=>car.isRentable === true).map((car) => (
                 <Grid key={car.id} size={{ xs: 12, sm: 6, lg: 4 }}>
                   <CarCard car={car} />
                 </Grid>

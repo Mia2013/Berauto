@@ -114,7 +114,7 @@ const UserForm = () => {
 
 
     return (
-        <Container sx={{ py: 4 }}>
+        <Container>
             <Paper elevation={6} sx={{ overflow: 'hidden', borderRadius: 4 }}>
                 <Grid container>
                     <Grid size={{ xs: 12, md: 4 }} sx={{ position: 'relative' }}>

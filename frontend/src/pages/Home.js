@@ -1,80 +1,91 @@
-import { Box, Container, Typography, Divider } from '@mui/material';
+import { Box, Container, Typography, Divider, Grid, Button, Paper } from '@mui/material';
 import LoginForm from "../components/LoginForm";
 import { useAuth } from '../provider/AuthProvider';
 import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+
 const Home = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isUser } = useAuth();
 
   return (
-    <Box sx={{
-      mt: { xs: 4, md: 8 },
-      mb: 4,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center'
-    }}>
-      <Container maxWidth="md">
-        <Box sx={{ textAlign: 'center', mb: 5 }}>
-          <DirectionsCarFilledIcon sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
+    <Box>
+      <Paper
+        elevation={0}
+        sx={{
+          background: 'linear-gradient(135deg, #fff 0%, #e5e9f0 100%)',
+          borderRadius: 0,
+          mb:8
+        }}
+      >
+        <Grid container spacing={0} sx={{ minHeight: '600px', alignItems: 'center' }}>
+          <Grid size={{ xs: 12, md: 6 }} sx={{ p: { xs: 4, md: 8 } }}>
 
-          <Typography
-            variant="h3"
-            component="h1"
-            gutterBottom
-            sx={{ fontWeight: 'bold', color: 'text.primary' }}
-          >
-            Útrakész szabadság, bárhol, bármikor
-          </Typography>
+            <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 2 }}>
+              Prémium Autókölcsönzés
+            </Typography>
+            <Typography variant="h2" sx={{ fontWeight: 900,   mb: 3 }}>
+              Útrakész szabadság, <br />
+              <span style={{ color: 'primary.main' }}>bárhol, bármikor</span>
+            </Typography>
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 4, fontWeight: 300 }}>
+              Válasszon prémium flottánkból, és élvezze a gondtalan autózás élményét.
+              Regisztrált tagként exkluzív kedvezményekkel várjuk.
+            </Typography>
+          </Grid>
+          <Grid size={{ xs: 12, md: 6 }} sx={{ height: '100%', position: 'relative' }}>
+            <Box
+              component="img"
+              sx={{
+                width: '100%',
+                height: '600px',
+                objectFit: 'cover',
+                clipPath: { md: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)' },
+                display: { xs: 'none', md: 'block' }
+              }}
+              src={`${process.env.PUBLIC_URL}/bmw.jpg`} // Ide tegyél egy jó minőségű képet
+              alt="Premium car"
+            />
+          </Grid>
+        </Grid>
+      </Paper>
 
-          <Typography
-            variant="h6"
-            color="text.secondary"
-            sx={{ mb: 3, fontWeight: '400', maxWidth: '700px', mx: 'auto' }}
-          >
-            Válasszon prémium flottánkból, és élvezze a gondtalan autózás élményét.
-            Regisztrált tagként exkluzív kedvezményekkel és villámgyors foglalással várjuk.
-          </Typography>
-
-          <Divider sx={{ width: '100px', mx: 'auto', borderBottomWidth: 3, bgcolor: 'primary.main' }} />
-        </Box>
-      </Container>
-
-      <Box>
+      <Container maxWidth="lg" sx={{ mb: 10 }}>
         {!isAuthenticated ? (
-          (
-            <>
-              <Box sx={{
-                maxWidth: 500,
-                mx: 'auto',
-                mb: -2,
-                textAlign: 'center',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 1
-              }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'info.main' }}>
-                  <InfoOutlinedIcon fontSize="small" />
-                  <Typography variant="button" sx={{ fontWeight: "bolder" }}>
-                    Személyes fiók
+          <Grid container spacing={4} alignItems="center">
+            <Grid size={{ xs: 12, md: 6 }}>
+              <Box sx={{ p: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'primary.main', mb: 2 }}>
+                  <InfoOutlinedIcon />
+                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                    Személyes fiók kezelése
                   </Typography>
                 </Box>
-
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                  A korábbi foglalásai kezeléséhez, a bérlési előzmények megtekintéséhez vagy új autó kölcsönzéséhez, kérjük, jelentkezzen be.
+                <Typography variant="body1" color="text.secondary" paragraph>
+                  A korábbi foglalásai kezeléséhez, a bérlési előzmények megtekintéséhez
+                  vagy új autó kölcsönzéséhez, kérjük, jelentkezzen be.
                 </Typography>
+                <Divider sx={{ my: 3, width: '50px', borderBottomWidth: 3, bgcolor: 'primary.main' }} />
               </Box>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
               <LoginForm />
-
-            </>
-          )
+            </Grid>
+          </Grid>
         ) : (
-          <Typography variant="h5" textAlign="center">
-            Üdvözöljük újra {user?.firstName} {user?.lastName}! Jó utat kívánunk!
-          </Typography>
+          isUser && (
+            <Paper elevation={2} sx={{ p: 6, textAlign: 'center', borderRadius: 4 }}>
+              <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
+                Üdvözöljük újra, {user?.firstName}!
+              </Typography>
+              <Typography color="text.secondary">
+                Készen áll a következő kalandra? Fedezze fel aktuális kínálatunkat!
+              </Typography>
+              <Button variant="contained" sx={{ mt: 3 }}>Böngészés</Button>
+            </Paper>
+          )
         )}
-      </Box>
+      </Container>
     </Box>
   );
 };

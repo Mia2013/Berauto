@@ -4,39 +4,39 @@ const CarRentContext = createContext();
 
 const CarRentProvider = ({ children }) => {
     const [cars, setCars] = useState([
-        { id: 1, registrationName: "ABC-123", brand: "Toyota", model: "Rav4", fuel: "Benzin", img: "ToyotaRav4.jpg", year: "2022" },
-        { id: 2, registrationName: "XYZ-987", brand: "Tesla", model: "Model 3", fuel: "Elektromos", img: "TeslaModel3.jpg", year: "2024" },
-        { id: 3, registrationName: "XML-136", brand: "BMW", model: "2", fuel: "Benzin", img: "BMW2.jpg", year: "2023" },
-        { id: 4, registrationName: "RUN-001", brand: "Ford", model: "Focus", fuel: "Benzin", img: "FordFocus.jpg", year: "2021" },
-        { id: 5, registrationName: "ECO-100", brand: "Hyundai", model: "Ioniq", fuel: "Elektromos", img: "HyundaiIoniq.jpg", year: "2025" },
-        { id: 6, registrationName: "QWE-456", brand: "Volkswagen", model: "Golf", fuel: "Dízel", img: "VolkswagenGolf.jpg", year: "2020" },
+        { id: 1, plate: "ABC-123", brand: "Toyota", model: "Rav4", fuel: "Benzin", img: "ToyotaRav4.jpg", year: "2022", miles: 5000, isRentable: true },
+        { id: 2, plate: "XYZ-987", brand: "Tesla", model: "Model 3", fuel: "Elektromos", img: "TeslaModel3.jpg", year: "2024", miles: 45000, isRentable: true },
+        { id: 3, plate: "XML-136", brand: "BMW", model: "2", fuel: "Benzin", img: "BMW2.jpg", year: "2023", miles: 10000, isRentable: true },
+        { id: 4, plate: "RUN-001", brand: "Ford", model: "Focus", fuel: "Benzin", img: "FordFocus.jpg", year: "2021", miles: 145000, isRentable: true },
+        { id: 5, plate: "ECO-100", brand: "Hyundai", model: "Ioniq", fuel: "Elektromos", img: "HyundaiIoniq.jpg", year: "2025", miles: 1500, isRentable: true },
+        { id: 6, plate: "QWE-456", brand: "Volkswagen", model: "Golf", fuel: "Dízel", img: "VolkswagenGolf.jpg", year: "2020", miles: 245000, isRentable: false },
     ]);
-    
+
     const [alert, setAlert] = useState();
     const [carDetails, setCarDetails] = useState(null);
     const [rents, setRents] = useState([
         {
             id: 101,
             user: { firstName: "János", lastName: "Kovács", email: "kovacs.janos@email.hu", phone: "+36201234567" },
-            car: { brand: "Toyota", model: "Rav4", registrationName: "ABC-123" },
+            car: { brand: "Toyota", model: "Rav4", plate: "ABC-123" },
             startDate: "2024.04.20", endDate: "2024.04.25", status: "PENDING"
         },
         {
             id: 102,
             user: { firstName: "Petra", lastName: "Nagy", email: "nagy.petra@teszt.hu", phone: "+36309876543" },
-            car: { brand: "Tesla", model: "Model 3", registrationName: "XYZ-987" },
+            car: { brand: "Tesla", model: "Model 3", plate: "XYZ-987" },
             startDate: "2024.04.22", endDate: "2024.04.28", status: "APPROVED"
         },
         {
             id: 103,
             user: { firstName: "Béla", lastName: "Szabó", email: "szabo.bela@citromail.hu", phone: "+36701112233" },
-            car: { brand: "BMW", model: "2", registrationName: "XML-136" },
+            car: { brand: "BMW", model: "2", plate: "XML-136" },
             startDate: "2024.04.15", endDate: "2024.04.20", status: "IN_PROGRESS"
         },
         {
             id: 104,
             user: { firstName: "Erika", lastName: "Tóth", email: "toth.erika@pro.hu", phone: "+36205556677" },
-            car: { brand: "Volkswagen", model: "Golf", registrationName: "QWE-456" },
+            car: { brand: "Volkswagen", model: "Golf", plate: "QWE-456" },
             startDate: "2024.04.10", endDate: "2024.04.14", status: "RETURNED"
         }
     ]);
