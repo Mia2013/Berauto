@@ -6,7 +6,7 @@ const Register = () => {
     return (
         <Box sx={{ py: 3 }}>
             <Container>
-                <UserForm />
+                <UserForm IsRegisterForm={true} />
             </Container>
         </Box>
     )

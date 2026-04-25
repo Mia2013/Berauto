@@ -6,7 +6,7 @@ const Profile = () => {
     return (
         <Box sx={{ py: 3 }}>
             <Container>
-                <UserForm />
+                <UserForm IsRegisterForm={false}/>
             </Container>
         </Box>
     )

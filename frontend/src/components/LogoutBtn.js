@@ -3,9 +3,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from "../provider/AuthProvider";
 
 const LogoutBtn = () => {
-    const { logOut, isUser } = useAuth();
+    const { logOut, isAuthenticated } = useAuth();
 
-    if (isUser) {
+    if (isAuthenticated) {
         return (
             <Button
                 variant="text"
