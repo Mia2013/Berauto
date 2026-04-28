@@ -17,7 +17,6 @@ const TitleComponent = ({ title, marginY=3 }) => {
                     fontWeight: 800,
                     letterSpacing: ".1rem",
                     color: "primary.main",
-                    textDecoration: "none",
                     textTransform: "uppercase"
                 }}
             >

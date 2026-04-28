@@ -1,12 +1,12 @@
 import React from 'react'
 import { Box, Container } from '@mui/material'
- import UserForm from '../components/UserForm';
+import UserForm from '../components/UserForm';
 
 const Profile = () => {
     return (
-       <Box>
+        <Box  >
             <Container>
-                <UserForm    />
+                <UserForm IsRegisterForm={false}/>
             </Container>
         </Box>
     )

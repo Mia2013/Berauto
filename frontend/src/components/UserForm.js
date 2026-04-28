@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import {
     Button, TextField, InputAdornment, IconButton,
     Box, Paper, FormControl, OutlinedInput, InputLabel,
-    Grid, Typography, Container, Divider
+    Grid, Typography, Container
 } from "@mui/material";
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
@@ -15,9 +15,10 @@ import { useAuth } from '../provider/AuthProvider';
 import ValidationCaption from './ValidationCaption';
 import CustomAlert from './CustomAlert';
 import TitleComponent from './TitleComponent';
+import FormDivider from './FormDivider';
 
-const UserForm = () => {
-    const { user, isAuthenticated } = useAuth();
+const UserForm = ({IsRegisterForm }) => {
+    const { user, isUser, isAuthenticated } = useAuth();
 
     const [showPassword, setShowPassword] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
@@ -34,11 +35,11 @@ const UserForm = () => {
     const licenseRef = useRef();
 
     const UI = {
-        formTitle: isAuthenticated ? "Profil szerkesztése" : "Regisztráció",
-        submitBtn: isAuthenticated ? "Módosítások mentése" : "Fiók létrehozása",
-        submitIcon: isAuthenticated ? <SaveIcon /> : <Send />,
-        imgTitle: isAuthenticated ? <>Saját <br /> Profil</> : <>Készen állsz <br /> az útra?</>,
-        imgSubTitle: isAuthenticated ? "Tartsa naprakészen adatait a bérléshez" : "Regisztrálj és foglald le álmaid autóját percek alatt",
+        formTitle: !IsRegisterForm ? "Profil szerkesztése" : "Regisztráció",
+        submitBtn: !IsRegisterForm ? "Módosítások mentése" : "Fiók létrehozása",
+        submitIcon: !IsRegisterForm ? <SaveIcon /> : <Send />,
+        imgTitle: !IsRegisterForm ? <>Saját <br /> Profil</> : <>Készen állsz <br /> az útra?</>,
+        imgSubTitle: !IsRegisterForm ? "Tartsa naprakészen adatait a bérléshez" : "Regisztrálj és foglald le álmaid autóját percek alatt",
     };
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -86,7 +87,7 @@ const UserForm = () => {
         e.preventDefault();
 
         const formData = {
-            username: userNameRef.current?.value,
+            username: isAuthenticated ?  user.userName : userNameRef.current.value,
             email: emailRef.current.value,
             password: passwordRef.current.value,
             confirmPassword: confirmPasswordRef.current.value,
@@ -104,7 +105,7 @@ const UserForm = () => {
             return;
         }
 
-        if (isAuthenticated) {
+        if (isUser) {
             handleUpdate(formData);
         } else {
             handleRegister(formData);
@@ -113,7 +114,7 @@ const UserForm = () => {
 
 
     return (
-        <Container sx={{ py: 4 }}>
+        <Container>
             <Paper elevation={6} sx={{ overflow: 'hidden', borderRadius: 4 }}>
                 <Grid container>
                     <Grid size={{ xs: 12, md: 4 }} sx={{ position: 'relative' }}>
@@ -145,10 +146,7 @@ const UserForm = () => {
                     <Grid size={{ xs: 12, md: 8 }} sx={{ p: { xs: 3, md: 6 }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                             <TitleComponent title={UI.formTitle} />
-                            {isAuthenticated && (
-                                <LogoutBtn />
-
-                            )}
+                            <LogoutBtn />
                         </Box>
 
                         <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -156,33 +154,30 @@ const UserForm = () => {
                                 <TextField
                                     fullWidth label="Felhasználónév"
                                     inputRef={userNameRef}
-                                    defaultValue={isAuthenticated ? user?.username : ''}
+                                    defaultValue={isUser ? user?.username : ''}
                                     disabled={isAuthenticated}
                                     error={!!validationErrors.username}
                                     helperText={isAuthenticated ? "A felhasználónév nem módosítható" : validationErrors.username}
                                 />
                                 <TextField
                                     fullWidth label="Email cím"
-                                    type="email" inputRef={emailRef}
-                                    defaultValue={isAuthenticated ? user?.email : ''}
+                                    type="email"
+                                    inputRef={emailRef}
+                                    defaultValue={isUser ? user?.email : ''}
                                     error={!!validationErrors.email}
                                     helperText={validationErrors.email}
                                 />
                             </Box>
 
-                            <Divider sx={{ my: 1 }}>
-                                <Typography variant="caption" color="text.disabled">
-                                    {isAuthenticated ? "JELSZÓ MÓDOSÍTÁSA (OPCIONÁLIS)" : "JELSZÓ ADATOK"}
-                                </Typography>
-                            </Divider>
+                            <FormDivider text={isUser ? "JELSZÓ MÓDOSÍTÁSA (OPCIONÁLIS)" : "JELSZÓ ADATOK"} />
 
                             <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
                                 <FormControl variant="outlined" fullWidth error={!!validationErrors.password}>
-                                    <InputLabel> {isAuthenticated ? "Új jelszó" : "Jelszó*"}</InputLabel>
+                                    <InputLabel> {isUser ? "Új jelszó" : "Jelszó*"}</InputLabel>
                                     <OutlinedInput
                                         inputRef={passwordRef}
                                         type={showPassword ? 'text' : 'password'}
-                                        label={isAuthenticated ? "Új jelszó" : "Jelszó*"}
+                                        label={isUser ? "Új jelszó" : "Jelszó*"}
                                         endAdornment={
                                             <InputAdornment position="end">
                                                 <IconButton onClick={handleClickShowPassword} edge="end">
@@ -195,30 +190,28 @@ const UserForm = () => {
                                 </FormControl>
 
                                 <FormControl variant="outlined" fullWidth error={!!validationErrors.confirmPassword}>
-                                    <InputLabel> {isAuthenticated ? "Új jelszó újra" : "Jelszó újra*"}</InputLabel>
+                                    <InputLabel> {isUser ? "Új jelszó újra" : "Jelszó újra*"}</InputLabel>
                                     <OutlinedInput
                                         inputRef={confirmPasswordRef}
                                         type={showPassword ? 'text' : 'password'}
-                                        label={isAuthenticated ? "Új jelszó újra" : "Jelszó újra*"}
+                                        label={isUser ? "Új jelszó újra" : "Jelszó újra*"}
                                     />
                                     {validationErrors.confirmPassword && <ValidationCaption message={validationErrors.confirmPassword} />}
                                 </FormControl>
                             </Box>
 
-                            <Divider sx={{ my: 1 }}>
-                                <Typography variant="caption" color="text.disabled">SZEMÉLYES ADATOK</Typography>
-                            </Divider>
+                            <FormDivider text="SZEMÉLYES ADATOK" />
 
                             <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
-                                <TextField fullWidth label="Vezetéknév" inputRef={lastNameRef} defaultValue={isAuthenticated ? user?.lastName : ''} error={!!validationErrors.lastName} helperText={validationErrors.lastName} />
-                                <TextField fullWidth label="Keresztnév" inputRef={firstNameRef} defaultValue={isAuthenticated ? user?.firstName : ''} error={!!validationErrors.firstName} helperText={validationErrors.firstName} />
+                                <TextField fullWidth label="Vezetéknév" inputRef={lastNameRef} defaultValue={isUser ? user?.lastName : ''} error={!!validationErrors.lastName} helperText={validationErrors.lastName} />
+                                <TextField fullWidth label="Keresztnév" inputRef={firstNameRef} defaultValue={isUser ? user?.firstName : ''} error={!!validationErrors.firstName} helperText={validationErrors.firstName} />
                             </Box>
 
-                            <TextField fullWidth label="Lakcím" inputRef={addressRef} defaultValue={isAuthenticated ? user?.address : ''} variant="outlined" />
+                            <TextField fullWidth label="Lakcím" inputRef={addressRef} defaultValue={isUser ? user?.address : ''} variant="outlined" />
 
                             <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
-                                <TextField fullWidth label="Telefonszám" defaultValue={isAuthenticated ? user?.phone : ''} inputRef={phoneRef} />
-                                <TextField fullWidth label="Jogosítvány száma" defaultValue={isAuthenticated ? user?.drivingLicence : ''} inputRef={licenseRef} />
+                                <TextField fullWidth label="Telefonszám" defaultValue={isUser ? user?.phone : ''} inputRef={phoneRef} />
+                                <TextField fullWidth label="Jogosítvány száma" defaultValue={isUser ? user?.drivingLicence : ''} inputRef={licenseRef} />
                             </Box>
 
                             <Button

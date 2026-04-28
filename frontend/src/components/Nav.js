@@ -11,7 +11,7 @@ const Navigation = () => {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
   const homePage = allPages.filter(q => q.path === "/")[0];
-
+  console.log(user);
   const navPages = useMemo(() => {
     const currentRole = user?.role || ROLES.GUEST;
     return allPages.filter(page =>
@@ -36,9 +36,8 @@ const Navigation = () => {
             >
               <TitleComponent title="Bérautó" marginY={0} />
             </Box>
-            {isAuthenticated && (
-              <LogoutBtn />
-            )}
+            <LogoutBtn />
+
           </Box>
 
           <Box sx={{ display: "flex", gap: 1 }}>

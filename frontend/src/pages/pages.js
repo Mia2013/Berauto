@@ -6,6 +6,8 @@ const Register = React.lazy(() => import("./Register"));
 const Profile = React.lazy(() => import("./Profile"));
 const Cars = React.lazy(() => import("./Cars"));
 const CarDetails = React.lazy(() => import("./CarDetails"));
+const ManageRentals = React.lazy(() => import("./ManageRentals"));
+const Invoice = React.lazy(() => import("./Invoice"));
 
 export const allPages = [
     {
@@ -20,7 +22,7 @@ export const allPages = [
         path: "/register",
         component: <Register />,
         showInNavbar: true,
-        roles: [ROLES.GUEST]
+        roles: [ROLES.GUEST, ROLES.UGYINTEZO, ROLES.ADMIN,]
     },
     {
         name: "Autók",
@@ -34,7 +36,7 @@ export const allPages = [
         path: "/profile",
         component: <Profile />,
         showInNavbar: true,
-        roles: [ROLES.USER, ROLES.ADMIN, ROLES.UGYINTEZO]
+        roles: [ROLES.USER]
     },
     {
         name: "Autó részletek",
@@ -42,5 +44,19 @@ export const allPages = [
         component: <CarDetails />,
         showInNavbar: false,
         roles: [ROLES.GUEST, ROLES.USER, ROLES.ADMIN, ROLES.UGYINTEZO]
-    }
+    },
+    {
+        name: "Bérlések kezelése",
+        path: "/manage-rents",
+        component: <ManageRentals />,
+        showInNavbar: true,
+        roles: [ROLES.UGYINTEZO, ROLES.ADMIN]
+    },
+    {
+        name: "Számlázás",
+        path: "/invoice",
+        component: <Invoice />,
+        showInNavbar: false,
+        roles: [ROLES.UGYINTEZO, ROLES.ADMIN]
+    },
 ];

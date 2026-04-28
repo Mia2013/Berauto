@@ -10,8 +10,9 @@ import { useAuth } from '../provider/AuthProvider';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CarRentalIcon from '@mui/icons-material/CarRental';
 import TitleComponent from './TitleComponent';
+import FormDivider from './FormDivider';
 
-const RentCarForm = ({ carBrand, carModell, setShowRentCartForm, carId }) => {
+const RentCarForm = ({ carBrand, carModel, setShowRentCartForm, carId }) => {
     const { user, isUser } = useAuth();
 
     const firstNameRef = useRef();
@@ -19,6 +20,7 @@ const RentCarForm = ({ carBrand, carModell, setShowRentCartForm, carId }) => {
     const phoneRef = useRef();
     const addressRef = useRef();
     const licenseRef = useRef();
+    const emailRef = useRef();
 
     const tomorrowEightAM = dayjs().add(1, 'day').hour(8).minute(0).second(0).millisecond(0);
     const [startDateTime, setStartDateTime] = useState(tomorrowEightAM);
@@ -37,7 +39,8 @@ const RentCarForm = ({ carBrand, carModell, setShowRentCartForm, carId }) => {
                 lastName: lastNameRef.current.value,
                 phone: phoneRef.current.value,
                 address: addressRef.current.value,
-                licenseNumber: licenseRef.current.value
+                licenseNumber: licenseRef.current.value,
+                email: emailRef.current.value
             },
         };
 
@@ -51,9 +54,10 @@ const RentCarForm = ({ carBrand, carModell, setShowRentCartForm, carId }) => {
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="hu">
             <Paper elevation={3} sx={{ p: 3, borderRadius: 4, mt: 3 }}>
-                <TitleComponent title={`Foglalás véglegesítése: ${carBrand} ${carModell}`} />
+                <TitleComponent title={`Foglalás véglegesítése: ${carBrand} ${carModel}`} />
 
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    <FormDivider text="IDŐSZAK" />
 
                     <Box sx={{
                         display: "flex",
@@ -89,6 +93,7 @@ const RentCarForm = ({ carBrand, carModell, setShowRentCartForm, carId }) => {
                             </Typography>
                         </Box>
                     </Box>
+                    <FormDivider text="SZEMÉLYES ADATOK" />
 
                     <Box sx={{
                         display: "flex",
@@ -111,13 +116,26 @@ const RentCarForm = ({ carBrand, carModell, setShowRentCartForm, carId }) => {
                         />
                     </Box>
 
-                    <TextField
-                        fullWidth
-                        label="Lakcím"
-                        inputRef={addressRef}
-                        defaultValue={isUser ? user.address : ''}
-                        variant="outlined"
-                    />
+                    <Box sx={{
+                        display: "flex",
+                        flexDirection: { xs: "column", md: "row" },
+                        gap: 2
+                    }}>
+                        <TextField
+                            fullWidth label="Email cím"
+                            type="email"
+                            inputRef={emailRef}
+                            defaultValue={isUser ? user?.email : ''}
+
+                        />
+                        <TextField
+                            fullWidth
+                            label="Lakcím"
+                            inputRef={addressRef}
+                            defaultValue={isUser ? user.address : ''}
+                            variant="outlined"
+                        />
+                    </Box>
                     <Box sx={{
                         display: "flex",
                         flexDirection: { xs: "column", sm: "row" },
