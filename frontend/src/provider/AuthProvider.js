@@ -1,5 +1,5 @@
 import { useContext, createContext, useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Route, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { instance } from "../API/apiCalls";
 import { ROLES } from "../constants/constants";
@@ -40,9 +40,9 @@ const AuthProvider = ({ children }) => {
 
     const logOut = () => {
         setToken("");
-        setUser(null);
         localStorage.removeItem("berauto_token");
         delete instance.defaults.headers.common["Authorization"];
+        setUser({role : ROLES.GUEST});
         navigate("/");
     };
 
@@ -55,12 +55,13 @@ const AuthProvider = ({ children }) => {
     // useEffect(() => {
     //     if (token) {
     //         logIn(token);
-    //     } 
+    //     } else{
+        // setUser({role : ROLES.GUEST});
     // }, [token]);
 
     useEffect(() => {
-        logIn(testToken.ugyintezo);
-    }, []);
+        logIn(testToken.user);
+    }, [ ]);
 
     return (
         <AuthContext.Provider value={{

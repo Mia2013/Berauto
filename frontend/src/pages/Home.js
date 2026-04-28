@@ -1,28 +1,27 @@
 import { Box, Container, Typography, Divider, Grid, Button, Paper } from '@mui/material';
 import LoginForm from "../components/LoginForm";
 import { useAuth } from '../provider/AuthProvider';
- import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
- 
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 const Home = () => {
   const { isAuthenticated, user, isUser } = useAuth();
 
   return (
-    <Box sx={{mt: -3}}>
+    <Box sx={{ mt: -3 }}>
       <Paper
         elevation={0}
         sx={{
           background: 'linear-gradient(135deg, #fff 0%, #e5e9f0 100%)',
           borderRadius: 0,
-          mb:8
+          mb: 6
         }}
       >
-        <Grid container spacing={0} sx={{ minHeight: '600px', alignItems: 'center' }}>
-          <Grid size={{ xs: 12, md: 6 }} sx={{ p: { xs: 4, md: 8 } }}>
-
+        <Grid container spacing={0} sx={{ minHeight: '800px', alignItems: 'center' }}>
+          <Grid size={{ xs: 12, md: 6 }} sx={{ p: 4, mt: -8 }}>
             <Typography variant="overline" sx={{ fontWeight: 700, letterSpacing: 2 }}>
               Prémium Autókölcsönzés
             </Typography>
-            <Typography variant="h2" sx={{ fontWeight: 900,   mb: 3 }}>
+            <Typography variant="h2" sx={{ fontWeight: 900, mb: 3 }}>
               Útrakész szabadság, <br />
               <span style={{ color: 'primary.main' }}>bárhol, bármikor</span>
             </Typography>
@@ -36,7 +35,7 @@ const Home = () => {
               component="img"
               sx={{
                 width: '100%',
-                height: '600px',
+                height: '800px',
                 objectFit: 'cover',
                 clipPath: { md: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)' },
                 display: { xs: 'none', md: 'block' }
@@ -48,11 +47,11 @@ const Home = () => {
         </Grid>
       </Paper>
 
-      <Container maxWidth="lg" sx={{ mb: 10 }}>
+      <Container maxWidth="lg" sx={{ mb: 5 }}>
         {!isAuthenticated ? (
           <Grid container spacing={4} alignItems="center">
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box sx={{ p: 4 }}>
+              <Box sx={{ px: 4 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'primary.main', mb: 2 }}>
                   <InfoOutlinedIcon />
                   <Typography variant="h6" sx={{ fontWeight: "bold" }}>

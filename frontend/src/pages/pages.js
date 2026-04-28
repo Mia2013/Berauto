@@ -22,7 +22,7 @@ export const allPages = [
         path: "/register",
         component: <Register />,
         showInNavbar: true,
-        roles: [ROLES.GUEST, ROLES.UGYINTEZO, ROLES.ADMIN,]
+        roles: [ROLES.GUEST, ROLES.UGYINTEZO, ROLES.ADMIN]
     },
     {
         name: "Autók",
