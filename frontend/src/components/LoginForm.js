@@ -9,14 +9,13 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
 import Send from '@mui/icons-material/Send';
 import { useAuth } from '../provider/AuthProvider';
-import { postData, endpoints } from '../API/apiCalls';
 import TitleComponent from './TitleComponent';
 import ValidationCaption from './ValidationCaption';
 import CustomAlert from './CustomAlert';
 
 const LoginForm = () => {
     const { logIn } = useAuth();
-    
+
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [alert, setAlert] = useState(null);
@@ -62,7 +61,7 @@ const LoginForm = () => {
                 maxWidth: 500,
                 mx: 'auto'
             }}>
-            <TitleComponent title="Bejelentkezés" />
+            <TitleComponent title="Bejelentkezés" alignItems='flex-start' my={2} />
 
             <Box component="form" noValidate onSubmit={handleLogin} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                 <TextField

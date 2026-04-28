@@ -40,7 +40,6 @@ const AuthProvider = ({ children }) => {
             localStorage.setItem("berauto_token", resToken);
             instance.defaults.headers.common["Authorization"] = `Bearer ${resToken}`;
             setAlert({ message: "Sikeres bejelentkezés!", severity: "success" });
-            navigate("/");
         } catch (error) {
             setAlert({ message: error.message || "Hiba a bejelentkezés során!", severity: "error" });
             throw error;
@@ -91,7 +90,7 @@ const AuthProvider = ({ children }) => {
         <AuthContext.Provider value={{
             token, user,
             isAdmin, isUgyintezo, isUser, isAuthenticated,
-            logIn, logOut, register, updateUser, 
+            logIn, logOut, register, updateUser,
             alert, setAlert
         }}>
             {children}

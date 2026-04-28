@@ -21,6 +21,7 @@ export const endpoints = {
     getAllRents: `${controllers.RENTALS}/getall`,
     updateRent: `${controllers.RENTALS}/updaterent`,
     invoiceRent: `${controllers.RENTALS}/invoicerent`,
+    getRentsByCar: `${controllers.RENTALS}/getRents`
 
 };
 

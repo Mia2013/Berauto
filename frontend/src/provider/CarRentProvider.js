@@ -14,6 +14,7 @@ const CarRentProvider = ({ children }) => {
 
     const [alert, setAlert] = useState();
     const [carDetails, setCarDetails] = useState(null);
+    const [rentsById, setRentsById] = useState([]);
     const [rents, setRents] = useState([
         {
             id: 101,
@@ -46,11 +47,19 @@ const CarRentProvider = ({ children }) => {
             .then(data => setCars(data))
             .catch((e) => setAlert({ message: "Hiba történt az oldal betöltése közben!", severity: "error" }))
     }
+
     const getRents = async () => {
         getData(endpoints.getAllRents)
             .then(data => setRents(data))
             .catch((e) => setAlert({ message: "Hiba történt a foglalások betöltése közben!", severity: "error" }))
     }
+    const getRentsByCarId = async (carId) => {
+        const query = {carId};
+        getData(endpoints.getRentsByCar, query)
+            .then(data => setRents(data))
+            .catch((e) => setAlert({ message: "Hiba történt a foglalások betöltése közben!", severity: "error" }))
+    }
+
     const getCarDetails = async (id) => {
         const query = { carId: id };
         getData(endpoints.updateCar, query)
@@ -120,7 +129,10 @@ const CarRentProvider = ({ children }) => {
                 generateInvoice,
                 updateCar,
                 deleteCar,
-                addCar
+                addCar,
+                getRentsByCarId,
+                setRentsById,
+                rentsById
             }}>
             {children}
         </CarRentContext.Provider>

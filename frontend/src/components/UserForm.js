@@ -10,14 +10,13 @@ import Send from '@mui/icons-material/Send';
 import SaveIcon from '@mui/icons-material/Save';
 import LogoutBtn from "./LogoutBtn";
 
-import { endpoints, postData } from '../API/apiCalls';
 import { useAuth } from '../provider/AuthProvider';
 import ValidationCaption from './ValidationCaption';
 import CustomAlert from './CustomAlert';
 import TitleComponent from './TitleComponent';
 import FormDivider from './FormDivider';
 
-const UserForm = ({IsRegisterForm }) => {
+const UserForm = ({ IsRegisterForm }) => {
     const { user, isUser, isAuthenticated, updateUser, register } = useAuth();
 
     const [showPassword, setShowPassword] = useState(false);
@@ -63,10 +62,10 @@ const UserForm = ({IsRegisterForm }) => {
         return errors;
     };
 
- const handleSubmit = async (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         const formData = {
-            username: isAuthenticated ?  user.userName : userNameRef.current.value,
+            username: isAuthenticated ? user.userName : userNameRef.current.value,
             email: emailRef.current.value,
             password: passwordRef.current.value,
             confirmPassword: confirmPasswordRef.current.value,
@@ -77,20 +76,20 @@ const UserForm = ({IsRegisterForm }) => {
             drivingLicence: licenseRef.current.value
         };
 
-    const errors = validateForm(formData);
-    if (Object.keys(errors).length > 0) {
-        setValidationErrors(errors);
-        return;
+        const errors = validateForm(formData);
+        if (Object.keys(errors).length > 0) {
+            setValidationErrors(errors);
+            return;
+        }
+
+        if (isUser) {
+            await updateUser(formData);
+        } else {
+            await register(formData);
+        }
     }
 
-    if (isUser) {
-        await updateUser(formData);
-    } else {
-        await register(formData);
-    }
-}
 
- 
 
 
     return (
