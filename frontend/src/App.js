@@ -11,9 +11,9 @@ function App() {
   return (
     <div className="App">
       <CssBaseline />
-      <Box display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
+      <Box display={"flex"} flexDirection={"column"} justifyContent={"space-between"} minHeight={"100vh"}>
         <Navigation />
-        <Box sx={{ py: 3 }}>
+        <Box sx={{ py: 3, flexGrow:1 }}>
           <Suspense fallback={<Loading />}>
             <Routes>
               {allPages.map((page) => (

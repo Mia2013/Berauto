@@ -1,15 +1,13 @@
 import { Box, Container, Typography, Divider, Grid, Button, Paper } from '@mui/material';
 import LoginForm from "../components/LoginForm";
 import { useAuth } from '../provider/AuthProvider';
-import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
-
+ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+ 
 const Home = () => {
   const { isAuthenticated, user, isUser } = useAuth();
 
   return (
-    <Box>
+    <Box sx={{mt: -3}}>
       <Paper
         elevation={0}
         sx={{
