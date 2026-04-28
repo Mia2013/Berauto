@@ -19,8 +19,8 @@ const CarDetails = () => {
   useEffect(() => {
     if (carId && cars.length > 0) {
       // eslint-disable-next-line     
-      const foundCarById = cars.find(q => q.id == carId);
-      setCarDetails(foundCarById);
+      const findCarById = cars.find(q => q.id == carId);
+      setCarDetails(findCarById);
     }
   }, [carId]);
 

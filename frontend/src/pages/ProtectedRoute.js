@@ -1,8 +1,8 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from "../provider/AuthProvider";
- 
+
 const ProtectedRoute = ({ allowedRoles, children }) => {
-    const { user, isAuthenticated } = useAuth();
+    const { user } = useAuth();
 
     if (allowedRoles && !allowedRoles.includes(user?.role)) {
         return <Navigate to="/" />;

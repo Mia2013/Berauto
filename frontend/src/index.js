@@ -11,10 +11,8 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
     <AuthProvider>
-
       <CarRentProvider>
         <React.StrictMode>
-
           <App />
         </React.StrictMode>
       </CarRentProvider>

@@ -1,7 +1,8 @@
+// src/provider/AuthProvider.js
 import { useContext, createContext, useState, useEffect, useMemo } from "react";
-import { Route, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { instance } from "../API/apiCalls";
+import { instance, postData, putData, endpoints } from "../API/apiCalls";
 import { ROLES } from "../constants/constants";
 
 const AuthContext = createContext();
@@ -10,7 +11,6 @@ const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem("berauto_token") || "");
     const [user, setUser] = useState(null);
     const [alert, setAlert] = useState();
-
     const navigate = useNavigate();
 
     const { isAdmin, isUgyintezo, isUser, isAuthenticated } = useMemo(() => ({
@@ -20,54 +20,79 @@ const AuthProvider = ({ children }) => {
         isAuthenticated: !!token
     }), [user, token]);
 
-
     const decodeToken = (_token) => {
         try {
             const decoded = jwtDecode(_token);
             setUser(decoded);
+            return decoded;
         } catch (error) {
-            console.error("Token decoding error:", error);
-            setAlert({ message: "Hiba történt!", severity: "error" });
+            setAlert({ message: "Érvénytelen munkamenet!", severity: "error" });
+            logOut();
         }
     };
 
-    const logIn = (resToken) => {
-        setToken(resToken);
-        decodeToken(resToken);
-        localStorage.setItem("berauto_token", resToken);
-        instance.defaults.headers.common["Authorization"] = `Bearer ${resToken}`;
+    const logIn = async (email, password) => {
+        try {
+            const data = await postData(endpoints.auth.login, { email, password });
+            const resToken = data.token;
+            setToken(resToken);
+            decodeToken(resToken);
+            localStorage.setItem("berauto_token", resToken);
+            instance.defaults.headers.common["Authorization"] = `Bearer ${resToken}`;
+            setAlert({ message: "Sikeres bejelentkezés!", severity: "success" });
+            navigate("/");
+        } catch (error) {
+            setAlert({ message: error.message || "Hiba a bejelentkezés során!", severity: "error" });
+            throw error;
+        }
+    };
+
+    const register = async (formData) => {
+        try {
+            await postData(endpoints.auth.register, formData);
+            setAlert({ message: "Sikeres regisztráció!", severity: "success" });
+            navigate("/login"); // Vagy automatikus beléptetés
+        } catch (error) {
+            setAlert({ message: error.message || "Hiba a regisztráció során!", severity: "error" });
+            throw error;
+        }
+    };
+
+    const updateUser = async (formData) => {
+        try {
+            const updatedUser = await putData(`${endpoints.auth.profile}/${user.id}`, formData);
+            // Frissítjük a lokális user állapotot is, hogy a UI azonnal változzon
+            setUser(prev => ({ ...prev, ...updatedUser }));
+            setAlert({ message: "Profil sikeresen frissítve!", severity: "success" });
+        } catch (error) {
+            setAlert({ message: error.message || "Hiba a frissítés során!", severity: "error" });
+            throw error;
+        }
     };
 
     const logOut = () => {
         setToken("");
         localStorage.removeItem("berauto_token");
         delete instance.defaults.headers.common["Authorization"];
-        setUser({role : ROLES.GUEST});
+        setUser({ role: ROLES.GUEST });
         navigate("/");
     };
 
-    const testToken = {
-        ugyintezo: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsInVzZXJuYW1lIjoidWd5X2VyaWthIiwiZW1haWwiOiJlcmlrYUBiZXJhdXRvLmh1Iiwicm9sZSI6InVneWludGV6byIsImZpcnN0TmFtZSI6IkVyaWthIiwibGFzdE5hbWUiOiJVZ3lpbnRlem8iLCJpYXQiOjE3MTM2MDk4NzksImV4cCI6MjExMzYwOTg3OX0.dummy_signature",
-        admin: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbl9wYWwiLCJlbWFpbCI6ImFkbWluQGJlcmF1dG8uaHUiLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJQw6FsIiwibGFzdE5hbWUiOiJBZG1pbiIsImlhdCI6MTcxMzYwOTg3OSwiZXhwIjoyMTEzNjA5ODc5fQ.dummy_signature",
-        user: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTU0LCJ1c2VybmFtZSI6InVzZXJfamFub3MiLCJlbWFpbCI6Imphbm9zQG1haWwuaHUiLCJyb2xlIjoidXNlciIsImZpcnN0TmFtZSI6Ikphbm9zIiwibGFzdE5hbWUiOiJLb3bDoWNzIiwicGhvbmUiOiIrMzYyMDEyMzQ1NjciLCJhZGRyZXNzIjoiNDAwMCBEZWJyZWNlbiwgVGVzenQgdS4gMS4iLCJkcml2aW5nTGljZW5jZSI6IktMOTg3NjU0IiwiaWF0IjoxNzEzNjA5ODc5LCJleHAiOjIxMTM2MDk4Nzl9.dummy_signature"
-    };
-
-    // useEffect(() => {
-    //     if (token) {
-    //         logIn(token);
-    //     } else{
-        // setUser({role : ROLES.GUEST});
-    // }, [token]);
-
     useEffect(() => {
-        logIn(testToken.user);
-    }, [ ]);
+        if (token) {
+            instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            decodeToken(token);
+        } else {
+            setUser({ role: ROLES.GUEST });
+        }
+    }, [token]);
 
     return (
         <AuthContext.Provider value={{
             token, user,
             isAdmin, isUgyintezo, isUser, isAuthenticated,
-            logIn, logOut, alert, setAlert
+            logIn, logOut, register, updateUser, 
+            alert, setAlert
         }}>
             {children}
         </AuthContext.Provider>

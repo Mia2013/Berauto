@@ -37,7 +37,7 @@ const Home = () => {
                 width: '100%',
                 height: '800px',
                 objectFit: 'cover',
-                clipPath: { md: 'polygon(15% 0, 100% 0, 100% 100%, 0% 100%)' },
+                clipPath: { md: 'polygon(25% 0, 100% 0, 100% 100%, 0% 100%)' },
                 display: { xs: 'none', md: 'block' }
               }}
               src={`${process.env.PUBLIC_URL}/bmw.jpg`} // Ide tegyél egy jó minőségű képet
