@@ -4,7 +4,7 @@ import UserForm from "../components/UserForm";
 
 const Register = () => {
     return (
-        <Box sx={{ py: 3 }}>
+        <Box>
             <Container>
                 <UserForm IsRegisterForm={true} />
             </Container>

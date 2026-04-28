@@ -143,7 +143,7 @@ const ManageRentals = () => {
     ], [updateRentStatus, generateInvoice]);
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ px: 3, minHeight: '70dvh' }}>
             <TitleComponent title="Bérlések kezelése" />
             <DataGrid
                 rows={rents}

@@ -1,10 +1,7 @@
 import { useState } from 'react';
-import { Box, Container, Typography, Button, Dialog, DialogContent, DialogTitle, IconButton, Grid } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import LoginForm from './LoginForm';
-import TitleComponent from './TitleComponent';
-import LoginDialog from './LoginDialog';
+import { Box, Container, Typography, Button,  } from '@mui/material';
+ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+ import LoginDialog from './LoginDialog';
 
 const Footer = () => {
     const [openStaffLogin, setOpenStaffLogin] = useState(false);

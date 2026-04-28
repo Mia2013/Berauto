@@ -33,7 +33,7 @@ const Invoice = () => {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Container maxWidth="lg" >
             <Button
                 startIcon={<ArrowBackIcon />}
                 onClick={() => navigate(-1)}

@@ -31,7 +31,7 @@ const CarDetails = () => {
   }, [showRentCarForm]);
 
   return (
-    <Container sx={{ py: 3, zIndex: 1 }}>
+    <Container sx={{  zIndex: 1 }}>
       <Button onClick={() => navigate(-1)} sx={{ mb: 4 }}
         startIcon={<ArrowBackIcon />} > Vissza a kereséshez</Button>
       {

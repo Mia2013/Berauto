@@ -25,7 +25,7 @@ const Cars = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 3 }}>
+    <Container maxWidth="xl" >
       <Box sx={{ mb: 4 }}>
         <TitleComponent title="Elérhető flottánk" />
       </Box>
