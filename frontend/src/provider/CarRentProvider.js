@@ -54,7 +54,7 @@ const CarRentProvider = ({ children }) => {
             .catch((e) => setAlert({ message: "Hiba történt a foglalások betöltése közben!", severity: "error" }))
     }
     const getRentsByCarId = async (carId) => {
-        const query = {carId};
+        const query = { carId };
         getData(endpoints.getRentsByCar, query)
             .then(data => setRents(data))
             .catch((e) => setAlert({ message: "Hiba történt a foglalások betöltése közben!", severity: "error" }))
@@ -109,6 +109,15 @@ const CarRentProvider = ({ children }) => {
                 getRents();
             })
             .catch(() => setAlert({ message: "Hiba a hozzáadás során!", severity: "error" }));
+    };
+
+    const addNewRent = async (formData) => {
+        postData(endpoints.addNewRent, formData)
+            .then(() => {
+                setAlert({ message: "Foglalás sikeresen elmentve!", severity: "success" });
+                getRents();
+            })
+            .catch(() => setAlert({ message: "Hiba a foglalás során!", severity: "error" }));
     };
 
     return (

@@ -17,7 +17,6 @@ import CarRentalIcon from '@mui/icons-material/CarRental';
 import TitleComponent from './TitleComponent';
 import FormDivider from './FormDivider';
 
-// Dayjs bővítései
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isBetween);
@@ -25,7 +24,7 @@ dayjs.extend(isBetween);
 const RentCarForm = ({ carBrand, carModel, setShowRentCartForm, carId }) => {
     const { user, isUser } = useAuth();
 
-    const { carRents } = useCarRent();
+    const { carRents, } = useCarRent();
 
     const firstNameRef = useRef();
     const lastNameRef = useRef();
@@ -55,7 +54,7 @@ const RentCarForm = ({ carBrand, carModel, setShowRentCartForm, carId }) => {
         if (!startDateTime) return undefined;
         const futureBookings = bookedRanges
             .filter(range => range.start.isAfter(startDateTime))
-            .sort((a, b) => a.start.diff(b.start)); // Növekvő sorrend
+            .sort((a, b) => a.start.diff(b.start));
 
         return futureBookings.length > 0 ? futureBookings[0].start : undefined;
     };
@@ -82,8 +81,10 @@ const RentCarForm = ({ carBrand, carModel, setShowRentCartForm, carId }) => {
                 email: emailRef.current.value
             },
         };
-
+        //kommentet kivenni, ha már van hozzá backend
+        // addNewRent(formData);
         console.log("Foglalás elküldése:", formData);
+
     };
 
     useEffect(() => {

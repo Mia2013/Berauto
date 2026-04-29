@@ -61,10 +61,10 @@ export const allPages = [
         roles: [ROLES.UGYINTEZO, ROLES.ADMIN]
     },
     {
-        name: "Admin",
+        name: "Flotta",
         path: "/admin",
         component: <Admin />,
         showInNavbar: true,
-        roles: [ROLES.ADMIN]
+        roles: [ROLES.UGYINTEZO, ROLES.ADMIN]
     }
 ];

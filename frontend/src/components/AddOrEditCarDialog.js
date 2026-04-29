@@ -7,12 +7,15 @@ import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 
 import { useCarRent } from "../provider/CarRentProvider";
 import TitleComponent from "./TitleComponent";
+import { useAuth } from "../provider/AuthProvider";
 
-const EditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
+const AddOrEditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
     const { updateCar, addCar } = useCarRent();
+    const { isAdmin } = useAuth();
 
     if (!selectedCar) return null;
 
@@ -20,6 +23,19 @@ const EditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
 
     const handleInputChange = (field, value) => {
         setSelectedCar(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleImageChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const previewUrl = URL.createObjectURL(file);
+
+            setSelectedCar(prev => ({
+                ...prev,
+                img: file,
+                imageUrl: previewUrl
+            }));
+        }
     };
 
     const handleSave = async () => {
@@ -45,12 +61,38 @@ const EditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
 
             <DialogContent dividers sx={{ display: 'flex', flexDirection: "column", gap: 2 }}>
 
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, mb: 1 }}>
+                    {selectedCar.imageUrl && (
+                        <Box
+                            component="img"
+                            src={selectedCar.imageUrl}
+                            alt="Autó előnézet"
+                            sx={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 2 }}
+                        />
+                    )}
+                    <Button
+                        component="label"
+                        variant="outlined"
+                        startIcon={<PhotoCameraIcon />}
+                        disabled={!isAdmin}
+                    >
+                        Kép feltöltése
+                        <input
+                            type="file"
+                            hidden
+                            accept="image/*"
+                            onChange={handleImageChange}
+                        />
+                    </Button>
+                </Box>
+
                 <TextField
                     fullWidth
                     label="Márka"
                     variant="outlined"
                     value={selectedCar.brand || ""}
                     onChange={(e) => handleInputChange('brand', e.target.value)}
+                    disabled={!isAdmin}
                 />
 
                 <TextField
@@ -59,6 +101,7 @@ const EditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
                     variant="outlined"
                     value={selectedCar.model || ""}
                     onChange={(e) => handleInputChange('model', e.target.value)}
+                    disabled={!isAdmin}
                 />
 
                 <TextField
@@ -67,6 +110,7 @@ const EditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
                     variant="outlined"
                     value={selectedCar.plate || ""}
                     onChange={(e) => handleInputChange('plate', e.target.value)}
+                    disabled={!isAdmin}
                 />
 
                 <TextField
@@ -77,10 +121,8 @@ const EditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
                     value={selectedCar.miles || 0}
                     onChange={(e) => handleInputChange('miles', e.target.value)}
                     InputProps={{ endAdornment: <Typography variant="caption">km</Typography> }}
+                    disabled={!isAdmin}
                 />
-
-
-
 
                 <TextField
                     fullWidth
@@ -90,6 +132,7 @@ const EditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
                     value={selectedCar.fee || 0}
                     onChange={(e) => handleInputChange('fee', e.target.value)}
                     InputProps={{ endAdornment: <Typography variant="caption">Ft</Typography> }}
+                    disabled={!isAdmin}
                 />
 
                 <FormControlLabel
@@ -100,9 +143,7 @@ const EditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
                             color="secondary"
                         />
                     }
-                    label="  Az autó bérelhető a felhasználók számára"
-
-
+                    label="Az autó bérelhető a felhasználók számára"
                 />
 
             </DialogContent>
@@ -129,4 +170,4 @@ const EditCarDialog = ({ selectedCar, setSelectedCar, handleClose, open }) => {
     );
 };
 
-export default EditCarDialog;
+export default AddOrEditCarDialog;

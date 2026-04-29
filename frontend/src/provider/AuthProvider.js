@@ -72,11 +72,21 @@ const AuthProvider = ({ children }) => {
         navigate("/");
     };
 
-    useEffect(() => {
-        if (token) {
-            setupSession(token);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    const testToken = {
+        ugyintezo: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTAsInVzZXJuYW1lIjoidWd5X2VyaWthIiwiZW1haWwiOiJlcmlrYUBiZXJhdXRvLmh1Iiwicm9sZSI6InVneWludGV6byIsImZpcnN0TmFtZSI6IkVyaWthIiwibGFzdE5hbWUiOiJVZ3lpbnRlem8iLCJpYXQiOjE3MTM2MDk4NzksImV4cCI6MjExMzYwOTg3OX0.dummy_signature",
+        admin: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbl9wYWwiLCJlbWFpbCI6ImFkbWluQGJlcmF1dG8uaHUiLCJyb2xlIjoiYWRtaW4iLCJmaXJzdE5hbWUiOiJQw6FsIiwibGFzdE5hbWUiOiJBZG1pbiIsImlhdCI6MTcxMzYwOTg3OSwiZXhwIjoyMTEzNjA5ODc5fQ.dummy_signature",
+        user: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTU0LCJ1c2VybmFtZSI6InVzZXJfamFub3MiLCJlbWFpbCI6Imphbm9zQG1haWwuaHUiLCJyb2xlIjoidXNlciIsImZpcnN0TmFtZSI6Ikphbm9zIiwibGFzdE5hbWUiOiJLb3bDoWNzIiwicGhvbmUiOiIrMzYyMDEyMzQ1NjciLCJhZGRyZXNzIjoiNDAwMCBEZWJyZWNlbiwgVGVzenQgdS4gMS4iLCJkcml2aW5nTGljZW5jZSI6IktMOTg3NjU0IiwiaWF0IjoxNzEzNjA5ODc5LCJleHAiOjIxMTM2MDk4Nzl9.dummy_signature"
+    };
+
+    // useEffect(() => {
+    //     if (token) {
+    //         setupSession(token);
+    //     } 
+    //     // eslint-disable-next-line 
+    // }, []);
+
+     useEffect(() => {
+        setupSession(testToken.ugyintezo);
     }, []);
 
     return (

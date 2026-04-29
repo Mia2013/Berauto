@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
     Box, Button, Table, TableBody, TableCell, TableHead, TableRow,
     IconButton, Checkbox, Tooltip,
-    Typography,
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -10,14 +9,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useCarRent } from "../provider/CarRentProvider";
 import TitleComponent from "../components/TitleComponent";
 import { formatPrice } from "../utils/utils";
-import EditCarDialog from "../components/EditCarDialog";
+import AddOrEditCarDialog from "../components/AddOrEditCarDialog";
+import { useAuth } from "../provider/AuthProvider";
 
 const Admin = () => {
+    const { isAdmin, isUgyintezo } = useAuth();
     const { cars, getCars, deleteCar } = useCarRent();
-
     const [selectedCar, setSelectedCar] = useState(null);
     const [open, setOpen] = useState(false);
-
 
     //kommentet kivenni, ha már van hozzá backend
     // useEffect(() => {
@@ -46,14 +45,15 @@ const Admin = () => {
         setOpen(true);
     };
 
-
     return (
         <Box sx={{ px: 3, mb: 5 }}>
             <TitleComponent title="Autók kezelése" />
 
-            <Button variant="contained" startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={handleOpenAdd}>
-                Új autó hozzáadása
-            </Button>
+            {isAdmin && (
+                <Button variant="contained" startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={handleOpenAdd}>
+                    Új autó hozzáadása
+                </Button>
+            )}
 
             <Table>
                 <TableHead>
@@ -84,16 +84,18 @@ const Admin = () => {
                             </TableCell>
                             <TableCell align="center">
                                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                                    <Tooltip title="Szerkesztés">
+                                    <Tooltip title={isAdmin ? "Szerkesztés" : "Bérelhetőség beállítása"}>
                                         <IconButton color="primary" onClick={() => handleOpenEdit(car)}>
                                             <EditIcon />
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip title="Törlés">
-                                        <IconButton color="error" onClick={() => deleteCar(car.id)}>
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </Tooltip>
+                                    {isAdmin && (
+                                        <Tooltip title="Törlés">
+                                            <IconButton color="error" onClick={() => deleteCar(car.id)}>
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                    )}
                                 </Box>
                             </TableCell>
                         </TableRow>
@@ -102,7 +104,7 @@ const Admin = () => {
             </Table>
 
             {selectedCar &&
-                <EditCarDialog selectedCar={selectedCar} setSelectedCar={setSelectedCar} handleClose={handleClose} open={open} />
+                <AddOrEditCarDialog selectedCar={selectedCar} setSelectedCar={setSelectedCar} handleClose={handleClose} open={open} />
             }
         </Box>
     );

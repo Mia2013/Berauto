@@ -1,5 +1,4 @@
 import axios from "axios";
-// src/API/apiCalls.js
 
 export const controllers = {
     AUTH: "Auth",
@@ -21,7 +20,9 @@ export const endpoints = {
     getAllRents: `${controllers.RENTALS}/getall`,
     updateRent: `${controllers.RENTALS}/updaterent`,
     invoiceRent: `${controllers.RENTALS}/invoicerent`,
-    getRentsByCar: `${controllers.RENTALS}/getRents`
+    getRentsByCar: `${controllers.RENTALS}/getrents`,
+    addNewRent: `${controllers.RENTALS}/addnewrent`,
+    
 
 };
 
