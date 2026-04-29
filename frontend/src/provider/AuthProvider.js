@@ -1,4 +1,3 @@
-// src/provider/AuthProvider.js
 import { useContext, createContext, useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -9,7 +8,7 @@ const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem("berauto_token") || "");
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState({ role: ROLES.GUEST });
     const [alert, setAlert] = useState();
     const navigate = useNavigate();
 
@@ -31,42 +30,38 @@ const AuthProvider = ({ children }) => {
         }
     };
 
-    const logIn = async (email, password) => {
-        try {
-            const data = await postData(endpoints.auth.login, { email, password });
-            const resToken = data.token;
-            setToken(resToken);
-            decodeToken(resToken);
-            localStorage.setItem("berauto_token", resToken);
-            instance.defaults.headers.common["Authorization"] = `Bearer ${resToken}`;
-            setAlert({ message: "Sikeres bejelentkezés!", severity: "success" });
-        } catch (error) {
-            setAlert({ message: error.message || "Hiba a bejelentkezés során!", severity: "error" });
-            throw error;
-        }
+    const setupSession = (activeToken) => {
+        setToken(activeToken);
+        localStorage.setItem("berauto_token", activeToken);
+        instance.defaults.headers.common["Authorization"] = `Bearer ${activeToken}`;
+        decodeToken(activeToken);
     };
 
-    const register = async (formData) => {
-        try {
-            await postData(endpoints.auth.register, formData);
-            setAlert({ message: "Sikeres regisztráció!", severity: "success" });
-            navigate("/login"); // Vagy automatikus beléptetés
-        } catch (error) {
-            setAlert({ message: error.message || "Hiba a regisztráció során!", severity: "error" });
-            throw error;
-        }
+    const logIn = (email, password) => {
+        postData(endpoints.loginUser, { email, password })
+            .then(data => {
+                setupSession(data.token);
+                setAlert({ message: "Sikeres bejelentkezés!", severity: "success" });
+            })
+            .catch(error => setAlert({ message: error.message || "Hiba a bejelentkezés során!", severity: "error" }));
     };
 
-    const updateUser = async (formData) => {
-        try {
-            const updatedUser = await putData(`${endpoints.auth.profile}/${user.id}`, formData);
-            // Frissítjük a lokális user állapotot is, hogy a UI azonnal változzon
-            setUser(prev => ({ ...prev, ...updatedUser }));
-            setAlert({ message: "Profil sikeresen frissítve!", severity: "success" });
-        } catch (error) {
-            setAlert({ message: error.message || "Hiba a frissítés során!", severity: "error" });
-            throw error;
-        }
+    const register = (formData) => {
+        postData(endpoints.registerUser, formData)
+            .then(() => {
+                setAlert({ message: "Sikeres regisztráció!", severity: "success" });
+                navigate("/login");
+            })
+            .catch(e => setAlert({ message: e.message || "Hiba a regisztráció során!", severity: "error" }));
+    };
+
+    const updateUser = (formData) => {
+        putData(`${endpoints.updateUser}/${user.id}`, formData)
+            .then(updatedUser => {
+                setUser(prev => ({ ...prev, ...updatedUser }));
+                setAlert({ message: "Profil sikeresen frissítve!", severity: "success" });
+            })
+            .catch(error => setAlert({ message: error.message || "Hiba a frissítés során!", severity: "error" }));
     };
 
     const logOut = () => {
@@ -79,12 +74,10 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (token) {
-            instance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            decodeToken(token);
-        } else {
-            setUser({ role: ROLES.GUEST });
+            setupSession(token);
         }
-    }, [token]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <AuthContext.Provider value={{
