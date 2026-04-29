@@ -4,7 +4,7 @@ import {
 
 const FormDivider = ({ text }) => {
     return (
-        <Divider sx={{ my: 1 }}>
+        <Divider>
             <Typography variant="caption" color="text.disabled">{text}</Typography>
         </Divider>)
 }

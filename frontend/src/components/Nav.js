@@ -11,14 +11,13 @@ const Navigation = () => {
   const location = useLocation();
   const { isAuthenticated, user } = useAuth();
   const homePage = allPages.filter(q => q.path === "/")[0];
-  console.log(user);
+
   const navPages = useMemo(() => {
     const currentRole = user?.role || ROLES.GUEST;
     return allPages.filter(page =>
       page.showInNavbar && page.roles.includes(currentRole.toLowerCase())
     );
   }, [user]);
-
 
   return (
     <AppBar

@@ -1,12 +1,12 @@
 import React from 'react'
 import { Typography, Box } from '@mui/material';
 
-const TitleComponent = ({ title, marginY=3 }) => {
+const TitleComponent = ({ title, marginY = 1, alignItems = 'center' }) => {
     return (
         <Box
             sx={{
                 display: "flex",
-                alignItems: "center",
+                alignItems: alignItems,
                 flexDirection: "column",
                 my: marginY,
             }}

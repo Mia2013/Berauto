@@ -1,16 +1,15 @@
 import { useContext, createContext, useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { instance } from "../API/apiCalls";
+import { instance, postData, putData, endpoints } from "../API/apiCalls";
 import { ROLES } from "../constants/constants";
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem("berauto_token") || "");
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState({ role: ROLES.GUEST });
     const [alert, setAlert] = useState();
-
     const navigate = useNavigate();
 
     const { isAdmin, isUgyintezo, isUser, isAuthenticated } = useMemo(() => ({
@@ -20,29 +19,56 @@ const AuthProvider = ({ children }) => {
         isAuthenticated: !!token
     }), [user, token]);
 
-
     const decodeToken = (_token) => {
         try {
             const decoded = jwtDecode(_token);
             setUser(decoded);
+            return decoded;
         } catch (error) {
-            console.error("Token decoding error:", error);
-            setAlert({ message: "Hiba történt!", severity: "error" });
+            setAlert({ message: "Érvénytelen munkamenet!", severity: "error" });
+            logOut();
         }
     };
 
-    const logIn = (resToken) => {
-        setToken(resToken);
-        decodeToken(resToken);
-        localStorage.setItem("berauto_token", resToken);
-        instance.defaults.headers.common["Authorization"] = `Bearer ${resToken}`;
+    const setupSession = (activeToken) => {
+        setToken(activeToken);
+        localStorage.setItem("berauto_token", activeToken);
+        instance.defaults.headers.common["Authorization"] = `Bearer ${activeToken}`;
+        decodeToken(activeToken);
+    };
+
+    const logIn = (email, password) => {
+        postData(endpoints.loginUser, { email, password })
+            .then(data => {
+                setupSession(data.token);
+                setAlert({ message: "Sikeres bejelentkezés!", severity: "success" });
+            })
+            .catch(error => setAlert({ message: error.message || "Hiba a bejelentkezés során!", severity: "error" }));
+    };
+
+    const register = (formData) => {
+        postData(endpoints.registerUser, formData)
+            .then(() => {
+                setAlert({ message: "Sikeres regisztráció!", severity: "success" });
+                navigate("/login");
+            })
+            .catch(e => setAlert({ message: e.message || "Hiba a regisztráció során!", severity: "error" }));
+    };
+
+    const updateUser = (formData) => {
+        putData(`${endpoints.updateUser}/${user.id}`, formData)
+            .then(updatedUser => {
+                setUser(prev => ({ ...prev, ...updatedUser }));
+                setAlert({ message: "Profil sikeresen frissítve!", severity: "success" });
+            })
+            .catch(error => setAlert({ message: error.message || "Hiba a frissítés során!", severity: "error" }));
     };
 
     const logOut = () => {
         setToken("");
-        setUser(null);
         localStorage.removeItem("berauto_token");
         delete instance.defaults.headers.common["Authorization"];
+        setUser({ role: ROLES.GUEST });
         navigate("/");
     };
 
@@ -54,19 +80,21 @@ const AuthProvider = ({ children }) => {
 
     // useEffect(() => {
     //     if (token) {
-    //         logIn(token);
+    //         setupSession(token);
     //     } 
-    // }, [token]);
+    //     // eslint-disable-next-line 
+    // }, []);
 
-    useEffect(() => {
-        logIn(testToken.ugyintezo);
+     useEffect(() => {
+        setupSession(testToken.ugyintezo);
     }, []);
 
     return (
         <AuthContext.Provider value={{
             token, user,
             isAdmin, isUgyintezo, isUser, isAuthenticated,
-            logIn, logOut, alert, setAlert
+            logIn, logOut, register, updateUser,
+            alert, setAlert
         }}>
             {children}
         </AuthContext.Provider>

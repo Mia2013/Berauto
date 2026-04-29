@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
 import {
-     Chip, Box, IconButton, Tooltip
+    Chip, Box, IconButton, Tooltip
 } from "@mui/material";
 
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -20,6 +20,7 @@ const ManageRentals = () => {
     const { rents, getRents, updateRentStatus, generateInvoice, alert, setAlert } = useCarRent();
     const navigate = useNavigate();
 
+    //kommentet kivenni, ha már van hozzá backend
     // useEffect(() => {
     //     getRents();
     // }, []);
@@ -143,7 +144,7 @@ const ManageRentals = () => {
     ], [updateRentStatus, generateInvoice]);
 
     return (
-        <Box sx={{ px: 3, minHeight: '70dvh' }}>
+        <Box sx={{ px: 3, minHeight: '70dvh', mb: 5 }}>
             <TitleComponent title="Bérlések kezelése" />
             <DataGrid
                 rows={rents}

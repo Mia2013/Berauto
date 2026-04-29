@@ -8,13 +8,14 @@ import {
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
 import Send from '@mui/icons-material/Send';
-
-import { postData, endpoints } from '../API/apiCalls';
+import { useAuth } from '../provider/AuthProvider';
 import TitleComponent from './TitleComponent';
 import ValidationCaption from './ValidationCaption';
 import CustomAlert from './CustomAlert';
 
 const LoginForm = () => {
+    const { logIn } = useAuth();
+
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [alert, setAlert] = useState(null);
@@ -26,25 +27,11 @@ const LoginForm = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const email = emailRef.current.value;
-        const password = passwordRef.current.value;
-
-        const formData = {
-            email,
-            password,
-        };
+        const formData = { email: emailRef.current.value, password: passwordRef.current.value };
 
         if (validateRegisterFormData(formData)) {
-            postData(endpoints.login, formData)
-                .then((data) => {
-                    setAlert({ message: `Sikeres bejelentkezés!`, severity: "success" });
-                    emailRef.current.value = "";
-                    passwordRef.current.value = "";
-                    setErrors({});
-                })
-                .catch((e) => {
-                    setAlert({ message: e?.message || "Hiba történt!", severity: "error" });
-                });
+            await logIn(formData.email, formData.password);
+
         }
     };
 
@@ -74,7 +61,7 @@ const LoginForm = () => {
                 maxWidth: 500,
                 mx: 'auto'
             }}>
-            <TitleComponent title="Bejelentkezés" />
+            <TitleComponent title="Bejelentkezés" alignItems='flex-start' my={2} />
 
             <Box component="form" noValidate onSubmit={handleLogin} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                 <TextField

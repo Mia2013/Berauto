@@ -10,15 +10,14 @@ import Send from '@mui/icons-material/Send';
 import SaveIcon from '@mui/icons-material/Save';
 import LogoutBtn from "./LogoutBtn";
 
-import { endpoints, postData } from '../API/apiCalls';
 import { useAuth } from '../provider/AuthProvider';
 import ValidationCaption from './ValidationCaption';
 import CustomAlert from './CustomAlert';
 import TitleComponent from './TitleComponent';
 import FormDivider from './FormDivider';
 
-const UserForm = ({IsRegisterForm }) => {
-    const { user, isUser, isAuthenticated } = useAuth();
+const UserForm = ({ IsRegisterForm }) => {
+    const { user, isUser, isAuthenticated, updateUser, register } = useAuth();
 
     const [showPassword, setShowPassword] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
@@ -63,31 +62,10 @@ const UserForm = ({IsRegisterForm }) => {
         return errors;
     };
 
-    const handleRegister = (formData) => {
-        postData(endpoints.register, formData)
-            .then(() => {
-                setAlert({ message: "Sikeres regisztráció!", severity: "success" });
-                setValidationErrors({});
-            })
-            .catch(err => setAlert({ message: err.message || "Hiba a regisztráció során!", severity: "error" }));
-    };
-
-    const handleUpdate = (formData) => {
-        const updateData = { ...formData, id: user.id, username: user.username };
-
-        postData(endpoints.updateProfile, updateData)
-            .then(() => {
-                setAlert({ message: "Profil sikeresen frissítve!", severity: "success" });
-                setValidationErrors({});
-            })
-            .catch(err => setAlert({ message: err.message || "Hiba a frissítés során!", severity: "error" }));
-    };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
         const formData = {
-            username: isAuthenticated ?  user.userName : userNameRef.current.value,
+            username: isAuthenticated ? user.userName : userNameRef.current.value,
             email: emailRef.current.value,
             password: passwordRef.current.value,
             confirmPassword: confirmPasswordRef.current.value,
@@ -99,18 +77,19 @@ const UserForm = ({IsRegisterForm }) => {
         };
 
         const errors = validateForm(formData);
-
         if (Object.keys(errors).length > 0) {
             setValidationErrors(errors);
             return;
         }
 
         if (isUser) {
-            handleUpdate(formData);
+            await updateUser(formData);
         } else {
-            handleRegister(formData);
+            await register(formData);
         }
-    };
+    }
+
+
 
 
     return (
