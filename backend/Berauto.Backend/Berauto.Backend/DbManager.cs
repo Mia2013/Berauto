@@ -32,10 +32,11 @@ public class DbManager
 
     public List<Car> GetAvailableRentableCars(DateOnly startDate, DateOnly endDate)
     {
-        var carinlist=_db.Rentals.Where(x => (DateOnly.FromDateTime(x.RequestDate.Value) < startDate && DateOnly.FromDateTime(x.ReturnDate.Value) < startDate)
-        || (DateOnly.FromDateTime(x.RequestDate.Value) < startDate && DateOnly.FromDateTime(x.ReturnDate.Value) < startDate)).Select(x => x.Car).Distinct().ToList();
-        var notservicedcar = _db.Cars.Where(c => !c.IsRentable).Select(x => x.Id).ToList();
-        var availablecars = carinlist.Where(c => notservicedcar.Contains(c.Id)).ToList();
+        var busycarids = _db.Rentals.Where(x => (DateOnly.FromDateTime(x.ReturnDate.Value) >= startDate && DateOnly.FromDateTime(x.RequestDate.Value) <= endDate)).Select(c => c.CarId).Distinct();
+
+
+        var availablecars = _db.Cars.Where(c => c.IsRentable && !busycarids.Contains(c.Id)).ToList();
+        
         return availablecars;
         
         //_db.Cars.Include(c => c.Fuel).Include(c => c.Status)
