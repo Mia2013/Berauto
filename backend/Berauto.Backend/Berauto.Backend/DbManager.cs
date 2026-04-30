@@ -30,10 +30,18 @@ public class DbManager
         _db.Cars.Include(c => c.Fuel).Include(c => c.Status)
             .Where(c => c.StatusId == 1).ToList();
 
-    public List<Car> GetAvailableRentableCars() =>
-        _db.Cars.Include(c => c.Fuel).Include(c => c.Status)
-            .Where(c => c.StatusId == 1 && c.IsRentable).ToList();
-
+    public List<Car> GetAvailableRentableCars(DateOnly startDate, DateOnly endDate)
+    {
+        var carinlist=_db.Rentals.Where(x => (DateOnly.FromDateTime(x.RequestDate.Value) < startDate && DateOnly.FromDateTime(x.ReturnDate.Value) < startDate)
+        || (DateOnly.FromDateTime(x.RequestDate.Value) < startDate && DateOnly.FromDateTime(x.ReturnDate.Value) < startDate)).Select(x => x.Car).Distinct().ToList();
+        var notservicedcar = _db.Cars.Where(c => !c.IsRentable).Select(x => x.Id).ToList();
+        var availablecars = carinlist.Where(c => notservicedcar.Contains(c.Id)).ToList();
+        return availablecars;
+        
+        //_db.Cars.Include(c => c.Fuel).Include(c => c.Status)
+            //.Where(c => c.StatusId == 1 && c.IsRentable).ToList();
+        //
+    }
     public List<Car> GetAvailableNonrentableCars() =>
         _db.Cars.Include(c => c.Fuel).Include(c => c.Status)
             .Where(c => c.StatusId == 1 && !c.IsRentable).ToList();

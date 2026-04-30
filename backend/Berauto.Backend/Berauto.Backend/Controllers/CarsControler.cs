@@ -25,9 +25,9 @@ namespace Berauto.Backend.Controllers
 
         // GET: api/cars/rentable
         [HttpGet("rentable")]
-        public ActionResult<List<CarDto>> GetRentableCars()
+        public ActionResult<List<CarDto>> GetRentableCars([FromBody] DateOnly startDate,DateOnly endDate)
         {
-            return Ok(_dbManager.GetAvailableRentableCars().Select(DtoMapper.ToDto));
+            return Ok(_dbManager.GetAvailableRentableCars(startDate,endDate).Select(DtoMapper.ToDto));
         }
 
         // GET: api/cars/nonrentable
