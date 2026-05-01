@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Berauto.Models;
+namespace Berauto.Backend.Models;
 
 public partial class Rental
 {
@@ -21,9 +21,9 @@ public partial class Rental
 
     public int? TotalCost { get; set; }
 
-    public virtual Car Car { get; set; } = null!;
+    public virtual Car? Car { get; set; }
 
-    public virtual RentalStatus Status { get; set; } = null!;
+    public virtual RentalStatus? Status { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; }
 }

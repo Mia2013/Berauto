@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Berauto.Models;
+namespace Berauto.Backend.Models;
 
 public partial class Service
 {
@@ -15,7 +15,7 @@ public partial class Service
 
     public int Mileage { get; set; }
 
-    public string Maintenance { get; set; } = null!;
+    public string Maintenance { get; set; } = String.Empty;
 
-    public virtual Car Car { get; set; } = null!;
+    public virtual Car? Car { get; set; }
 }
