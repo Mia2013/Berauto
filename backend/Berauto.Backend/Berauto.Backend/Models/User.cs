@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Berauto.Models;
+namespace Berauto.Backend.Models;
 
 public partial class User
 {
@@ -9,9 +9,9 @@ public partial class User
 
     public int RoleId { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = String.Empty;
 
-    public string Email { get; set; } = null!;
+    public string Email { get; set; } = String.Empty;
 
     public string? PasswordHash { get; set; }
 
@@ -23,7 +23,7 @@ public partial class User
 
     public virtual ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 
-    public virtual Role Role { get; set; } = null!;
+    public virtual Role? Role { get; set; }
 
     public override string ToString()
     {

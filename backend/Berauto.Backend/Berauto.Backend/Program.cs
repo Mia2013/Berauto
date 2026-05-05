@@ -1,4 +1,5 @@
 
+using Berauto.Backend.Repository;
 using Scalar.AspNetCore;
 
 namespace Berauto.Backend
@@ -23,6 +24,9 @@ namespace Berauto.Backend
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            builder.Services.AddScoped<IUnitOfWork, SimpleUnitOfWork>();
 
             var app = builder.Build();
 
