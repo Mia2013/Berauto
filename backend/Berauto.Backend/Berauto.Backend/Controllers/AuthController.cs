@@ -39,7 +39,9 @@ namespace Berauto.Backend.Controllers
             {
                 Email  = dto.Email,
                 Name   = dto.Name,
-                RoleId = 3  // BUG FIX 2: assign Client role by ID instead of creating a new Role object
+                RoleId = 3,
+                Phone = dto.Phone;
+                Address = dto.Address;// BUG FIX 2: assign Client role by ID instead of creating a new Role object
             };
             user.PasswordHash = PassHashing(dto, user);
 
