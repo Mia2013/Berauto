@@ -61,6 +61,7 @@ namespace Berauto.Backend.Controllers
             {
                 return BadRequest("Nincs ilyen felhasználó!");
             }
+            
 
             var hasher = new PasswordHasher<User>();
             var result = hasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
