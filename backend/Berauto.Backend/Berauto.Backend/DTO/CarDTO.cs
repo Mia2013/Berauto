@@ -8,5 +8,7 @@ public class CarDTO
     public string RegNum { get; set; } = null!;
     public int Mileage { get; set; }
     public bool IsRentable { get; set; }
+    //added this line:
+    public int FuelId { get; set; }
     public string? FuelName { get; set; }
 }

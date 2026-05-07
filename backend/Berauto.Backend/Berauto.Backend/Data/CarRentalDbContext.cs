@@ -142,5 +142,13 @@ public partial class CarRentalDbContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlServer("your connection string here");
+        }
+    }
+
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
