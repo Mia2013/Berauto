@@ -1,5 +1,7 @@
-using Berauto.Models;
+using Berauto.Backend.Data;
+using Berauto.Backend.Models;
 using Microsoft.EntityFrameworkCore;
+//adding the missing usings above
 
 namespace Berauto;
 

@@ -1,6 +1,7 @@
-
+using Berauto.Backend.Data;
 using Berauto.Backend.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
@@ -13,7 +14,6 @@ namespace Berauto.Backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("ReactPolicy", policy =>
@@ -23,37 +23,38 @@ namespace Berauto.Backend
                           .AllowAnyMethod();
                 });
             });
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
             })
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer           = true,
+                    ValidateAudience         = true,
+                    ValidateLifetime         = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer              = "MyApi",
+                    ValidAudience            = "MyApiClient",
+                    IssuerSigningKey         = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes("EzEgyNagyonHosszÃºEsBiztonsÃ¡gosTitkosKulcs123"))
+                };
+            });
 
-        ValidIssuer = "MyApi",        
-        ValidAudience = "MyApiClient",
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes("EzEgyNagyonHosszúEsBiztonságosTitkosKulcs123"))
-    };
-});
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            //another fix:
+            builder.Services.AddDbContext<CarRentalDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddScoped<IUnitOfWork, SimpleUnitOfWork>();
 
             var app = builder.Build();
 
-
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
@@ -61,14 +62,12 @@ namespace Berauto.Backend
             }
 
             app.UseHttpsRedirection();
-
             app.UseCors("ReactPolicy");
 
+            app.UseAuthentication(); // BUG FIX: was missing â€” without this [Authorize] does nothing
             app.UseAuthorization();
 
-
             app.MapControllers();
-
             app.Run();
         }
     }
