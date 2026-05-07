@@ -1,5 +1,191 @@
 import { useContext, createContext, useState } from "react";
 import { getData, endpoints, postData, putData, deleteData } from "../API/apiCalls";
+
+const CarRentContext = createContext();
+
+const CarRentProvider = ({ children }) => {
+    const [cars, setCars]             = useState([]);
+    const [rents, setRents]           = useState([]);
+    const [carDetails, setCarDetails] = useState(null);
+    const [rentsById, setRentsById]   = useState([]);
+    const [alert, setAlert]           = useState();
+
+    // ── Cars ──────────────────────────────────────────────
+
+    const getCars = async (query = {}) => {
+        getData(endpoints.getCars, query)
+            .then(data => {
+                // Map backend CarDTO fields to what frontend components expect
+                const mapped = data.map(c => ({
+                    id:         c.id,
+                    brand:      c.brand,
+                    model:      c.model,
+                    plate:      c.regNum,       // frontend uses "plate", backend uses "regNum"
+                    miles:      c.mileage,      // frontend uses "miles", backend uses "mileage"
+                    fee:        c.fee,
+                    isRentable: c.isRentable,
+                    fuelId:     c.fuelId,
+                    fuel:       c.fuelName,     // frontend uses "fuel", backend uses "fuelName"
+                    img:        `${c.brand}${c.model}.jpg`.replace(/\s/g, ''),
+                    year:       "",             // not in backend model, leave empty
+                }));
+                setCars(mapped);
+            })
+            .catch(() => setAlert({ message: "Hiba történt az autók betöltése közben!", severity: "error" }));
+    };
+
+    const addCar = async (formData) => {
+        // Map frontend field names back to backend CarDTO field names
+        const payload = {
+            id:         0,                      // always 0 for new cars
+            brand:      formData.brand,
+            model:      formData.model,
+            regNum:     formData.plate,         // frontend "plate" → backend "regNum"
+            mileage:    Number(formData.miles), // frontend "miles" → backend "mileage"
+            fee:        Number(formData.fee),
+            isRentable: formData.isRentable,
+            fuelId:     formData.fuelId || 1,   // default to Petrol if not set
+        };
+        postData(endpoints.addCar, payload)
+            .then(() => {
+                setAlert({ message: "Autó sikeresen hozzáadva!", severity: "success" });
+                getCars();
+            })
+            .catch(() => setAlert({ message: "Hiba a hozzáadás során!", severity: "error" }));
+    };
+
+    const updateCar = async (id, formData) => {
+        const payload = {
+            id:         id,
+            brand:      formData.brand,
+            model:      formData.model,
+            regNum:     formData.plate,
+            mileage:    Number(formData.miles),
+            fee:        Number(formData.fee),
+            isRentable: formData.isRentable,
+            fuelId:     formData.fuelId || 1,
+        };
+        putData(endpoints.updateCar(id), payload)
+            .then(() => {
+                setAlert({ message: "Az autó adatai sikeresen frissítve!", severity: "success" });
+                getCars();
+            })
+            .catch(() => setAlert({ message: "Hiba történt a frissítés során!", severity: "error" }));
+    };
+
+    const deleteCar = async (id) => {
+        deleteData(endpoints.deleteCar(id))
+            .then(() => {
+                setAlert({ message: "Autó sikeresen törölve!", severity: "success" });
+                getCars();
+            })
+            .catch(() => setAlert({ message: "Hiba a törlés során!", severity: "error" }));
+    };
+
+    // ── Rentals ───────────────────────────────────────────
+
+    // Map backend statusId to frontend status string
+    const mapStatus = (statusId) => {
+        switch (statusId) {
+            case 1:  return "PENDING";
+            case 3:  return "IN_PROGRESS";
+            case 4:  return "RETURNED";
+            default: return "PENDING";
+        }
+    };
+
+    const getRents = async () => {
+        getData(endpoints.getAllRents)
+            .then(data => {
+                // Map backend RentalDTO to what frontend components expect
+                const mapped = data.map(r => ({
+                    id:        r.id,
+                    status:    mapStatus(r.statusId),
+                    startDate: r.requestDate  ? r.requestDate.split("T")[0]  : null,
+                    endDate:   r.returnDate   ? r.returnDate.split("T")[0]   : null,
+                    totalCost: r.totalCost,
+                    car: {
+                        brand: r.carBrand  || "",
+                        model: r.carModel  || "",
+                        plate: r.carRegNum || "",
+                    },
+                    user: {
+                        firstName: r.userName || "",
+                        lastName:  "",
+                        email:     "",
+                        phone:     "",
+                    }
+                }));
+                setRents(mapped);
+            })
+            .catch(() => setAlert({ message: "Hiba történt a foglalások betöltése közben!", severity: "error" }));
+    };
+
+    const addNewRent = async (formData) => {
+        // Backend PostRental only needs carId and userId
+        const payload = {
+            id:     0,
+            carId:  formData.carId,
+            userId: formData.userId,
+        };
+        postData(endpoints.addNewRent, payload)
+            .then(() => {
+                setAlert({ message: "Foglalás sikeresen elmentve!", severity: "success" });
+                getRents();
+            })
+            .catch(() => setAlert({ message: "Hiba a foglalás során!", severity: "error" }));
+    };
+
+    const updateRentStatus = async (rentId, newStatus) => {
+        // Only handover and return are supported by the backend
+        let endpoint;
+        if (newStatus === "IN_PROGRESS") {
+            endpoint = endpoints.confirmHandover(rentId);
+        } else if (newStatus === "RETURNED") {
+            endpoint = endpoints.confirmReturn(rentId);
+        } else {
+            // APPROVED/REJECTED not in backend — just update locally for now
+            setRents(prev => prev.map(r => r.id === rentId ? { ...r, status: newStatus } : r));
+            return;
+        }
+        putData(endpoint, {})
+            .then(() => {
+                setAlert({ message: "Státusz sikeresen frissítve!", severity: "success" });
+                getRents();
+            })
+            .catch(() => setAlert({ message: "Hiba a frissítés során!", severity: "error" }));
+    };
+
+    const generateInvoice = async (rentId) => {
+        // Invoice is generated locally on the frontend — no backend endpoint needed
+        setAlert({ message: "Számla sikeresen kiállítva!", severity: "success" });
+    };
+
+    const getRentsByCarId = async (carId) => {
+        getData(endpoints.getAllRents)
+            .then(data => {
+                const filtered = data.filter(r => r.carId === carId);
+                setRentsById(filtered);
+            })
+            .catch(() => setAlert({ message: "Hiba a foglalások betöltése közben!", severity: "error" }));
+    };
+
+    return (
+        <CarRentContext.Provider value={{
+            cars, setCars, getCars, addCar, updateCar, deleteCar,
+            rents, setRents, getRents, addNewRent, updateRentStatus, generateInvoice,
+            carDetails, setCarDetails,
+            rentsById, setRentsById, getRentsByCarId,
+            alert, setAlert,
+        }}>
+            {children}
+        </CarRentContext.Provider>
+    );
+};
+
+export default CarRentProvider;
+export const useCarRent = () => useContext(CarRentContext);import { useContext, createContext, useState } from "react";
+import { getData, endpoints, postData, putData, deleteData } from "../API/apiCalls";
 const CarRentContext = createContext();
 
 const CarRentProvider = ({ children }) => {
