@@ -74,9 +74,9 @@ namespace Berauto.Backend.Controllers
                 _mapper.Map<RentalDTO>(created.FirstOrDefault()));
         }
 
-        // PUT: api/Rental/5/handover
+        // PUT: api/Rental/handover/5
         // Officer confirms the car has been handed over to the client
-        [HttpPut("{id}/handover")]
+        [HttpPut("handover/{id}")]
         public async Task<IActionResult> ConfirmHandover(int id)
         {
             var rental = await _unitOfWork.Rentals.FindByIdAsync(id);
@@ -102,9 +102,9 @@ namespace Berauto.Backend.Controllers
             return NoContent();
         }
 
-        // PUT: api/Rental/5/return
+        // PUT: api/Rental/return/5
         // Officer confirms the car has been returned — also calculates TotalCost
-        [HttpPut("{id}/return")]
+        [HttpPut("return/{id}")]
         public async Task<IActionResult> ConfirmReturn(int id)
         {
             var rentals = await _unitOfWork.Rentals.GetAllAsync(

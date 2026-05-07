@@ -2,32 +2,33 @@ import axios from "axios";
 
 export const controllers = {
     AUTH: "Auth",
-    CARS: "Cars",
-    RENTALS: "Rentals"
+    CARS: "Car",
+    RENTALS: "Rental"
 };
 
 export const endpoints = {
     registerUser: `${controllers.AUTH}/register`,
     loginUser: `${controllers.AUTH}/login`,
-    updateUser: `${controllers.AUTH}/update`,
-    getUser: `${controllers.AUTH}/getuser`,
+    updateUser: `${controllers.USER}/update`,
+    getUser: `${controllers.USER}/getuser`,
 
-    getCars: `${controllers.CARS}/getall`,
-    updateCar: `${controllers.CARS}/updatecar`,
+    getCars: `${controllers.CARS}`,
+    updateCar: `${controllers.CARS}`,
     deleteCar: `${controllers.CARS}/deletecar`,
     addCar: `${controllers.CARS}/addcar`,
 
-    getAllRents: `${controllers.RENTALS}/getall`,
+    getAllRents: `${controllers.RENTALS}`,
     updateRent: `${controllers.RENTALS}/updaterent`,
     invoiceRent: `${controllers.RENTALS}/invoicerent`,
     getRentsByCar: `${controllers.RENTALS}/getrents`,
-    addNewRent: `${controllers.RENTALS}/addnewrent`,
+    addNewRent: `${controllers.RENTALS}`,
+    handoverRent:  `${controllers.RENTALS}/handover`,
+    returnRent: `${controllers.RENTALS}/return`,
     
-
 };
 
 export const instance = axios.create({
-    baseURL: "https://localhost:7011",
+    baseURL: "http://localhost:5158/api",
     headers: {
         "Content-Type": "application/json",
     },
