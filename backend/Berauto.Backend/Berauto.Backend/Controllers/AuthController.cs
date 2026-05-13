@@ -92,24 +92,6 @@ namespace Berauto.Backend.Controllers
                 User = DtoMapper.ToDto(user)
             });
         }
-        [AllowAnonymous]
-        [HttpPost("register")]
-        public ActionResult Regist([FromBody] RegisterDto dto)
-        {
-            var user = _dbManager.GetUserByEmail(dto.Email);
-            if(user!=null)
-            {
-                return BadRequest();
-            }
-            User registuser = new User();
-
-            registuser.Email = dto.Email;
-            registuser.Username = dto.Username;
-            registuser.Phone = dto.Phonenumber;
-            registuser.PasswordHash = PasswordHasher(registuser, dto);
-            _dbManager.AddUser(registuser);
-            return Ok();   
-        }
 
         private string GenerateToken(User user)
         {

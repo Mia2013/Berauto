@@ -32,11 +32,26 @@ namespace Berauto.Backend.Controllers
             return Ok(DtoMapper.ToDto(car));
         }
 
-        // GET: api/cars/rentable
+        // GET: api/cars/rentable?startDate=2026-05-13&endDate=2026-05-20
+        // Both dates are optional. If both are provided, returns cars with no
+        // conflicting rental in that window. If both are omitted, returns cars
+        // whose current status is Available. Mixing one with the other is rejected.
         [HttpGet("rentable")]
-        public ActionResult<List<CarDto>> GetRentableCars([FromBody] DateOnly startDate,DateOnly endDate)
+        public ActionResult<List<CarDto>> GetRentableCars(
+            [FromQuery] DateOnly? startDate,
+            [FromQuery] DateOnly? endDate)
         {
-            return Ok(_dbManager.GetAvailableRentableCars(startDate,endDate).Select(DtoMapper.ToDto));
+            if (startDate.HasValue != endDate.HasValue)
+                return BadRequest(new { message = "startDate and endDate must both be provided or both omitted." });
+
+            try
+            {
+                return Ok(_dbManager.GetAvailableRentableCars(startDate, endDate).Select(DtoMapper.ToDto));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // GET: api/cars/nonrentable

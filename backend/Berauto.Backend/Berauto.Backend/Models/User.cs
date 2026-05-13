@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Berauto.Models;
@@ -10,10 +10,8 @@ public partial class User
     public int RoleId { get; set; }
 
     public string Name { get; set; } = null!;
-    public string? Username { get; set; }
 
     public string Email { get; set; } = null!;
-    public string? PasswordHash { get; set; }
 
     public string? Phone { get; set; }
 
@@ -26,7 +24,7 @@ public partial class User
     public virtual ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 
     public virtual Role Role { get; set; } = null!;
-    
+
     public override string ToString()
     {
         return $"{Name} ({Role}): {Email}";

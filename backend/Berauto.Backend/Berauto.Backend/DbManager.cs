@@ -57,10 +57,41 @@ public class DbManager
     public List<Car> GetAvailableCars() =>
         CarsWithIncludes().Where(c => c.StatusId == CarStatusId.Available).ToList();
 
-    public List<Car> GetAvailableRentableCars() =>
-        CarsWithIncludes()
-            .Where(c => c.StatusId == CarStatusId.Available && c.IsRentable)
-            .ToList();
+    /// <summary>
+    /// Cars that are rentable and free for booking.
+    /// - If startDate/endDate are omitted, returns cars whose current status is Available.
+    /// - If both dates are provided, returns cars that have no Confirmed/Active rental
+    ///   overlapping the requested window, regardless of their current status (so a car
+    ///   that's reserved for next week is still listed for a request three weeks out).
+    ///   Cars currently in Maintenance or AwaitingInspection are always excluded.
+    /// </summary>
+    public List<Car> GetAvailableRentableCars(DateOnly? startDate = null, DateOnly? endDate = null)
+    {
+        var query = CarsWithIncludes().Where(c => c.IsRentable);
+
+        if (startDate.HasValue && endDate.HasValue)
+        {
+            if (endDate.Value <= startDate.Value)
+                throw new InvalidOperationException("endDate must be after startDate.");
+
+            var start = startDate.Value.ToDateTime(TimeOnly.MinValue);
+            var end = endDate.Value.ToDateTime(TimeOnly.MaxValue);
+
+            query = query.Where(c =>
+                c.StatusId != CarStatusId.Maintenance
+                && c.StatusId != CarStatusId.AwaitingInspection
+                && !c.Rentals.Any(r =>
+                    (r.StatusId == RentalStatusId.Confirmed || r.StatusId == RentalStatusId.Active)
+                    && r.PlannedStart < end
+                    && r.PlannedEnd > start));
+        }
+        else
+        {
+            query = query.Where(c => c.StatusId == CarStatusId.Available);
+        }
+
+        return query.ToList();
+    }
 
     public List<Car> GetAvailableNonrentableCars() =>
         CarsWithIncludes()
