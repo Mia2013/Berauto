@@ -1,102 +1,94 @@
-import { useRef, useState } from 'react'
-import { Button, Grid, TextField, InputAdornment, IconButton, Container, Box, Typography, FilledInput, InputLabel, FormControl } from "@mui/material";
+import { useRef, useState } from 'react';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+    Alert, Button, Grid, TextField, InputAdornment, IconButton,
+    Container, Box, Typography, FilledInput, InputLabel, FormControl, Link as MuiLink,
+} from "@mui/material";
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
 import Send from '@mui/icons-material/Send';
 
-import { postData } from '../API/apiCalls';
+import { postData, endpoints } from '../API/apiCalls';
+import { useAuth } from '../provider/AuthProvider';
 import TitleComponent from './TitleComponent';
 
-const RegisterForm = () => {
+const LoginForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
-    const [alert, setAlert] = useState('');
+    const [alert, setAlert] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
 
     const emailRef = useRef();
     const passwordRef = useRef();
+
+    const { logIn } = useAuth();
+    const navigate = useNavigate();
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        const email = emailRef.current.value;
+        const email = emailRef.current.value.trim();
         const password = passwordRef.current.value;
 
-        const formData = {
-            email,
-            password,
-        }
-
-        if (validateRegisterFormData(formData)) {
-            postData("login", formData)
-                .then((data) => {
-                    setAlert({ message: `Sikeres bejelentkezés! `, severity: "success" })
-                })
-                .then(() => {
-                    emailRef.current.value = "";
-                    passwordRef.current.value = "";
-                })
-                .catch((e) => {
-                    setAlert({ message: e.message || "Hiba történt!", severity: "error" })
-                })
-        }
-    }
-
-    const validateRegisterFormData = (formData) => {
-        const { password, email } = formData;
         const validationErrors = {};
-
-        if (!password) {
-            validationErrors.password = 'A jelszó megadása kötelező!';
-        }
-        if (!email) {
-            validationErrors.email = 'Az email cím megadása kötelező!';
-        }
+        if (!email) validationErrors.email = 'Az email cím megadása kötelező!';
+        if (!password) validationErrors.password = 'A jelszó megadása kötelező!';
         setErrors(validationErrors);
-        return Object.keys(validationErrors).length === 0;
+        if (Object.keys(validationErrors).length > 0) return;
+
+        setSubmitting(true);
+        setAlert(null);
+        try {
+            const data = await postData(endpoints.login, { email, password });
+            logIn(data);
+            setAlert({ severity: "success", message: "Sikeres bejelentkezés!" });
+            navigate("/");
+        } catch (err) {
+            setAlert({ severity: "error", message: err.message || "Sikertelen bejelentkezés." });
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
-        <form>
+        <form onSubmit={handleLogin}>
             <Container maxWidth="sm">
-                <Box sx={{ p: 3 }} >
-                    <Grid  size={{ xs: 12}} sx={{ textAlign: "center" }}>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                flexDirection: "column",
-                                my: 5,
-                            }}
-                        >
-
+                <Box sx={{ p: 3 }}>
+                    <Grid size={{ xs: 12 }} sx={{ textAlign: "center" }}>
+                        <Box sx={{ display: "flex", alignItems: "center", flexDirection: "column", my: 5 }}>
                             <TitleComponent title="Bejelentkezés" />
                         </Box>
                     </Grid>
 
-                    <Grid size={{ xs: 12}}  sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    {alert && (
+                        <Alert severity={alert.severity} sx={{ mb: 2 }} onClose={() => setAlert(null)}>
+                            {alert.message}
+                        </Alert>
+                    )}
+
+                    <Grid size={{ xs: 12 }} sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
                         <TextField
                             label="Email cím"
                             inputRef={emailRef}
                             variant="filled"
+                            type="email"
                             required
                             error={!!errors?.email}
                             helperText={errors?.email}
                         />
                         <FormControl variant="filled">
-                            <InputLabel htmlFor="filled-adornment-password">Jelszó *</InputLabel>
+                            <InputLabel htmlFor="login-password">Jelszó *</InputLabel>
                             <FilledInput
                                 required
-                                id="filled-adornment-password"
+                                id="login-password"
                                 inputRef={passwordRef}
                                 type={showPassword ? 'text' : 'password'}
                                 error={!!errors?.password}
                                 endAdornment={
                                     <InputAdornment position="end">
                                         <IconButton
-                                            aria-label={
-                                                showPassword ? 'hide the password' : 'display the password'
-                                            }
+                                            aria-label={showPassword ? 'Jelszó elrejtése' : 'Jelszó megjelenítése'}
                                             onClick={handleClickShowPassword}
                                             edge="end"
                                         >
@@ -105,19 +97,29 @@ const RegisterForm = () => {
                                     </InputAdornment>
                                 }
                             />
-                            <Typography variant='caption' sx={{ color: "#D3302F", ml: 2 }}>{errors?.password}</Typography>
+                            <Typography variant='caption' sx={{ color: "#D3302F", ml: 2 }}>
+                                {errors?.password}
+                            </Typography>
                         </FormControl>
 
+                        <Button
+                            type="submit"
+                            variant='contained'
+                            startIcon={<Send />}
+                            disabled={submitting}
+                        >
+                            {submitting ? "Bejelentkezés..." : "Bejelentkezés"}
+                        </Button>
 
-
-                        <Button variant='contained' startIcon={<Send />}
-                            onClick={handleLogin}
-                        >Bejelentkezés</Button>
+                        <Typography variant="body2" sx={{ textAlign: "center" }}>
+                            Még nincs fiókja?{" "}
+                            <MuiLink component={RouterLink} to="/register">Regisztráljon itt</MuiLink>
+                        </Typography>
                     </Grid>
                 </Box>
             </Container>
         </form>
-    )
-}
+    );
+};
 
-export default RegisterForm;
+export default LoginForm;

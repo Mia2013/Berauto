@@ -1,4 +1,5 @@
-﻿using Berauto.Models;
+using Berauto.Backend.DTOs;
+using Berauto.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +7,7 @@ namespace Berauto.Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly DbManager _dbManager;
@@ -17,33 +19,26 @@ namespace Berauto.Backend.Controllers
 
         // GET: api/users/admins
         [HttpGet("admins")]
-        public ActionResult<List<User>> GetAdmins()
+        [Authorize(Roles = "Admin")]
+        public ActionResult<List<UserDto>> GetAdmins()
         {
-            return Ok(_dbManager.GetAdmins());
+            return Ok(_dbManager.GetAdmins().Select(DtoMapper.ToDto));
         }
 
         // GET: api/users/officers
         [HttpGet("officers")]
-        public ActionResult<List<User>> GetOfficers()
+        [Authorize(Roles = "Admin")]
+        public ActionResult<List<UserDto>> GetOfficers()
         {
-            return Ok(_dbManager.GetOfficers());
+            return Ok(_dbManager.GetOfficers().Select(DtoMapper.ToDto));
         }
 
         // GET: api/users/clients
-        [Authorize(Roles = "Admin")]
         [HttpGet("clients")]
-        public ActionResult<List<User>> GetClients()
+        [Authorize(Roles = "Admin,Officer")]
+        public ActionResult<List<UserDto>> GetClients()
         {
-            return Ok(_dbManager.GetClients());
-        }
-
-        // POST: api/users
-        [Authorize(Roles = "Admin")]
-        [HttpPost]
-        public ActionResult AddUser([FromBody] User user)
-        {
-            _dbManager.AddUser(user);
-            return CreatedAtAction(nameof(GetClients), new { id = user.Id }, user);
+            return Ok(_dbManager.GetClients().Select(DtoMapper.ToDto));
         }
     }
 }

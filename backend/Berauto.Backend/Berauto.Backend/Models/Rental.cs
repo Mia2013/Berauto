@@ -15,11 +15,19 @@ public partial class Rental
 
     public DateTime? RequestDate { get; set; }
 
+    public DateTime PlannedStart { get; set; }
+
+    public DateTime PlannedEnd { get; set; }
+
     public DateTime? HandoverDate { get; set; }
 
     public DateTime? ReturnDate { get; set; }
 
     public int? TotalCost { get; set; }
+
+    public int? ReturnMileage { get; set; }
+
+    public string? Condition { get; set; }
 
     public virtual Car Car { get; set; } = null!;
 

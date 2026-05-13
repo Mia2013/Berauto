@@ -1,4 +1,4 @@
-﻿using Berauto.Backend.DTOs;
+using Berauto.Backend.DTOs;
 using Berauto.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +16,20 @@ namespace Berauto.Backend.Controllers
             _dbManager = dbManager;
         }
 
-        // GET: api/cars
+        // GET: api/cars  (available cars — for the public browsing page)
         [HttpGet]
         public ActionResult<List<CarDto>> GetAvailableCars()
         {
             return Ok(_dbManager.GetAvailableCars().Select(DtoMapper.ToDto));
+        }
+
+        // GET: api/cars/{id}
+        [HttpGet("{id}")]
+        public ActionResult<CarDto> GetCar(int id)
+        {
+            var car = _dbManager.GetCarById(id);
+            if (car == null) return NotFound();
+            return Ok(DtoMapper.ToDto(car));
         }
 
         // GET: api/cars/rentable
@@ -51,27 +60,70 @@ namespace Berauto.Backend.Controllers
             return Ok(_dbManager.GetAvailableDieselCars().Select(DtoMapper.ToDto));
         }
 
-        // GET: api/cars/rented
+        // GET: api/cars/rented  (staff only)
         [HttpGet("rented")]
+        [Authorize(Roles = "Admin,Officer")]
         public ActionResult<List<CarDto>> GetRentedCars()
         {
             return Ok(_dbManager.GetRentedCars().Select(DtoMapper.ToDto));
         }
 
+        // GET: api/cars/awaiting-inspection  (staff queue of cars to inspect)
+        [HttpGet("awaiting-inspection")]
+        [Authorize(Roles = "Admin,Officer")]
+        public ActionResult<List<CarDto>> GetAwaitingInspection()
+        {
+            return Ok(_dbManager.GetAwaitingInspectionCars().Select(DtoMapper.ToDto));
+        }
+
         // GET: api/cars/serviced
         [HttpGet("serviced")]
+        [Authorize(Roles = "Admin,Officer")]
         public ActionResult<List<CarDto>> GetServicedCars()
         {
             return Ok(_dbManager.GetServicedCars().Select(DtoMapper.ToDto));
         }
 
-        // POST: api/cars
+        // POST: api/cars  (staff adds a new car)
         [Authorize(Roles = "Admin,Officer")]
         [HttpPost]
-        public ActionResult AddCar([FromBody] Car car)
+        public ActionResult<CarDto> AddCar([FromBody] Car car)
         {
             _dbManager.AddCar(car);
-            return CreatedAtAction(nameof(GetAvailableCars), new { id = car.Id }, car);
+            var reloaded = _dbManager.GetCarById(car.Id) ?? car;
+            return CreatedAtAction(nameof(GetCar), new { id = reloaded.Id }, DtoMapper.ToDto(reloaded));
+        }
+
+        // POST: api/cars/{id}/maintenance  (admin pulls a car off the road)
+        [Authorize(Roles = "Admin,Officer")]
+        [HttpPost("{id}/maintenance")]
+        public ActionResult<CarDto> SetMaintenance(int id)
+        {
+            try
+            {
+                var car = _dbManager.SetCarMaintenance(id);
+                return Ok(DtoMapper.ToDto(_dbManager.GetCarById(car.Id)!));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // POST: api/cars/{id}/activate  (admin returns a car to the Available pool)
+        [Authorize(Roles = "Admin,Officer")]
+        [HttpPost("{id}/activate")]
+        public ActionResult<CarDto> Activate(int id)
+        {
+            try
+            {
+                var car = _dbManager.ActivateCar(id);
+                return Ok(DtoMapper.ToDto(_dbManager.GetCarById(car.Id)!));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

@@ -87,6 +87,9 @@ public partial class CarRentalDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.ReturnDate).HasColumnType("datetime");
+            entity.Property(e => e.PlannedStart).HasColumnType("datetime");
+            entity.Property(e => e.PlannedEnd).HasColumnType("datetime");
+            entity.Property(e => e.Condition).HasMaxLength(500);
 
             entity.HasOne(d => d.Car).WithMany(p => p.Rentals)
                 .HasForeignKey(d => d.CarId)
@@ -133,6 +136,7 @@ public partial class CarRentalDbContext : DbContext
             entity.Property(e => e.Email).HasMaxLength(100);
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.PasswordHash).HasMaxLength(255);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)

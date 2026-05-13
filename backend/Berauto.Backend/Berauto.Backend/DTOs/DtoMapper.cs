@@ -31,16 +31,23 @@ namespace Berauto.Backend.DTOs
         public static RentalDto ToDto(Rental rental) => new RentalDto
         {
             Id = rental.Id,
+            CarId = rental.CarId,
             CarRegNum = rental.Car.RegNum,
             CarBrand = rental.Car.Brand,
             CarModel = rental.Car.Model,
+            UserId = rental.UserId,
             UserName = rental.User.Name,
             UserEmail = rental.User.Email,
+            StatusId = rental.StatusId,
             Status = rental.Status.StatusName,
             RequestDate = rental.RequestDate,
+            PlannedStart = rental.PlannedStart,
+            PlannedEnd = rental.PlannedEnd,
             HandoverDate = rental.HandoverDate,
             ReturnDate = rental.ReturnDate,
-            TotalCost = rental.TotalCost
+            TotalCost = rental.TotalCost,
+            ReturnMileage = rental.ReturnMileage,
+            Condition = rental.Condition
         };
     }
 }

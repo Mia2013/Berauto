@@ -21,6 +21,8 @@ public partial class User
 
     public string? DrivingLicence { get; set; }
 
+    public string PasswordHash { get; set; } = null!;
+
     public virtual ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 
     public virtual Role Role { get; set; } = null!;

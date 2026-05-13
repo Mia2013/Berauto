@@ -1,4 +1,5 @@
-﻿using Berauto.Models;
+using Berauto.Backend.DTOs;
+using Berauto.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,31 +16,81 @@ namespace Berauto.Backend.Controllers
     {
         private readonly IConfiguration _config;
         private readonly DbManager _dbManager;
+        private readonly IPasswordHasher<User> _hasher;
 
-        public AuthController(IConfiguration config, DbManager dbManager)
+        public AuthController(IConfiguration config, DbManager dbManager, IPasswordHasher<User> hasher)
         {
             _config = config;
             _dbManager = dbManager;
+            _hasher = hasher;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public ActionResult<AuthResponse> Register([FromBody] RegisterRequest request)
+        {
+            if (!ModelState.IsValid)
+                return ValidationProblem(ModelState);
+
+            if (_dbManager.GetUserByEmail(request.Email) != null)
+                return Conflict(new { message = "Email is already in use." });
+
+            var user = new User
+            {
+                Name = request.Name,
+                Email = request.Email,
+                Phone = request.Phone,
+                Address = request.Address,
+                DrivingLicence = request.DrivingLicence,
+                RoleId = RoleId.Client
+            };
+            user.PasswordHash = _hasher.HashPassword(user, request.Password);
+
+            _dbManager.AddUser(user);
+
+            // Reload with Role include so the token + DTO have the role name.
+            var saved = _dbManager.GetUserByEmail(user.Email)!;
+            var token = GenerateToken(saved);
+
+            return Ok(new AuthResponse
+            {
+                Token = token,
+                User = DtoMapper.ToDto(saved)
+            });
         }
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public ActionResult Login([FromBody] LoginRequest request)
+        public ActionResult<AuthResponse> Login([FromBody] LoginRequest request)
         {
-            // Find user by email (simple check for now, no password yet)
+            if (!ModelState.IsValid)
+                return ValidationProblem(ModelState);
+
             var user = _dbManager.GetUserByEmail(request.Email);
             if (user == null)
-                return Unauthorized("Invalid email.");
-            var hasher = new PasswordHasher<User>();
-            var result = hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
-            
-            if(result==PasswordVerificationResult.Failed)
+                return Unauthorized(new { message = "Invalid email or password." });
+
+            // Empty/null hash means the account predates password support — reject cleanly.
+            if (string.IsNullOrEmpty(user.PasswordHash))
+                return Unauthorized(new { message = "Account is not configured for password login." });
+
+            var result = _hasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+            if (result == PasswordVerificationResult.Failed)
+                return Unauthorized(new { message = "Invalid email or password." });
+
+            // If the hasher recommends rehashing (older algorithm), upgrade transparently.
+            if (result == PasswordVerificationResult.SuccessRehashNeeded)
             {
-                return Unauthorized("Invalid Password!");
+                user.PasswordHash = _hasher.HashPassword(user, request.Password);
+                _dbManager.UpdateUser(user);
             }
 
             var token = GenerateToken(user);
-            return Ok(new { token });
+            return Ok(new AuthResponse
+            {
+                Token = token,
+                User = DtoMapper.ToDto(user)
+            });
         }
         [AllowAnonymous]
         [HttpPost("register")]
@@ -70,6 +121,7 @@ namespace Berauto.Backend.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
@@ -83,27 +135,5 @@ namespace Berauto.Backend.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-        public String PasswordHasher(User user, RegisterDto dto)
-        {
-            var hasher = new PasswordHasher<User>();
-            string pass = hasher.HashPassword(user, dto.Password);
-            return pass;
-        }
-    }
- 
-
-    public class LoginRequest
-    {
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
-    }
-    public class RegisterDto
-    {
-        public string Username { get; set; } = null!;
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
-        public string Phonenumber { get; set; } = null!;
-        
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Berauto.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -19,6 +20,9 @@ namespace Berauto.Backend
 
             // Register DbManager with DI
             builder.Services.AddScoped<DbManager>();
+
+            // Password hashing (PBKDF2 via ASP.NET Identity's PasswordHasher<T>)
+            builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
             // CORS for React frontend
             builder.Services.AddCors(options =>
