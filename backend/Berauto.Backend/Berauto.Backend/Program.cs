@@ -75,7 +75,7 @@ namespace Berauto.Backend
 
             app.UseHttpsRedirection();
             app.UseCors("ReactPolicy");
-            app.UseAuthentication(); // ← must be before UseAuthorization!
+            app.UseAuthentication(); 
             app.UseAuthorization();
             app.MapControllers();
             app.Run();

@@ -12,20 +12,20 @@ const tomorrowIso = () => {
     return d.toISOString().split("T")[0];
 };
 
-const BookingDialog = ({ open, car, onClose, onSuccess }) => {
-    const [start, setStart] = useState(todayIso());
-    const [end, setEnd] = useState(tomorrowIso());
+const BookingDialog = ({ open, car, onClose, onSuccess, initialStart, initialEnd }) => {
+    const [start, setStart] = useState(initialStart || todayIso());
+    const [end, setEnd] = useState(initialEnd || tomorrowIso());
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
 
-    // Reset to defaults whenever a new car is selected.
+    // Re-seed the dates whenever the dialog opens (or the parent's dates change).
     useEffect(() => {
         if (open) {
-            setStart(todayIso());
-            setEnd(tomorrowIso());
+            setStart(initialStart || todayIso());
+            setEnd(initialEnd || tomorrowIso());
             setError(null);
         }
-    }, [open, car?.id]);
+    }, [open, car?.id, initialStart, initialEnd]);
 
     const days = useMemo(() => {
         if (!start || !end) return 0;
@@ -46,7 +46,6 @@ const BookingDialog = ({ open, car, onClose, onSuccess }) => {
         try {
             const rental = await postData(endpoints.rentals, {
                 carId: car.id,
-                // Backend takes DateTime; sending ISO at start-of-day local.
                 plannedStart: new Date(start).toISOString(),
                 plannedEnd: new Date(end).toISOString(),
             });

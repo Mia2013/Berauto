@@ -2,6 +2,7 @@ using Berauto.Backend.DTOs;
 using Berauto.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Berauto.Backend.Controllers
 {
@@ -102,9 +103,32 @@ namespace Berauto.Backend.Controllers
         // POST: api/cars  (staff adds a new car)
         [Authorize(Roles = "Admin,Officer")]
         [HttpPost]
-        public ActionResult<CarDto> AddCar([FromBody] Car car)
+        public ActionResult<CarDto> AddCar([FromBody] CreateCarRequest request)
         {
-            _dbManager.AddCar(car);
+            if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+            var car = new Car
+            {
+                RegNum = request.RegNum,
+                Brand = request.Brand,
+                Model = request.Model,
+                Mileage = request.Mileage,
+                Fee = request.Fee,
+                FuelId = request.FuelId,
+                StatusId = request.StatusId == 0 ? CarStatusId.Available : request.StatusId,
+                IsRentable = request.IsRentable,
+            };
+
+            try
+            {
+                _dbManager.AddCar(car);
+            }
+            catch (DbUpdateException ex)
+            {
+                // Most likely a unique-RegNum violation; surface a clean message.
+                return BadRequest(new { message = ex.InnerException?.Message ?? ex.Message });
+            }
+
             var reloaded = _dbManager.GetCarById(car.Id) ?? car;
             return CreatedAtAction(nameof(GetCar), new { id = reloaded.Id }, DtoMapper.ToDto(reloaded));
         }
