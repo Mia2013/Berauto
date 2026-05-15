@@ -1,7 +1,9 @@
-﻿using Berauto.Models;
+﻿using Berauto.Backend.Services;
+using Berauto.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
@@ -14,9 +16,16 @@ namespace Berauto.Backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Register DbContext with DI
-            builder.Services.AddDbContext<CarRentalDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            // Audit interceptor needs the current HTTP context to know who made the change.
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<AuditSaveChangesInterceptor>();
+
+            // Register DbContext with DI; resolve and attach the audit interceptor per scope.
+            builder.Services.AddDbContext<CarRentalDbContext>((serviceProvider, options) =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                options.AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
+            });
 
             // Register DbManager with DI
             builder.Services.AddScoped<DbManager>();

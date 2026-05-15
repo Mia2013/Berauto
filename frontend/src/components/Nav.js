@@ -13,7 +13,12 @@ const Navigation = () => {
     const visiblePages = [
         ...pagesForPublic.filter((p) => !(p.hideWhenAuthed && isAuthenticated)),
         ...(isAuthenticated ? pagesForAuthenticatedOnly : []),
-        ...(isStaff ? pagesForStaff : []),
+        // Staff pages — each one can further restrict via allowedRoles.
+        ...(isStaff
+            ? pagesForStaff.filter(
+                (p) => !p.allowedRoles || p.allowedRoles.length === 0 || p.allowedRoles.includes(user?.role)
+              )
+            : []),
     ];
 
     return (

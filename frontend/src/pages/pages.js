@@ -6,8 +6,10 @@ const Cars = React.lazy(() => import("./Cars"));
 const Login = React.lazy(() => import("./Login"));
 const Register = React.lazy(() => import("./Register"));
 const MyRentals = React.lazy(() => import("./MyRentals"));
+const MyReceipts = React.lazy(() => import("./MyReceipts"));
 const AdminRentals = React.lazy(() => import("./AdminRentals"));
 const AdminCars = React.lazy(() => import("./AdminCars"));
+const AdminAuditLog = React.lazy(() => import("./AdminAuditLog"));
 
 // Visible in the nav for everyone; visible-when-logged-out flag controls hiding
 // auth pages once the user is authenticated.
@@ -20,6 +22,7 @@ export const pagesForPublic = [
 
 export const pagesForAuthenticatedOnly = [
     { name: "Bérléseim", path: "/my-rentals", component: <MyRentals />, allowedRoles: null },
+    { name: "Bizonylataim", path: "/receipts", component: <MyReceipts />, allowedRoles: null },
 ];
 
 export const pagesForStaff = [
@@ -33,6 +36,12 @@ export const pagesForStaff = [
         name: "Autók kezelése",
         path: "/admin/cars",
         component: <AdminCars />,
+        allowedRoles: [ROLES.ADMIN, ROLES.UGYINTEZO],
+    },
+    {
+        name: "Napló",
+        path: "/admin/audit-log",
+        component: <AdminAuditLog />,
         allowedRoles: [ROLES.ADMIN, ROLES.UGYINTEZO],
     },
 ];

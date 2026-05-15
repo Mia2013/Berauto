@@ -26,6 +26,12 @@ export const endpoints = {
     rentalReturn: (id) => `Rentals/${id}/return`,
     rentalInspect: (id) => `Rentals/${id}/inspect`,
     rentalCancel: (id) => `Rentals/${id}/cancel`,
+
+    auditLog: "AuditLog",
+
+    myReceipts: "Receipts/mine",
+    receiptById: (id) => `Receipts/${id}`,
+    receiptByRental: (rentalId) => `Receipts/by-rental/${rentalId}`,
 };
 
 export const instance = axios.create({

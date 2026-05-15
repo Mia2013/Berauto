@@ -28,6 +28,35 @@ namespace Berauto.Backend.DTOs
             Role = user.Role.Name
         };
 
+        public static ReceiptDto ToDto(Receipt r) => new ReceiptDto
+        {
+            Id = r.Id,
+            ReceiptNumber = $"BR-{r.IssuedAt.Year}-{r.Id:D5}",
+            RentalId = r.RentalId,
+            UserId = r.UserId,
+            IssuedAt = r.IssuedAt,
+            Amount = r.Amount,
+            DaysRented = r.DaysRented,
+            CarRegNum = r.CarRegNum,
+            CarBrand = r.CarBrand,
+            CarModel = r.CarModel,
+            UserName = r.UserName,
+            UserEmail = r.UserEmail,
+            UserAddress = r.UserAddress,
+        };
+
+        public static AuditLogDto ToDto(AuditLog log) => new AuditLogDto
+        {
+            Id = log.Id,
+            Timestamp = log.Timestamp,
+            UserId = log.UserId,
+            UserEmail = log.UserEmail,
+            EntityType = log.EntityType,
+            EntityId = log.EntityId,
+            Action = log.Action,
+            Changes = log.Changes
+        };
+
         public static RentalDto ToDto(Rental rental) => new RentalDto
         {
             Id = rental.Id,

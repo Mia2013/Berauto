@@ -237,10 +237,14 @@ public class DbManager
     /// <summary>
     /// Admin inspects a returned car. Updates Car.Mileage and Rental.Condition,
     /// then either puts car back to Available (accept=true) or Maintenance (accept=false).
+    /// Also generates a Receipt for the customer.
     /// </summary>
     public Rental InspectRental(int rentalId, int? returnMileage, string? condition, bool accept)
     {
-        var rental = _db.Rentals.Include(r => r.Car).FirstOrDefault(r => r.Id == rentalId)
+        var rental = _db.Rentals
+            .Include(r => r.Car)
+            .Include(r => r.User)
+            .FirstOrDefault(r => r.Id == rentalId)
             ?? throw new InvalidOperationException($"Rental {rentalId} not found.");
 
         if (rental.StatusId != RentalStatusId.Returned)
@@ -260,9 +264,39 @@ public class DbManager
         rental.StatusId = RentalStatusId.Completed;
         rental.Car.StatusId = accept ? CarStatusId.Available : CarStatusId.Maintenance;
 
+        // Auto-issue receipt (unless one already exists — guard against rare races).
+        if (!_db.Receipts.Any(r => r.RentalId == rental.Id))
+        {
+            var days = Math.Max(1, (int)Math.Ceiling((rental.PlannedEnd - rental.PlannedStart).TotalDays));
+            _db.Receipts.Add(new Receipt
+            {
+                RentalId = rental.Id,
+                UserId = rental.UserId,
+                IssuedAt = DateTime.UtcNow,
+                Amount = rental.TotalCost ?? 0,
+                DaysRented = days,
+                CarRegNum = rental.Car.RegNum,
+                CarBrand = rental.Car.Brand,
+                CarModel = rental.Car.Model,
+                UserName = rental.User.Name,
+                UserEmail = rental.User.Email,
+                UserAddress = rental.User.Address,
+            });
+        }
+
         _db.SaveChanges();
         return GetRentalById(rental.Id)!;
     }
+
+    // ─── Receipts ────────────────────────────────────────────────────────
+    public List<Receipt> GetReceiptsByUser(int userId) =>
+        _db.Receipts.Where(r => r.UserId == userId).OrderByDescending(r => r.Id).ToList();
+
+    public Receipt? GetReceiptById(int id) =>
+        _db.Receipts.FirstOrDefault(r => r.Id == id);
+
+    public Receipt? GetReceiptByRentalId(int rentalId) =>
+        _db.Receipts.FirstOrDefault(r => r.RentalId == rentalId);
 
     /// <summary>Cancel a Confirmed rental (before handover). Car returns to Available.</summary>
     public Rental CancelRental(int rentalId)

@@ -3,8 +3,10 @@ import {
     Box, Container, Typography, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Chip, Button, Alert, CircularProgress, Stack, Snackbar,
 } from '@mui/material';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { getData, postData, endpoints } from '../API/apiCalls';
 import { RENTAL_STATUS, RENTAL_STATUS_LABEL } from '../constants/constants';
+import ReceiptDialog from '../components/ReceiptDialog';
 
 const formatDate = (iso) => {
     if (!iso) return "—";
@@ -30,6 +32,7 @@ const MyRentals = () => {
     const [error, setError] = useState(null);
     const [toast, setToast] = useState(null);
     const [busyId, setBusyId] = useState(null);
+    const [selectedReceipt, setSelectedReceipt] = useState(null);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -59,6 +62,15 @@ const MyRentals = () => {
             setToast({ severity: "error", message: err.message || "A művelet nem sikerült." });
         } finally {
             setBusyId(null);
+        }
+    };
+
+    const handleViewReceipt = async (rental) => {
+        try {
+            const receipt = await getData(endpoints.receiptByRental(rental.id));
+            setSelectedReceipt(receipt);
+        } catch (err) {
+            setToast({ severity: "error", message: err.message || "A bizonylat nem érhető el." });
         }
     };
 
@@ -134,6 +146,16 @@ const MyRentals = () => {
                                                         Visszaadás
                                                     </Button>
                                                 )}
+                                                {r.statusId === RENTAL_STATUS.COMPLETED && (
+                                                    <Button
+                                                        size="small"
+                                                        variant="text"
+                                                        startIcon={<ReceiptLongIcon />}
+                                                        onClick={() => handleViewReceipt(r)}
+                                                    >
+                                                        Bizonylat
+                                                    </Button>
+                                                )}
                                             </Stack>
                                         </TableCell>
                                     </TableRow>
@@ -143,6 +165,12 @@ const MyRentals = () => {
                     </TableContainer>
                 )}
             </Container>
+
+            <ReceiptDialog
+                open={!!selectedReceipt}
+                receipt={selectedReceipt}
+                onClose={() => setSelectedReceipt(null)}
+            />
 
             <Snackbar
                 open={!!toast}

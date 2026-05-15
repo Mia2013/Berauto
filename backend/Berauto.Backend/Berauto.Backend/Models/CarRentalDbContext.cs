@@ -29,6 +29,10 @@ public partial class CarRentalDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<AuditLog> AuditLogs { get; set; }
+
+    public virtual DbSet<Receipt> Receipts { get; set; }
+
     //local db path:
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -142,6 +146,39 @@ public partial class CarRentalDbContext : DbContext
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Users_Roles");
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("AuditLogs");
+
+            entity.Property(e => e.Timestamp).HasColumnType("datetime");
+            entity.Property(e => e.UserEmail).HasMaxLength(100);
+            entity.Property(e => e.EntityType).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.EntityId).HasMaxLength(100);
+            entity.Property(e => e.Action).HasMaxLength(10).IsRequired();
+            entity.Property(e => e.Changes).HasColumnType("nvarchar(max)").IsRequired();
+
+            entity.HasIndex(e => e.Timestamp);
+            entity.HasIndex(e => new { e.EntityType, e.EntityId });
+        });
+
+        modelBuilder.Entity<Receipt>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("Receipts");
+
+            entity.Property(e => e.IssuedAt).HasColumnType("datetime");
+            entity.Property(e => e.CarRegNum).HasMaxLength(10).IsRequired();
+            entity.Property(e => e.CarBrand).HasMaxLength(15).IsRequired();
+            entity.Property(e => e.CarModel).HasMaxLength(20).IsRequired();
+            entity.Property(e => e.UserName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.UserEmail).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.UserAddress).HasMaxLength(255);
+
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.RentalId).IsUnique();
         });
 
         OnModelCreatingPartial(modelBuilder);
