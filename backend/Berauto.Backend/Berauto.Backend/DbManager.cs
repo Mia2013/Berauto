@@ -13,7 +13,7 @@ public class DbManager
         _db = db;
     }
 
-    // ─── USERS ──────────────────────────────────────────────────────────
+    // USERS
     public void AddUser(User user)
     {
         _db.Users.Add(user);
@@ -41,7 +41,7 @@ public class DbManager
     public List<User> GetClients() =>
         _db.Users.Include(u => u.Role).Where(u => u.RoleId == RoleId.Client).ToList();
 
-    // ─── CARS ───────────────────────────────────────────────────────────
+    // CARS
     public void AddCar(Car car)
     {
         _db.Cars.Add(car);
@@ -143,7 +143,7 @@ public class DbManager
         return car;
     }
 
-    // ─── RENTALS ────────────────────────────────────────────────────────
+    // RENTALS
     private IQueryable<Rental> RentalsWithIncludes() =>
         _db.Rentals
             .Include(r => r.Car)
@@ -264,7 +264,7 @@ public class DbManager
         rental.StatusId = RentalStatusId.Completed;
         rental.Car.StatusId = accept ? CarStatusId.Available : CarStatusId.Maintenance;
 
-        // Auto-issue receipt (unless one already exists — guard against rare races).
+        // Auto-issue receipt (unless one already exists).
         if (!_db.Receipts.Any(r => r.RentalId == rental.Id))
         {
             var days = Math.Max(1, (int)Math.Ceiling((rental.PlannedEnd - rental.PlannedStart).TotalDays));
@@ -288,7 +288,7 @@ public class DbManager
         return GetRentalById(rental.Id)!;
     }
 
-    // ─── Receipts ────────────────────────────────────────────────────────
+    // Receipts
     public List<Receipt> GetReceiptsByUser(int userId) =>
         _db.Receipts.Where(r => r.UserId == userId).OrderByDescending(r => r.Id).ToList();
 
