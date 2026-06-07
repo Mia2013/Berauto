@@ -19,7 +19,7 @@ public partial class User
 
     public string? DrivingLicence { get; set; }
 
-    public string PasswordHash { get; set; } = null!;
+    public string? PasswordHash { get; set; }
 
     public virtual ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 

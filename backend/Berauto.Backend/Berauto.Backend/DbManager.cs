@@ -364,5 +364,51 @@ public class DbManager
         return GetRentalById(rental.Id)!;
     }
 
+    /// <summary>
+    /// Reserves a car for a non-registered user. Creates a "ghost" User row
+    /// (PasswordHash = null so they can never log in) and an immediate Confirmed
+    /// rental in a single transaction.
+    /// Throws if the email is already in use by an existing user.
+    /// </summary>
+    public Rental ReserveCarAsGuest(
+        int carId,
+        DateTime plannedStart,
+        DateTime plannedEnd,
+        string name,
+        string email,
+        string phone,
+        string address,
+        string drivingLicence)
+    {
+        // Block guests who already have an account from skipping login.
+        var existing = _db.Users.FirstOrDefault(u => u.Email == email);
+        if (existing != null)
+            throw new InvalidOperationException(
+                "Ez az email cím már regisztrált, kérjük jelentkezzen be a foglaláshoz.");
+
+        // Single transaction so we never leave a guest user with no rental.
+        using var tx = _db.Database.BeginTransaction();
+
+        var guest = new User
+        {
+            RoleId = RoleId.Client,
+            Name = name.Trim(),
+            Email = email.Trim(),
+            PasswordHash = null,           // null hash = guest, cannot log in
+            Phone = phone.Trim(),
+            Address = address.Trim(),
+            DrivingLicence = drivingLicence.Trim(),
+        };
+        _db.Users.Add(guest);
+        _db.SaveChanges();
+
+        // Reuse the existing reservation logic so the workflow stays identical
+        // (status validation, car state transition, cost calculation, etc.).
+        var rental = ReserveCar(carId, guest.Id, plannedStart, plannedEnd);
+
+        tx.Commit();
+        return rental;
+    }
+
 
 }

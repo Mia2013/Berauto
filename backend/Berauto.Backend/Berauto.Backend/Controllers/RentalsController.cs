@@ -18,7 +18,7 @@ namespace Berauto.Backend.Controllers
             _dbManager = dbManager;
         }
 
-        // ─── Helpers ─────────────────────────────────────────────────
+        //Helpers
         private int CurrentUserId =>
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -28,7 +28,7 @@ namespace Berauto.Backend.Controllers
         private bool CanAccessRental(Rental rental) =>
             IsStaff || rental.UserId == CurrentUserId;
 
-        // ─── Queries ─────────────────────────────────────────────────
+        //Queries
 
         // GET: api/rentals  (admin/officer: all rentals)
         [HttpGet]
@@ -63,7 +63,7 @@ namespace Berauto.Backend.Controllers
             return Ok(DtoMapper.ToDto(rental));
         }
 
-        // ─── State transitions ──────────────────────────────────────
+        //State transitions
 
         // POST: api/rentals  (reserve a car; auto-confirms)
         [HttpPost]
@@ -171,6 +171,33 @@ namespace Berauto.Backend.Controllers
             {
                 var rental = _dbManager.EditRental(id, request);
                 return Ok(DtoMapper.ToDto(rental));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // POST: api/rentals/guest  (no auth — anonymous booking)
+        [HttpPost("guest")]
+        [AllowAnonymous]
+        public ActionResult<RentalDto> ReserveAsGuest([FromBody] GuestRentalRequest req)
+        {
+            if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+            try
+            {
+                var rental = _dbManager.ReserveCarAsGuest(
+                    req.CarId,
+                    req.PlannedStart,
+                    req.PlannedEnd,
+                    req.Name,
+                    req.Email,
+                    req.Phone,
+                    req.Address,
+                    req.DrivingLicence);
+
+                return Ok(DtoMapper.ToDto(rental));   // adjust if your mapper has a different name
             }
             catch (InvalidOperationException ex)
             {
