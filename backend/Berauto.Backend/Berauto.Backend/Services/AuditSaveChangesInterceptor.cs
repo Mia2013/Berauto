@@ -51,7 +51,7 @@ public class AuditSaveChangesInterceptor : SaveChangesInterceptor
         return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }
 
-    // ─── Internals ──────────────────────────────────────────────────────────
+    // Internals
 
     private void Stage(DbContext? ctx)
     {

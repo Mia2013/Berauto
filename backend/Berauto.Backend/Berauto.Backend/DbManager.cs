@@ -48,6 +48,36 @@ public class DbManager
         _db.SaveChanges();
     }
 
+    // Updates an existing car. Throws InvalidOperationException for "not found"
+    // or duplicate RegNum so the controller can return BadRequest cleanly.
+    public Car UpdateCar(Car updates)
+    {
+        var existing = _db.Cars
+            .Include(c => c.Fuel)
+            .Include(c => c.Status)     
+            .FirstOrDefault(c => c.Id == updates.Id);
+
+        if (existing is null)
+            throw new InvalidOperationException($"Nincs ilyen autó: {updates.Id}");
+
+        var regTaken = _db.Cars
+            .Any(c => c.Id != updates.Id && c.RegNum == updates.RegNum);
+        if (regTaken)
+            throw new InvalidOperationException($"Ez a rendszám már foglalt: {updates.RegNum}");
+
+        existing.RegNum = (updates.RegNum ?? "").Trim();
+        existing.Brand = (updates.Brand ?? "").Trim();
+        existing.Model = (updates.Model ?? "").Trim();
+        existing.Mileage = updates.Mileage;
+        existing.Fee = updates.Fee;
+        existing.FuelId = updates.FuelId;
+        existing.IsRentable = updates.IsRentable;
+
+        _db.SaveChanges();
+        _db.Entry(existing).Reference(c => c.Fuel).Load();
+        return existing;
+    }
+
     public Car? GetCarById(int id) =>
         _db.Cars.Include(c => c.Fuel).Include(c => c.Status).FirstOrDefault(c => c.Id == id);
 
@@ -333,4 +363,6 @@ public class DbManager
         _db.SaveChanges();
         return GetRentalById(rental.Id)!;
     }
+
+
 }

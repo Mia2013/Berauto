@@ -1,3 +1,4 @@
+using Berauto.Backend.DTO;
 using Berauto.Backend.DTOs;
 using Berauto.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +16,41 @@ namespace Berauto.Backend.Controllers
         public CarsController(DbManager dbManager)
         {
             _dbManager = dbManager;
+        }
+
+        // PUT: api/cars/{id}  (staff edits an existing car at any time)
+        [Authorize(Roles = "Admin,Officer")]
+        [HttpPut("{id:int}")]
+        public ActionResult<CarDto> UpdateCar(int id, [FromBody] UpdateCarDto dto)
+        {
+            if (!ModelState.IsValid) return ValidationProblem(ModelState);
+
+            var updates = new Car
+            {
+                Id = id,
+                RegNum = dto.RegNum,
+                Brand = dto.Brand,
+                Model = dto.Model,
+                Mileage = dto.Mileage,
+                Fee = dto.Fee,
+                FuelId = dto.FuelId,
+                IsRentable = dto.IsRentable,
+            };
+
+            try
+            {
+                var updated = _dbManager.UpdateCar(updates);
+                return Ok(DtoMapper.ToDto(updated));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (DbUpdateException ex)
+            {
+                // e.g. unique-key violation on RegNum if it slips past the explicit check
+                return BadRequest(new { message = ex.InnerException?.Message ?? ex.Message });
+            }
         }
 
         // GET: api/cars  (available cars — for the public browsing page)
@@ -164,5 +200,7 @@ namespace Berauto.Backend.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+
     }
 }
