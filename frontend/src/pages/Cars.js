@@ -60,10 +60,8 @@ const Cars = () => {
     }, [cars, fuel]);
 
     const handleReserve = (car) => {
-        if (!isAuthenticated) {
-            navigate("/login");
-            return;
-        }
+        // Both authenticated users and guests can open the dialog.
+        // BookingDialog itself decides which fields to show based on auth state.
         setSelectedCar(car);
     };
 

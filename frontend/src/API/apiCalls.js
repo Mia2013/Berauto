@@ -8,6 +8,9 @@ export const endpoints = {
     login: "Auth/login",
     register: "Auth/register",
 
+    // Profile of the currently authenticated user (GET to load, PUT to update).
+    usersMe: "Users/me",
+
     cars: "Cars",
     carRentable: "Cars/rentable",
     carPetrol: "Cars/petrol",
@@ -20,6 +23,7 @@ export const endpoints = {
     carActivate: (id) => `Cars/${id}/activate`,
 
     rentals: "Rentals",
+    rentalsGuest: "Rentals/guest",   // anonymous bookings — no JWT required
     myRentals: "Rentals/mine",
     rentalById: (id) => `Rentals/${id}`,
     rentalHandover: (id) => `Rentals/${id}/handover`,

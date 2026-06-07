@@ -7,6 +7,7 @@ const Login = React.lazy(() => import("./Login"));
 const Register = React.lazy(() => import("./Register"));
 const MyRentals = React.lazy(() => import("./MyRentals"));
 const MyReceipts = React.lazy(() => import("./MyReceipts"));
+const Profile = React.lazy(() => import("./Profile"));
 const AdminRentals = React.lazy(() => import("./AdminRentals"));
 const AdminCars = React.lazy(() => import("./AdminCars"));
 const AdminAuditLog = React.lazy(() => import("./AdminAuditLog"));
@@ -23,6 +24,7 @@ export const pagesForPublic = [
 export const pagesForAuthenticatedOnly = [
     { name: "Bérléseim", path: "/my-rentals", component: <MyRentals />, allowedRoles: null },
     { name: "Bizonylataim", path: "/receipts", component: <MyReceipts />, allowedRoles: null },
+    { name: "Profilom", path: "/profile", component: <Profile />, allowedRoles: null },
 ];
 
 export const pagesForStaff = [

@@ -40,6 +40,15 @@ const AuthProvider = ({ children }) => {
         instance.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
     }, []);
 
+    // Merge fresh fields (e.g. phone/address after a profile save) into the cached user.
+    const updateUser = useCallback((patch) => {
+        setUser((prev) => {
+            const next = { ...(prev ?? {}), ...patch };
+            localStorage.setItem(USER_KEY, JSON.stringify(next));
+            return next;
+        });
+    }, []);
+
     const logOut = useCallback(() => {
         setToken("");
         setUser(null);
@@ -86,6 +95,7 @@ const AuthProvider = ({ children }) => {
             isAuthenticated,
             logIn,
             logOut,
+            updateUser,
         }}>
             {children}
         </AuthContext.Provider>

@@ -4,9 +4,11 @@ import {
     Button, Stack, Snackbar,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import { getData, postData, endpoints } from '../API/apiCalls';
 import CarCard from '../components/CarCard';
 import AddCarDialog from '../components/AddCarDialog';
+import EditCarDialog from '../components/EditCarDialog';
 
 const TABS = [
     { key: "available", label: "Elérhető", endpoint: endpoints.cars },
@@ -23,6 +25,7 @@ const AdminCars = () => {
     const [toast, setToast] = useState(null);
     const [busyId, setBusyId] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
+    const [editCar, setEditCar] = useState(null); // the car currently being edited, or null
 
     const activeTab = TABS[tabIndex];
 
@@ -58,9 +61,23 @@ const AdminCars = () => {
     };
 
     const renderActions = (car) => {
+        // The Edit button is always available — admins and clerks may modify
+        // car properties at any time regardless of the car's current state.
+        const editBtn = (
+            <Button
+                fullWidth
+                variant="outlined"
+                startIcon={<EditIcon />}
+                onClick={() => setEditCar(car)}
+            >
+                Szerkesztés
+            </Button>
+        );
+
+        let tabBtn = null;
         switch (activeTab.key) {
             case "available":
-                return (
+                tabBtn = (
                     <Button
                         fullWidth
                         variant="outlined"
@@ -71,9 +88,10 @@ const AdminCars = () => {
                         Szervizbe
                     </Button>
                 );
+                break;
             case "inspection":
             case "service":
-                return (
+                tabBtn = (
                     <Button
                         fullWidth
                         variant="contained"
@@ -83,10 +101,18 @@ const AdminCars = () => {
                         Aktiválás
                     </Button>
                 );
+                break;
             case "rented":
             default:
-                return null;
+                tabBtn = null;
         }
+
+        return (
+            <Stack spacing={1} sx={{ width: "100%" }}>
+                {editBtn}
+                {tabBtn}
+            </Stack>
+        );
     };
 
     return (
@@ -138,6 +164,13 @@ const AdminCars = () => {
                 open={addOpen}
                 onClose={() => setAddOpen(false)}
                 onSuccess={() => { setToast({ severity: "success", message: "Új autó hozzáadva." }); load(); }}
+            />
+
+            <EditCarDialog
+                open={!!editCar}
+                car={editCar}
+                onClose={() => setEditCar(null)}
+                onSuccess={() => { setToast({ severity: "success", message: "Autó adatai frissítve." }); load(); }}
             />
 
             <Snackbar

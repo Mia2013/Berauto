@@ -6,6 +6,16 @@ namespace Berauto.Models;
 
 public partial class CarRentalDbContext : DbContext
 {
+    public DbSet<User> Users { get; set; }
+    public DbSet<Car> Cars { get; set; }
+    public DbSet<Fuel> Fuels { get; set; }
+    public DbSet<CarStatus> CarStatuses { get; set; }
+    public DbSet<RentalStatus> RentalStatuses { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Rental> Rentals { get; set; }
+    public DbSet<Receipt> Receipts { get; set; }
+    public DbSet<AuditLog> AuditLogs { get; set; }
+
     public CarRentalDbContext()
     {
     }
@@ -15,28 +25,18 @@ public partial class CarRentalDbContext : DbContext
     {
     }
 
-    public virtual DbSet<Car> Cars { get; set; }
-
-    public virtual DbSet<CarStatus> CarStatuses { get; set; }
-
-    public virtual DbSet<Fuel> Fuels { get; set; }
-
-    public virtual DbSet<Rental> Rentals { get; set; }
-
-    public virtual DbSet<RentalStatus> RentalStatuses { get; set; }
-
-    public virtual DbSet<Role> Roles { get; set; }
-
-    public virtual DbSet<User> Users { get; set; }
-
-    public virtual DbSet<AuditLog> AuditLogs { get; set; }
-
-    public virtual DbSet<Receipt> Receipts { get; set; }
 
     //local db path:
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=CarRentalDb;Trusted_Connection=True;TrustServerCertificate=True");
+    {
+        // Fallback only — DI from Program.cs supplies the real connection string
+        // from appsettings.json, so this branch usually isn't taken at runtime.
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlServer(
+                "Server=localhost\\SQLEXPRESS;Database=CarRentalDb;Trusted_Connection=True;TrustServerCertificate=True");
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
