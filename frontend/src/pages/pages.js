@@ -12,8 +12,7 @@ const AdminRentals = React.lazy(() => import("./AdminRentals"));
 const AdminCars = React.lazy(() => import("./AdminCars"));
 const AdminAuditLog = React.lazy(() => import("./AdminAuditLog"));
 
-// Visible in the nav for everyone; visible-when-logged-out flag controls hiding
-// auth pages once the user is authenticated.
+
 export const pagesForPublic = [
     { name: "Kezdőlap", path: "/", component: <Home />, hideWhenAuthed: false },
     { name: "Autók", path: "/cars", component: <Cars />, hideWhenAuthed: false },

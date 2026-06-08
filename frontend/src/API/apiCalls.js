@@ -7,8 +7,6 @@ const BASE_URL = "https://localhost:7011/api";
 export const endpoints = {
     login: "Auth/login",
     register: "Auth/register",
-
-    // Profile of the currently authenticated user (GET to load, PUT to update).
     usersMe: "Users/me",
 
     cars: "Cars",
@@ -21,18 +19,15 @@ export const endpoints = {
     carById: (id) => `Cars/${id}`,
     carMaintenance: (id) => `Cars/${id}/maintenance`,
     carActivate: (id) => `Cars/${id}/activate`,
-
     rentals: "Rentals",
-    rentalsGuest: "Rentals/guest",   // anonymous bookings — no JWT required
+    rentalsGuest: "Rentals/guest",
     myRentals: "Rentals/mine",
     rentalById: (id) => `Rentals/${id}`,
     rentalHandover: (id) => `Rentals/${id}/handover`,
     rentalReturn: (id) => `Rentals/${id}/return`,
     rentalInspect: (id) => `Rentals/${id}/inspect`,
     rentalCancel: (id) => `Rentals/${id}/cancel`,
-
     auditLog: "AuditLog",
-
     myReceipts: "Receipts/mine",
     receiptById: (id) => `Receipts/${id}`,
     receiptByRental: (rentalId) => `Receipts/by-rental/${rentalId}`,
@@ -45,8 +40,7 @@ export const instance = axios.create({
     },
 });
 
-// Initialise the Authorization header from localStorage so early API calls
-// (e.g. on hard refresh) carry the token before AuthProvider has mounted.
+
 const initialToken = localStorage.getItem("berauto_token");
 if (initialToken) {
     instance.defaults.headers.common["Authorization"] = `Bearer ${initialToken}`;
@@ -55,7 +49,7 @@ if (initialToken) {
 const extractError = (error) => {
     const data = error.response?.data;
     if (typeof data === "string") return data;
-    return data?.message || data?.title || error.message || "Ismeretlen hiba történt.";
+    return data?.message || data?.title || error?.message || "Ismeretlen hiba történt.";
 };
 
 export const getData = async (endpoint, query = {}) => {

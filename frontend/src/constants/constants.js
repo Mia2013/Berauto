@@ -38,3 +38,7 @@ export const RENTAL_STATUS_LABEL = {
     [RENTAL_STATUS.COMPLETED]: "Lezárva",
     [RENTAL_STATUS.CANCELLED]: "Lemondva",
 };
+
+
+export const ENTITY_TYPES = ["", "Car", "Rental", "User", "CarStatus", "RentalStatus", "Fuel", "Role", "AuditLog"];
+export const ACTIONS = ["", "Insert", "Update", "Delete"];
