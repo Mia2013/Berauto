@@ -207,5 +207,24 @@ namespace Berauto.Backend.Controllers
 
             return Ok(new { available = true });
         }
+
+        [Authorize(Roles = "Admin,Officer")]
+        [HttpDelete("{id:int}")]
+        public IActionResult DeleteCar(int id)
+        {
+            try
+            {
+                _dbManager.DeleteCar(id);
+                return Ok(new { message = "Autó sikeresen törölve." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(new { message = "Adatbázis hiba történt a törlés során: " + (ex.InnerException?.Message ?? ex.Message) });
+            }
+        }
     }
 }

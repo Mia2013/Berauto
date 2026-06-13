@@ -9,6 +9,7 @@ export const endpoints = {
     register: "Auth/register",
     usersMe: "Users/me",
     cars: "Cars",
+    carDelById: (id) =>`Cars/${id}`,
     carRentable: "Cars/rentable",
     carPetrol: "Cars/petrol",
     carDiesel: "Cars/diesel",

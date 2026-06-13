@@ -8,7 +8,7 @@ import SpeedIcon from '@mui/icons-material/Speed';
 
 
 const CarCard = ({ car, onReserve, actions, disabled }) => {
-    const { brand, model, fuel, img, year, id, regNum } = car;
+    const { brand, model, fuel, imgUrl, year, id, regNum } = car;
 
 
     return (
@@ -17,7 +17,7 @@ const CarCard = ({ car, onReserve, actions, disabled }) => {
             <CardMedia
                 component="img"
                 height="180"
-                image={`${process.env.PUBLIC_URL}/cars/${regNum}.jpg`}
+                image={imgUrl}
                 alt={`${regNum}`}
                 sx={{ objectFit: "cover" }}
 

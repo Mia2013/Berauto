@@ -6,6 +6,7 @@ import {
 import { postData, endpoints, getData } from '../API/apiCalls';
 import { CAR_STATUS, FUEL_FILTERS, CLOUD_NAME, UPLOAD_PRESET } from '../constants/constants';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import DeleteIcon from '@mui/icons-material/Delete';
 import CustomAlert from './CustomAlert';
 import TitleComponent from './TitleComponent';
 import CloseIcon from '@mui/icons-material/Close';
@@ -53,12 +54,13 @@ const AddCarDialog = ({ open, onClose, onSuccess }) => {
         }
     };
 
-    const uploadImageToCloudinary = async () => {
+    const uploadImageToCloudinary = async (publicId) => {
         if (!selectedFile) return null;
 
         const formData = new FormData();
         formData.append("file", selectedFile.img);
         formData.append("upload_preset", UPLOAD_PRESET);
+         formData.append("public_id", publicId);
 
         const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
             method: "POST",
@@ -70,6 +72,7 @@ const AddCarDialog = ({ open, onClose, onSuccess }) => {
         }
 
         const data = await response.json();
+        console.log(data)
         return data.secure_url;
     };
 
@@ -81,16 +84,18 @@ const AddCarDialog = ({ open, onClose, onSuccess }) => {
         setError("Rendszám, márka és modell megadása kötelező.");
         return;
     }
+    if(cleanedRegNum.length > 10){
+         setError("Rendszám nem lehet hosszabb 10 karakternél ");
+    }
 
     setSubmitting(true);
     setError(null);
 
     try {
         const checkResponse = await getData(endpoints.validateRegnum(cleanedRegNum));
-    
-        if (!checkResponse.ok) {
-            const errorData = await checkResponse.json();
-             throw new Error(errorData.message || "A rendszám már használatban van.");
+        console.log(checkResponse)
+        if (!checkResponse?.available) {
+              throw new Error("A rendszám már használatban van.");
         }
 
         const uploadedPicUrl = await uploadImageToCloudinary(cleanedRegNum);
@@ -104,7 +109,7 @@ const AddCarDialog = ({ open, onClose, onSuccess }) => {
             fuelId: Number(fuelId),
             statusId: CAR_STATUS.AVAILABLE,
             isRentable,
-            imgUrl: uploadedPicUrl
+            imgUrl: uploadedPicUrl || ""
         };
 
         await postData(endpoints.cars, formData);
@@ -152,9 +157,10 @@ const AddCarDialog = ({ open, onClose, onSuccess }) => {
                                 (<Button
                                     component="label"
                                     variant="outlined"
-                                    startIcon={<CloudUploadIcon />}
+                                    startIcon={<DeleteIcon />}
                                     disabled={submitting}
                                     onClick={handleDeleteFile}
+                                    color='error'
                                 >
                                     Kép törlése
 

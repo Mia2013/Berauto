@@ -5,10 +5,12 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import { getData, postData, endpoints } from '../API/apiCalls';
+import DeleteIcon from '@mui/icons-material/Delete'; // Új ikon importálása
+import { getData, postData, endpoints, deleteData } from '../API/apiCalls';
 import CarCard from '../components/CarCard';
 import AddCarDialog from '../components/AddCarDialog';
 import EditCarDialog from '../components/EditCarDialog';
+
 
 const TABS = [
     { key: "available", label: "Elérhető", endpoint: endpoints.cars },
@@ -25,7 +27,7 @@ const AdminCars = () => {
     const [toast, setToast] = useState(null);
     const [busyId, setBusyId] = useState(null);
     const [addOpen, setAddOpen] = useState(false);
-    const [editCar, setEditCar] = useState(null); // the car currently being edited, or null
+    const [editCar, setEditCar] = useState(null);
 
     const activeTab = TABS[tabIndex];
 
@@ -60,17 +62,47 @@ const AdminCars = () => {
         }
     };
 
+    const handleDelete = async (car) => {
+        if (!window.confirm(`Biztosan törölni szeretnéd a(z) ${car.brand} ${car.model} (${car.regNum}) autót?`)) {
+            return;
+        }
+
+        setBusyId(car.id);
+        try {
+            await deleteData(endpoints.carDelById(car.id)); 
+            setToast({ severity: "success", message: "Az autó sikeresen törölve lett." });
+            await load(); 
+        } catch (err) {
+            setToast({ severity: "error", message: err.message || "A törlés nem sikerült." });
+        } finally {
+            setBusyId(null);
+        }
+    };
+
     const renderActions = (car) => {
-        // The Edit button is always available — admins and clerks may modify
-        // car properties at any time regardless of the car's current state.
         const editBtn = (
             <Button
                 fullWidth
                 variant="outlined"
                 startIcon={<EditIcon />}
+                disabled={busyId === car.id}
                 onClick={() => setEditCar(car)}
             >
                 Szerkesztés
+            </Button>
+        );
+
+        // ÚJ: Törlés gomb definíciója (csak akkor engedjük, ha épp nem dolgozik a soron semmi)
+        const deleteBtn = (
+            <Button
+                fullWidth
+                variant="outlined"
+                color="error"
+                startIcon={<DeleteIcon />}
+                disabled={busyId === car.id}
+                onClick={() => handleDelete(car)}
+            >
+                Törlés
             </Button>
         );
 
@@ -111,6 +143,8 @@ const AdminCars = () => {
             <Stack spacing={1} sx={{ width: "100%" }}>
                 {editBtn}
                 {tabBtn}
+                {/* ÚJ: Csak akkor jelenjen meg a törlés gomb, ha az autó nincs épp bérbe adva (rented tab) */}
+                {activeTab.key !== "rented" && deleteBtn}
             </Stack>
         );
     };

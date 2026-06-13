@@ -418,5 +418,21 @@ public class DbManager
         return _db.Cars.Any(c => c.RegNum.ToUpper() == cleaned);
     }
 
+    public void DeleteCar(int carId)
+    {
+        var car = _db.Cars.Include(c => c.Rentals).FirstOrDefault(c => c.Id == carId);
+
+        if (car == null)
+            throw new InvalidOperationException($"A(z) {carId} azonosítójú autó nem található.");
+
+        bool hasActiveRentals = car.Rentals.Any(r =>
+            r.StatusId != RentalStatusId.Completed && r.StatusId != RentalStatusId.Cancelled);
+
+        if (hasActiveRentals)
+            throw new InvalidOperationException("Az autó nem törölhető, mert aktív vagy jövőbeli foglalás tartozik hozzá!");
+
+        _db.Cars.Remove(car);
+        _db.SaveChanges();
+    }
 
 }
