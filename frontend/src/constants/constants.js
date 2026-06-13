@@ -53,3 +53,12 @@ export const FUEL_FILTERS = [
 
 export const CLOUD_NAME = "dtk9xrtrq";
 export const UPLOAD_PRESET = "berauto_preset";
+
+
+export const EMPTY_GUEST = {
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    drivingLicence: "",
+};

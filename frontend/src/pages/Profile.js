@@ -1,25 +1,31 @@
 import React, { useEffect, useState } from "react";
 import {
-    Box, Container, Paper, Typography, TextField, Button, Stack,
-    Alert, Snackbar, CircularProgress, Divider,
+    Box, Container, Paper, Typography, TextField, Button,
+    Alert, CircularProgress, Grid, Stack
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
+import EditIcon from "@mui/icons-material/Edit";
+import CancelIcon from "@mui/icons-material/Cancel";
 import { getData, putData, endpoints } from "../API/apiCalls";
 import { useAuth } from "../provider/AuthProvider";
+import CustomAlert from "../components/CustomAlert";
+import TitleComponent from "../components/TitleComponent";
+import FormDivider from "../components/FormDivider";
 
-// Editable fields per the task spec: phone number and address.
 const EDITABLE_KEYS = ["phone", "address"];
 
 const Profile = () => {
     const { updateUser } = useAuth();
-    const [profile, setProfile] = useState(null);   // full profile fetched from the API
+    const [profile, setProfile] = useState(null);
     const [form, setForm] = useState({ phone: "", address: "" });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
     const [toast, setToast] = useState(null);
 
-    // Load the current user's profile on mount.
+    const [isEditing, setIsEditing] = useState(false);
+    const [validationErrors, setValidationErrors] = useState({});
+
     useEffect(() => {
         let alive = true;
         (async () => {
@@ -42,33 +48,76 @@ const Profile = () => {
 
     const handleChange = (key) => (e) => {
         setForm((prev) => ({ ...prev, [key]: e.target.value }));
+        if (validationErrors[key]) {
+            setValidationErrors(prev => {
+                const { [key]: removed, ...rest } = prev;
+                return rest;
+            });
+        }
     };
 
-    // Has anything actually changed compared to the loaded profile?
     const dirty = EDITABLE_KEYS.some((k) => (form[k] ?? "") !== (profile?.[k] ?? ""));
+
+    const validateProfileForm = () => {
+        const errors = {};
+        if (!form.phone.trim()) {
+            errors.phone = "A telefonszám megadása kötelező!";
+        } else if (form.phone.trim().length < 4) {
+            errors.phone = "A megadott telefonszám túl rövid!";
+        }
+
+        if (!form.address.trim()) {
+            errors.address = "A lakcím megadása kötelező!";
+        } else if (form.address.trim().length < 4) {
+            errors.address = "Kérjük, pontosabb lakcímet adjon meg!";
+        }
+
+        return errors;
+    };
 
     const handleSave = async (e) => {
         e.preventDefault();
+
+        const errors = validateProfileForm();
+        if (Object.keys(errors).length > 0) {
+            setValidationErrors(errors);
+            setError(null);
+            return;
+        }
+
         if (!dirty || saving) return;
         setSaving(true);
         setError(null);
+        setValidationErrors({});
+
         try {
             const updated = await putData(endpoints.usersMe, {
                 phone: form.phone.trim(),
                 address: form.address.trim(),
             });
-            // Update local state with whatever the backend returned (or fall back to form values).
+
             const next = updated ?? { ...profile, ...form };
             setProfile(next);
             setForm({ phone: next.phone ?? "", address: next.address ?? "" });
-            // Keep the cached user in AuthProvider in sync.
+
             updateUser({ phone: next.phone, address: next.address });
             setToast({ severity: "success", message: "Profil sikeresen frissítve." });
+            setIsEditing(false);
         } catch (err) {
             setError(err.message || "Nem sikerült menteni a profilt.");
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleCancel = () => {
+        setForm({
+            phone: profile?.phone ?? "",
+            address: profile?.address ?? "",
+        });
+        setValidationErrors({});
+        setError(null);
+        setIsEditing(false);
     };
 
     if (loading) {
@@ -80,87 +129,143 @@ const Profile = () => {
     }
 
     return (
-        <Box sx={{ mt: 3 }}>
-            <Container maxWidth="sm">
-                <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
-                    Profilom
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                    Itt módosíthatja a telefonszámát és a címét. A többi adat csak megtekintésre szolgál.
-                </Typography>
-
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-                <Paper component="form" onSubmit={handleSave} elevation={1} sx={{ p: 3 }}>
-                    <Stack spacing={2}>
-                        <TextField
-                            label="Név"
-                            value={profile?.name ?? ""}
-                            slotProps={{ input: { readOnly: true } }}
-                            disabled
-                            fullWidth
+        <Container sx={{ mt: 4, mb: 4 }}>
+            <Paper elevation={6} sx={{ overflow: 'hidden', borderRadius: 4 }}>
+                <Grid container>
+                    <Grid size={{ xs: 12, md: 4 }} sx={{ position: 'relative' }}>
+                        <Box
+                            component="img"
+                            sx={{
+                                width: '100%',
+                                height: '100%',
+                                minHeight: { xs: 250, sm: 350, md: 600 },
+                                objectFit: 'cover',
+                                display: 'block'
+                            }}
+                            src={`${process.env.PUBLIC_URL}/bmw.jpg`}
+                            alt="Profil háttér"
                         />
-                        <TextField
-                            label="Email"
-                            value={profile?.email ?? ""}
-                            slotProps={{ input: { readOnly: true } }}
-                            disabled
-                            fullWidth
-                        />
-                        <TextField
-                            label="Jogosítvány száma"
-                            value={profile?.drivingLicence ?? ""}
-                            slotProps={{ input: { readOnly: true } }}
-                            disabled
-                            fullWidth
-                        />
+                        <Box sx={{
+                            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                            background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%)',
+                            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 4, color: 'white'
+                        }}>
+                            <Typography variant="h3" fontWeight={900} sx={{ textTransform: 'uppercase', lineHeight: 1 }}>
+                                Saját <br /> Profil
+                            </Typography>
 
-                        <Divider />
-
-                        <TextField
-                            label="Telefonszám"
-                            value={form.phone}
-                            onChange={handleChange("phone")}
-                            placeholder="+36 ..."
-                            fullWidth
-                        />
-                        <TextField
-                            label="Lakcím"
-                            value={form.address}
-                            onChange={handleChange("address")}
-                            placeholder="Irányítószám, város, utca, házszám"
-                            fullWidth
-                            multiline
-                            minRows={2}
-                        />
-
-                        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                startIcon={saving ? <CircularProgress size={18} /> : <SaveIcon />}
-                                disabled={!dirty || saving}
-                            >
-                                Mentés
-                            </Button>
                         </Box>
-                    </Stack>
-                </Paper>
-            </Container>
+                    </Grid>
 
-            <Snackbar
-                open={!!toast}
-                autoHideDuration={4000}
-                onClose={() => setToast(null)}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            >
-                {toast && (
-                    <Alert severity={toast.severity} onClose={() => setToast(null)}>
-                        {toast.message}
-                    </Alert>
-                )}
-            </Snackbar>
-        </Box>
+                    <Grid size={{ xs: 12, md: 8 }} sx={{ p: { xs: 3, md: 6 }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <TitleComponent title="Profilom" marginY={0} />
+                        </Box>
+
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                            Itt ellenőrizheti személyes adatait, valamint naprakészen tarthatja a kapcsolattartási címeit.
+                        </Typography>
+
+                        <Box component="form" onSubmit={handleSave} sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+
+                            <FormDivider text="SZEMÉLYAZONOSÍTÓ ADATOK" />
+
+                            <TextField
+                                label="Teljes név"
+                                value={profile?.name ?? ""}
+                                slotProps={{ input: { readOnly: true } }}
+                                disabled
+                                fullWidth
+                            />
+
+                            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
+                                <TextField
+                                    label="Email cím"
+                                    value={profile?.email ?? ""}
+                                    slotProps={{ input: { readOnly: true } }}
+                                    disabled
+                                    fullWidth
+                                />
+                                <TextField
+                                    label="Jogosítvány száma"
+                                    value={profile?.drivingLicence ?? ""}
+                                    slotProps={{ input: { readOnly: true } }}
+                                    disabled
+                                    fullWidth
+                                />
+                            </Box>
+
+                            <FormDivider text="KAPCSOLATTARTÁSI ADATOK (MÓDOSÍTHATÓ)" />
+
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                                <TextField
+                                    label="Telefonszám"
+                                    value={form.phone}
+                                    onChange={handleChange("phone")}
+                                    placeholder="+36 ..."
+                                    error={!!validationErrors.phone}
+                                    helperText={validationErrors.phone}
+                                    disabled={!isEditing}
+                                    fullWidth
+                                />
+                                <TextField
+                                    label="Lakcím"
+                                    value={form.address}
+                                    onChange={handleChange("address")}
+                                    placeholder="Irányítószám, város, utca, házszám"
+                                    error={!!validationErrors.address}
+                                    helperText={validationErrors.address}
+                                    disabled={!isEditing}
+                                    fullWidth
+                                    multiline
+                                    minRows={2}
+                                />
+                            </Box>
+
+                            {error && <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>}
+
+                            {!isEditing ? (
+                                <Button
+                                    variant='contained'
+                                    color='primary'
+                                    startIcon={<EditIcon />}
+                                    onClick={() => setIsEditing(true)}
+                                    sx={{ py: 1.8, fontWeight: 'bold', borderRadius: 2, mt: 2 }}
+                                    fullWidth
+                                >
+                                    Profil szerkesztése
+                                </Button>
+                            ) : (
+                                <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mt: 2 }}>
+                                    <Button
+                                        type="submit"
+                                        variant='contained'
+                                        color='primary'
+                                        startIcon={saving ? <CircularProgress size={18} color="inherit" /> : <SaveIcon />}
+                                        disabled={!dirty || saving}
+                                        sx={{ py: 1.8, fontWeight: 'bold', borderRadius: 2, flex: 1 }}
+                                    >
+                                        {saving ? "Mentés..." : "Módosítások mentése"}
+                                    </Button>
+                                    <Button
+                                        variant='outlined'
+                                        color='default'
+                                        startIcon={<CancelIcon />}
+                                        onClick={handleCancel}
+                                        disabled={saving}
+                                        sx={{ py: 1.8, fontWeight: 'bold', borderRadius: 2, flex: 1 }}
+                                    >
+                                        Mégse
+                                    </Button>
+                                </Stack>
+                            )}
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Paper>
+
+            {toast && <CustomAlert alert={toast} setAlert={setToast} />}
+        </Container>
     );
 };
 

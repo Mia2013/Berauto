@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box, Container, Typography, Tabs, Tab, Grid, Alert, CircularProgress,
-    Button, Stack, Snackbar,
+    Button, Stack,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete'; // Új ikon importálása
+import DeleteIcon from '@mui/icons-material/Delete';
 import { getData, postData, endpoints, deleteData } from '../API/apiCalls';
 import CarCard from '../components/CarCard';
 import AddCarDialog from '../components/AddCarDialog';
 import EditCarDialog from '../components/EditCarDialog';
+import CustomAlert from '../components/CustomAlert';
 
 
 const TABS = [
@@ -69,9 +70,9 @@ const AdminCars = () => {
 
         setBusyId(car.id);
         try {
-            await deleteData(endpoints.carDelById(car.id)); 
+            await deleteData(endpoints.carDelById(car.id));
             setToast({ severity: "success", message: "Az autó sikeresen törölve lett." });
-            await load(); 
+            await load();
         } catch (err) {
             setToast({ severity: "error", message: err.message || "A törlés nem sikerült." });
         } finally {
@@ -207,18 +208,7 @@ const AdminCars = () => {
                 onSuccess={() => { setToast({ severity: "success", message: "Autó adatai frissítve." }); load(); }}
             />
 
-            <Snackbar
-                open={!!toast}
-                autoHideDuration={5000}
-                onClose={() => setToast(null)}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            >
-                {toast && (
-                    <Alert severity={toast.severity} onClose={() => setToast(null)}>
-                        {toast.message}
-                    </Alert>
-                )}
-            </Snackbar>
+            {toast && <CustomAlert alert={toast} setAlert={setToast} />}
         </Box>
     );
 };
