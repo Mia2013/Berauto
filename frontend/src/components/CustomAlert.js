@@ -11,7 +11,7 @@ const CustomAlert = ({ alert, setAlert }) => {
                 severity={alert.severity}
                 variant="filled"
             >
-                {alert.message}
+                {alert?.message}
             </Alert>
         </Snackbar>)
 }

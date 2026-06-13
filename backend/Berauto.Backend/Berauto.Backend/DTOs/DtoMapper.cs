@@ -14,7 +14,8 @@ namespace Berauto.Backend.DTOs
             IsRentable = car.IsRentable,
             Fee = car.Fee,
             Fuel = car.Fuel.Name,
-            Status = car.Status.Name
+            Status = car.Status.Name,
+            ImgUrl = car.ImgUrl
         };
 
         public static UserDto ToDto(User user) => new UserDto

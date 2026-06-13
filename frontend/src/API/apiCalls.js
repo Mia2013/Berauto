@@ -8,7 +8,6 @@ export const endpoints = {
     login: "Auth/login",
     register: "Auth/register",
     usersMe: "Users/me",
-
     cars: "Cars",
     carRentable: "Cars/rentable",
     carPetrol: "Cars/petrol",
@@ -31,6 +30,8 @@ export const endpoints = {
     myReceipts: "Receipts/mine",
     receiptById: (id) => `Receipts/${id}`,
     receiptByRental: (rentalId) => `Receipts/by-rental/${rentalId}`,
+    validateRegnum: (id) => `cars/validate-regnum/${id}`,
+
 };
 
 export const instance = axios.create({

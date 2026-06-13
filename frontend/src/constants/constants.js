@@ -42,3 +42,14 @@ export const RENTAL_STATUS_LABEL = {
 
 export const ENTITY_TYPES = ["", "Car", "Rental", "User", "CarStatus", "RentalStatus", "Fuel", "Role", "AuditLog"];
 export const ACTIONS = ["", "Insert", "Update", "Delete"];
+
+export const FUEL_FILTERS = [
+    { key: "all", label: "Mind", id: -1 },
+    { key: "Petrol", label: "Benzin", id: 1 },
+    { key: "Diesel", label: "Dízel", id: 2, },
+    { key: "Hybrid", label: "Hibrid", id: 3, },
+    { key: "Electric", label: "Elektromos", id: 4, },
+];
+
+export const CLOUD_NAME = "dtk9xrtrq";
+export const UPLOAD_PRESET = "berauto_preset";

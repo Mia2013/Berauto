@@ -410,5 +410,13 @@ public class DbManager
         return rental;
     }
 
+    public bool CarExistsWithRegNum(string regNum)
+    {
+        if (string.IsNullOrWhiteSpace(regNum)) return false;
+
+        var cleaned = regNum.Trim().ToUpper();
+        return _db.Cars.Any(c => c.RegNum.ToUpper() == cleaned);
+    }
+
 
 }

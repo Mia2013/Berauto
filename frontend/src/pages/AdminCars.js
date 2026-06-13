@@ -163,7 +163,7 @@ const AdminCars = () => {
             <AddCarDialog
                 open={addOpen}
                 onClose={() => setAddOpen(false)}
-                onSuccess={() => { setToast({ severity: "success", message: "Új autó hozzáadva." }); load(); }}
+                onSuccess={load}
             />
 
             <EditCarDialog

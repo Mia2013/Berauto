@@ -7,11 +7,11 @@ public partial class Car
 {
     public int Id { get; set; }
 
-    public string RegNum { get; set; } = null!;
+    public string RegNum { get; set; } = string.Empty;
 
-    public string Brand { get; set; } = null!;
+    public string Brand { get; set; } = string.Empty;
 
-    public string Model { get; set; } = null!;
+    public string Model { get; set; } = string.Empty;
 
     public int Mileage { get; set; }
 
@@ -22,6 +22,7 @@ public partial class Car
     public int FuelId { get; set; }
 
     public int StatusId { get; set; }
+    public string ImgUrl { get; set; } = string.Empty;
 
     public virtual Fuel Fuel { get; set; } = null!;
 

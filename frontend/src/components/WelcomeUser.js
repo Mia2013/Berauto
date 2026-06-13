@@ -8,7 +8,7 @@ const WelcomeUser = () => {
     const { user } = useAuth();
 
     return (
-        <Paper elevation={2} sx={{ p: { xs: 4, md: 6 }, textAlign: 'center', borderRadius: 4, background: '#fff' }}>
+        <Paper elevation={0} sx={{ p: { xs: 4, md: 6 }, textAlign: 'center', borderRadius: 4, background: '#fff' }}>
             <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
                 Üdvözöljük újra, {user?.name || 'Kedves Ügyfelünk'}!
             </Typography>

@@ -22,9 +22,10 @@ namespace Berauto.Backend.DTOs
         [Required]
         public int FuelId { get; set; }
 
-        /// <summary>Defaults to Available (1) if omitted/zero.</summary>
         public int StatusId { get; set; }
 
         public bool IsRentable { get; set; } = true;
+
+        public string ImgUrl { get; set; } = string.Empty;
     }
 }
