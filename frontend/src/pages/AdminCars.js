@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box, Container, Typography, Tabs, Tab, Grid, Alert, CircularProgress,
-    Button, Stack,
+    Button, Stack, Paper,
+    Divider
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
+import BuildIcon from '@mui/icons-material/Build';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { getData, postData, endpoints, deleteData } from '../API/apiCalls';
 import CarCard from '../components/CarCard';
 import AddCarDialog from '../components/AddCarDialog';
 import EditCarDialog from '../components/EditCarDialog';
 import CustomAlert from '../components/CustomAlert';
-
+import TitleComponent from '../components/TitleComponent';
 
 const TABS = [
     { key: "available", label: "Elérhető", endpoint: endpoints.cars },
@@ -54,7 +57,7 @@ const AdminCars = () => {
                 ? endpoints.carMaintenance(car.id)
                 : endpoints.carActivate(car.id);
             await postData(url);
-            setToast({ severity: "success", message: "Művelet sikeres." });
+            setToast({ severity: "success", message: "A jármű státusza sikeresen frissítve." });
             await load();
         } catch (err) {
             setToast({ severity: "error", message: err.message || "A művelet nem sikerült." });
@@ -71,7 +74,7 @@ const AdminCars = () => {
         setBusyId(car.id);
         try {
             await deleteData(endpoints.carDelById(car.id));
-            setToast({ severity: "success", message: "Az autó sikeresen törölve lett." });
+            setToast({ severity: "success", message: "Az autó sikeresen törölve lett a flottából." });
             await load();
         } catch (err) {
             setToast({ severity: "error", message: err.message || "A törlés nem sikerült." });
@@ -81,113 +84,132 @@ const AdminCars = () => {
     };
 
     const renderActions = (car) => {
-        const editBtn = (
-            <Button
-                fullWidth
-                variant="outlined"
-                startIcon={<EditIcon />}
-                disabled={busyId === car.id}
-                onClick={() => setEditCar(car)}
-            >
-                Szerkesztés
-            </Button>
-        );
-
-        // ÚJ: Törlés gomb definíciója (csak akkor engedjük, ha épp nem dolgozik a soron semmi)
-        const deleteBtn = (
-            <Button
-                fullWidth
-                variant="outlined"
-                color="error"
-                startIcon={<DeleteIcon />}
-                disabled={busyId === car.id}
-                onClick={() => handleDelete(car)}
-            >
-                Törlés
-            </Button>
-        );
-
-        let tabBtn = null;
-        switch (activeTab.key) {
-            case "available":
-                tabBtn = (
-                    <Button
-                        fullWidth
-                        variant="outlined"
-                        color="warning"
-                        disabled={busyId === car.id}
-                        onClick={() => handleAction(car, "maintenance")}
-                    >
-                        Szervizbe
-                    </Button>
-                );
-                break;
-            case "inspection":
-            case "service":
-                tabBtn = (
-                    <Button
-                        fullWidth
-                        variant="contained"
-                        disabled={busyId === car.id}
-                        onClick={() => handleAction(car, "activate")}
-                    >
-                        Aktiválás
-                    </Button>
-                );
-                break;
-            case "rented":
-            default:
-                tabBtn = null;
-        }
-
         return (
-            <Stack spacing={1} sx={{ width: "100%" }}>
-                {editBtn}
-                {tabBtn}
-                {/* ÚJ: Csak akkor jelenjen meg a törlés gomb, ha az autó nincs épp bérbe adva (rented tab) */}
-                {activeTab.key !== "rented" && deleteBtn}
-            </Stack>
+            <Grid container spacing={1} sx={{ mt: 0.5 }}>
+                 <Grid size={activeTab.key === "rented" ? 12 : 6}>
+                    <Button
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        disabled={busyId === car.id}
+                        onClick={() => setEditCar(car)}
+                        sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+                        startIcon={<EditIcon sx={{ fontSize: '14px !important' }} />}
+                    >
+                        Szerkesztés
+                    </Button>
+                </Grid>
+
+                 {activeTab.key === "available" && (
+                    <Grid size={6}>
+                        <Button
+                            fullWidth
+                            size="small"
+                            variant="outlined"
+                            color="warning"
+                            startIcon={<BuildIcon sx={{ fontSize: '14px !important' }} />}
+                            disabled={busyId === car.id}
+                            onClick={() => handleAction(car, "maintenance")}
+                            sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
+                        >
+                            Szervizbe
+                        </Button>
+                    </Grid>
+                )}
+
+                {(activeTab.key === "inspection" || activeTab.key === "service") && (
+                    <Grid size={6}>
+                        <Button
+                            fullWidth
+                            size="small"
+                            variant="contained"
+                            color="success"
+                            startIcon={<CheckCircleIcon />}
+                            disabled={busyId === car.id}
+                            onClick={() => handleAction(car, "activate")}
+                            sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600, boxShadow: 'none' }}
+                        >
+                            Aktiválás
+                        </Button>
+                    </Grid>
+                )}
+
+                 {activeTab.key !== "rented" && (
+                    <Grid size={12}>
+                      <Divider  sx={{ my: 1}}/>
+                        <Button
+                            fullWidth
+                            size="small"
+                            variant="text"
+                            color="error"
+                            disabled={busyId === car.id}
+                            onClick={() => handleDelete(car)}
+                            sx={{ 
+                                  textTransform: 'none', 
+                                fontWeight: 600,
+                                '&:hover': { bgcolor: 'error.lighter', opacity: 0.9 }
+                            }}
+                            startIcon={<DeleteIcon sx={{ fontSize: '14px !important' }} />}
+
+                        >
+                            Jármű végleges törlése
+                        </Button>
+                    </Grid>
+                )}
+            </Grid>
         );
     };
 
     return (
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 3, mb: 4 }}>
             <Container maxWidth="xl">
-                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-                    <Typography variant="h4" sx={{ fontWeight: 800 }}>
-                        Autók kezelése
-                    </Typography>
-                    <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={() => setAddOpen(true)}
+                 <Paper elevation={0} sx={{ p: 3, mb: 3, borderRadius: 3, bgcolor: 'background.paper' }}>
+                    <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems="center" spacing={2}>
+                        <Box>
+                            <TitleComponent title="Autópark kezelése" marginY={0} alignItems="start" />
+                            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                Rendszerezze, szerkessze vagy vonja ki a forgalomból a flotta gépjárműveit.
+                            </Typography>
+                        </Box>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<AddIcon />}
+                            onClick={() => setAddOpen(true)}
+                            sx={{ py: 1.2, px: 3, fontWeight: 'bold', borderRadius: 2, textTransform: 'none', boxShadow: 'none' }}
+                        >
+                            Új autó hozzáadása
+                        </Button>
+                    </Stack>
+
+                    <Tabs
+                        value={tabIndex}
+                        onChange={(_, v) => setTabIndex(v)}
+                        sx={{ 
+                            mt: 3, 
+                            borderBottom: 1, 
+                            borderColor: 'divider',
+                            '& .MuiTab-root': { textTransform: 'none', fontWeight: 700, fontSize: '0.95rem' }
+                        }}
+                        variant="scrollable"
+                        scrollButtons="auto"
                     >
-                        Új autó
-                    </Button>
-                </Stack>
+                        {TABS.map((t) => <Tab key={t.key} label={t.label} />)}
+                    </Tabs>
+                </Paper>
 
-                <Tabs
-                    value={tabIndex}
-                    onChange={(_, v) => setTabIndex(v)}
-                    sx={{ mb: 3 }}
-                    variant="scrollable"
-                    scrollButtons="auto"
-                >
-                    {TABS.map((t) => <Tab key={t.key} label={t.label} />)}
-                </Tabs>
-
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
                         <CircularProgress />
                     </Box>
                 ) : cars.length === 0 ? (
-                    <Alert severity="info">Üres lista.</Alert>
+                    <Alert severity="info" sx={{ borderRadius: 2 }}>Jelenleg nincs autó ebben a kategóriában.</Alert>
                 ) : (
                     <Grid container spacing={3}>
                         {cars.map((car) => (
-                            <Grid key={car.id} size={{ xs: 12, sm: 6, md: 4 }}>
+                            <Grid key={car.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
                                 <CarCard car={car} actions={renderActions(car)} />
                             </Grid>
                         ))}

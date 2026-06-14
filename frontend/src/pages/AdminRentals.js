@@ -1,28 +1,32 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-    Box, Container, Typography, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, Chip, Button, Alert, CircularProgress, Stack,
-    Snackbar, TextField, MenuItem,
+    Box, Container, Typography, Paper, Chip, IconButton, Tooltip, Stack, Alert
 } from '@mui/material';
+import { DataGrid } from '@mui/x-data-grid';
+import dayjs from 'dayjs';
+
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CarRentalIcon from '@mui/icons-material/CarRental';
+import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import EditIcon from '@mui/icons-material/Edit';
+
 import { getData, postData, endpoints } from '../API/apiCalls';
 import { RENTAL_STATUS, RENTAL_STATUS_LABEL } from '../constants/constants';
 import InspectDialog from '../components/InspectDialog';
 import EditRentalDialog from '../components/EditRentalDialog';
-
-const formatDate = (iso) => {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return "—";
-    return d.toLocaleDateString("hu-HU");
-};
+import ReceiptDialog from '../components/ReceiptDialog';
+import CustomAlert from '../components/CustomAlert';
+import TitleComponent from '../components/TitleComponent';
 
 const statusColor = (statusId) => {
     switch (statusId) {
         case RENTAL_STATUS.CONFIRMED: return "info";
         case RENTAL_STATUS.ACTIVE: return "warning";
         case RENTAL_STATUS.RETURNED: return "secondary";
-        case RENTAL_STATUS.COMPLETED: return "success";
-        case RENTAL_STATUS.CANCELLED: return "default";
+        case RENTAL_STATUS.COMPLETED: return "default";
+        case RENTAL_STATUS.CANCELLED: return "error";
         default: return "default";
     }
 };
@@ -33,9 +37,10 @@ const AdminRentals = () => {
     const [error, setError] = useState(null);
     const [toast, setToast] = useState(null);
     const [busyId, setBusyId] = useState(null);
-    const [filter, setFilter] = useState("all");
+
     const [inspectTarget, setInspectTarget] = useState(null);
     const [editTarget, setEditTarget] = useState(null);
+    const [viewReceipt, setViewReceipt] = useState(null);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -52,21 +57,16 @@ const AdminRentals = () => {
 
     useEffect(() => { load(); }, [load]);
 
-    const filtered = useMemo(() => {
-        if (filter === "all") return rentals;
-        return rentals.filter((r) => r.statusId === Number(filter));
-    }, [rentals, filter]);
-
-    const handleSimpleAction = async (rental, kind) => {
-        setBusyId(rental.id);
+    const handleSimpleAction = async (rentalId, kind) => {
+        setBusyId(rentalId);
         try {
             const urlMap = {
-                handover: endpoints.rentalHandover(rental.id),
-                return: endpoints.rentalReturn(rental.id),
-                cancel: endpoints.rentalCancel(rental.id),
+                handover: endpoints.rentalHandover(rentalId),
+                return: endpoints.rentalReturn(rentalId),
+                cancel: endpoints.rentalCancel(rentalId),
             };
             await postData(urlMap[kind]);
-            setToast({ severity: "success", message: "Művelet sikeres." });
+            setToast({ severity: "success", message: "A bérlés állapota sikeresen frissítve." });
             await load();
         } catch (err) {
             setToast({ severity: "error", message: err.message || "A művelet nem sikerült." });
@@ -75,166 +75,219 @@ const AdminRentals = () => {
         }
     };
 
-    return (
-        <Box sx={{ mt: 3 }}>
-            <Container maxWidth="xl">
-                <Typography variant="h4" sx={{ fontWeight: 800, mb: 3 }}>
-                    Bérlések kezelése
-                </Typography>
+    const handleOpenReceipt = async (rental) => {
+        try {
+const receiptData = await getData(endpoints.receiptByRental(rental.id));
+            if (receiptData) setViewReceipt(receiptData);
+            else setToast({ severity: "warning", message: "Ehhez a bérléshez még nem áll rendelkezésre a bizonylat." });
+        } catch (err) {
+            setToast({ severity: "error", message: "Nem sikerült betölteni a bizonylatot." });
+        }
+    };
 
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ mb: 3 }} alignItems={{ sm: "center" }}>
-                    <TextField
-                        label="Állapot szűrő"
-                        select
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                        size="small"
-                        sx={{ minWidth: 200 }}
-                    >
-                        <MenuItem value="all">Összes</MenuItem>
-                        {Object.entries(RENTAL_STATUS).map(([key, id]) => (
-                            <MenuItem key={key} value={id}>{RENTAL_STATUS_LABEL[id]}</MenuItem>
-                        ))}
-                    </TextField>
-                    <Button onClick={load} variant="outlined" size="small">Frissítés</Button>
-                </Stack>
-
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-                {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-                        <CircularProgress />
-                    </Box>
-                ) : filtered.length === 0 ? (
-                    <Alert severity="info">Nincs bérlés a kiválasztott szűrővel.</Alert>
-                ) : (
-                    <TableContainer component={Paper}>
-                        <Table size="small">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>#</TableCell>
-                                    <TableCell>Ügyfél</TableCell>
-                                    <TableCell>Autó</TableCell>
-                                    <TableCell>Időszak</TableCell>
-                                    <TableCell>Összeg</TableCell>
-                                    <TableCell>Állapot</TableCell>
-                                    <TableCell align="right">Műveletek</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {filtered.map((r) => (
-                                    <TableRow key={r.id} hover>
-                                        <TableCell>{r.id}</TableCell>
-                                        <TableCell>
-                                            {r.userName}
-                                            <Typography variant="caption" display="block" color="text.secondary">
-                                                {r.userEmail}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            <strong>{r.carBrand} {r.carModel}</strong>
-                                            <Typography variant="caption" display="block" color="text.secondary">
-                                                {r.carRegNum}
-                                            </Typography>
-                                        </TableCell>
-                                        <TableCell>
-                                            {formatDate(r.plannedStart)} – {formatDate(r.plannedEnd)}
-                                        </TableCell>
-                                        <TableCell>{r.totalCost?.toLocaleString("hu-HU") ?? "—"} Ft</TableCell>
-                                        <TableCell>
-                                            <Chip
-                                                label={RENTAL_STATUS_LABEL[r.statusId] ?? r.status}
-                                                size="small"
-                                                color={statusColor(r.statusId)}
-                                            />
-                                        </TableCell>
-                                        <TableCell align="right">
-                                            <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ flexWrap: "wrap", gap: 1 }}>
-                                                {r.statusId === RENTAL_STATUS.CONFIRMED && (
-                                                    <>
-                                                        <Button
-                                                            size="small"
-                                                            variant="contained"
-                                                            disabled={busyId === r.id}
-                                                            onClick={() => handleSimpleAction(r, "handover")}
-                                                        >
-                                                            Átadás
-                                                        </Button>
-                                                        <Button
-                                                            size="small"
-                                                            color="error"
-                                                            variant="outlined"
-                                                            disabled={busyId === r.id}
-                                                            onClick={() => handleSimpleAction(r, "cancel")}
-                                                        >
-                                                            Lemondás
-                                                        </Button>
-                                                    </>
-                                                )}
-                                                {r.statusId === RENTAL_STATUS.ACTIVE && (
-                                                    <Button
-                                                        size="small"
-                                                        variant="contained"
-                                                        disabled={busyId === r.id}
-                                                        onClick={() => handleSimpleAction(r, "return")}
-                                                    >
-                                                        Visszavétel
-                                                    </Button>
-                                                )}
-                                                {r.statusId === RENTAL_STATUS.RETURNED && (
-                                                    <Button
-                                                        size="small"
-                                                        variant="contained"
-                                                        color="secondary"
-                                                        disabled={busyId === r.id}
-                                                        onClick={() => setInspectTarget(r)}
-                                                    >
-                                                        Ellenőrzés
-                                                    </Button>
-                                                )}
-                                                <Button
-                                                    size="small"
-                                                    variant="text"
-                                                    onClick={() => setEditTarget(r)}
-                                                >
-                                                    Szerkesztés
-                                                </Button>
-                                            </Stack>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+    const getStatusActions = (rental) => {
+        return (
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 0.5, justifyContent: 'flex-end', height: '100%', width: '100%' }}>
+                {rental.statusId === RENTAL_STATUS.CONFIRMED && (
+                    <>
+                        <Tooltip title="Autó átadása">
+                            <IconButton color="success" disabled={busyId === rental.id} onClick={() => handleSimpleAction(rental.id, "handover")}>
+                                <CarRentalIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Foglalás lemondása">
+                            <IconButton color="error" disabled={busyId === rental.id} onClick={() => handleSimpleAction(rental.id, "cancel")}>
+                                <CancelIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </>
                 )}
+
+                {rental.statusId === RENTAL_STATUS.ACTIVE && (
+                    <Tooltip title="Jármű visszavétele">
+                        <IconButton color="warning" disabled={busyId === rental.id} onClick={() => handleSimpleAction(rental.id, "return")}>
+                            <AssignmentReturnIcon />
+                        </IconButton>
+                    </Tooltip>
+                )}
+
+                {rental.statusId === RENTAL_STATUS.RETURNED && (
+                    <Tooltip title="Átvételi ellenőrzés">
+                        <IconButton color="secondary" disabled={busyId === rental.id} onClick={() => setInspectTarget(rental)}>
+                            <CheckCircleIcon />
+                        </IconButton>
+                    </Tooltip>
+                )}
+
+                {rental.statusId === RENTAL_STATUS.COMPLETED && (
+                    <Tooltip title="Bizonylat megtekintése">
+                        <IconButton color="info" onClick={() => handleOpenReceipt(rental)}>
+                            <ReceiptLongIcon />
+                        </IconButton>
+                    </Tooltip>
+                )}
+                <Tooltip title="Adatok szerkesztése">
+                    <IconButton color="primary" onClick={() => setEditTarget(rental)}>
+                        <EditIcon />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+        );
+    };
+
+    const renderCancelableCell = (value, isCancelled, isBold = false) => {
+        return (
+            <Typography
+                variant="body2"
+                sx={{
+                    textDecoration: isCancelled ? 'line-through' : 'none',
+                    color: isCancelled ? 'text.disabled' : 'text.primary',
+                    fontWeight: isBold && !isCancelled ? 700 : 400,
+                }}
+            >
+                {value}
+            </Typography>
+        );
+    };
+
+    const columns = useMemo(() => [
+        {
+            field: 'statusId',
+            headerName: 'Státusz',
+            width: 140,
+            renderCell: (params) => (
+                <Chip
+                    label={RENTAL_STATUS_LABEL[params.value] || "Ismeretlen"}
+                    size="small"
+                    color={statusColor(params.value)}
+                    variant="outlined"
+                    sx={{ fontWeight: 700 }}
+                />
+            )
+        },
+        {
+            field: 'id',
+            headerName: '# ID',
+            width: 70,
+            renderCell: (params) => renderCancelableCell(params.value, params.row.statusId === RENTAL_STATUS.CANCELLED)
+        },
+        {
+            field: 'userName',
+            headerName: 'Bérlő neve',
+            minWidth: 150,
+            renderCell: (params) => renderCancelableCell(params.value, params.row.statusId === RENTAL_STATUS.CANCELLED)
+        },
+        {
+            field: 'userPhone',
+            headerName: 'Telefonszám',
+            minWidth: 130,
+            renderCell: (params) => renderCancelableCell(params.value, params.row.statusId === RENTAL_STATUS.CANCELLED)
+        },
+        {
+            field: 'userEmail',
+            headerName: 'Email cím',
+            minWidth: 180,
+            renderCell: (params) => renderCancelableCell(params.value, params.row.statusId === RENTAL_STATUS.CANCELLED)
+        },
+        {
+            field: 'carBrand',
+            headerName: 'Márka',
+            minWidth: 110,
+            renderCell: (params) => renderCancelableCell(params.value, params.row.statusId === RENTAL_STATUS.CANCELLED)
+        },
+        {
+            field: 'carModel',
+            headerName: 'Modell',
+            minWidth: 110,
+            renderCell: (params) => renderCancelableCell(params.value, params.row.statusId === RENTAL_STATUS.CANCELLED)
+        },
+        {
+            field: 'carRegNum',
+            headerName: 'Rendszám',
+            minWidth: 100,
+            renderCell: (params) => renderCancelableCell(params.value, params.row.statusId === RENTAL_STATUS.CANCELLED, true)
+        },
+        {
+            field: 'plannedStart',
+            headerName: 'Kezdete',
+            minWidth: 110,
+            renderCell: (params) => renderCancelableCell(params.value ? dayjs(params.value).format('YYYY.MM.DD.') : '—', params.row.statusId === RENTAL_STATUS.CANCELLED)
+        },
+        {
+            field: 'plannedEnd',
+            headerName: 'Vége',
+            minWidth: 110,
+            renderCell: (params) => renderCancelableCell(params.value ? dayjs(params.value).format('YYYY.MM.DD.') : '—', params.row.statusId === RENTAL_STATUS.CANCELLED)
+        },
+        {
+            field: 'totalCost',
+            headerName: 'Összeg',
+            minWidth: 120,
+            renderCell: (params) => renderCancelableCell(params.value ? `${params.value.toLocaleString("hu-HU")} Ft` : '—', params.row.statusId === RENTAL_STATUS.CANCELLED)
+        },
+        {
+            field: 'actions',
+            headerName: 'Műveletek',
+            width: 140,
+            sortable: false,
+            filterable: false,
+            renderCell: (params) => getStatusActions(params.row)
+        },
+    ], [busyId]);
+
+    return (
+        <Box sx={{ mt: 3, px: 3, mb: 5 }}>
+            <Container maxWidth="xl" component={Paper} elevation={0} sx={{ p: 3, borderRadius: 3 }}>
+                <Box sx={{ mb: 3 }}>
+                    <TitleComponent title="Bérlések kezelése" marginY={0} alignItems="start" />
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Vezérelje a foglalások életciklusát, rögzítse az átadásokat és kezelje a pénzügyi bizonylatokat.
+                    </Typography>
+                </Box>
+
+                {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
+
+                <DataGrid
+                    rows={rentals}
+                    columns={columns}
+                    loading={loading}
+                    autoHeight
+                    initialState={{
+                        pagination: { paginationModel: { pageSize: 10 } },
+                    }}
+                    pageSizeOptions={[5, 10, 25, 50]}
+                    disableRowSelectionOnClick
+                    sx={{
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        borderRadius: 2,
+                        '& .MuiDataGrid-columnHeaders': { bgcolor: 'action.hover', borderBottom: '2px solid', borderColor: 'divider' },
+                        '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' }
+                    }}
+                />
             </Container>
 
             <InspectDialog
                 open={!!inspectTarget}
                 rental={inspectTarget}
                 onClose={() => setInspectTarget(null)}
-                onSuccess={() => { setToast({ severity: "success", message: "Ellenőrzés rögzítve." }); load(); }}
+                onSuccess={() => { setToast({ severity: "success", message: "Ellenőrzés sikeresen rögzítve." }); load(); }}
             />
 
             <EditRentalDialog
                 open={!!editTarget}
                 rental={editTarget}
                 onClose={() => setEditTarget(null)}
-                onSuccess={() => { setToast({ severity: "success", message: "Bérlés frissítve." }); load(); }}
+                onSuccess={() => { setToast({ severity: "success", message: "Bérlés sikeresen frissítve." }); load(); }}
             />
 
-            <Snackbar
-                open={!!toast}
-                autoHideDuration={5000}
-                onClose={() => setToast(null)}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            >
-                {toast && (
-                    <Alert severity={toast.severity} onClose={() => setToast(null)}>
-                        {toast.message}
-                    </Alert>
-                )}
-            </Snackbar>
+            <ReceiptDialog
+                open={!!viewReceipt}
+                receipt={viewReceipt}
+                onClose={() => setViewReceipt(null)}
+            />
+
+            {toast && <CustomAlert alert={toast} setAlert={setToast} />}
         </Box>
     );
 };

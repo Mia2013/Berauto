@@ -1,5 +1,5 @@
 namespace Berauto.Backend.DTOs
-    //?
+ 
 {
     public class RentalDto
     {
@@ -21,5 +21,6 @@ namespace Berauto.Backend.DTOs
         public int? TotalCost { get; set; }
         public int? ReturnMileage { get; set; }
         public string? Condition { get; set; }
+        public int CarMileage { get; set; }
     }
 }

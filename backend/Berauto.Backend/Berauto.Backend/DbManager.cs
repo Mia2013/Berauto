@@ -170,7 +170,10 @@ public class DbManager
             .Include(r => r.User)
             .Include(r => r.Status);
 
-    public List<Rental> GetAllRentals() => RentalsWithIncludes().ToList();
+    public List<Rental> GetAllRentals() =>
+    RentalsWithIncludes()
+        .OrderByDescending(r => r.PlannedStart)
+        .ToList();
 
     public List<Rental> GetRentalsByUser(int userId) =>
          RentalsWithIncludes().Where(r => r.UserId == userId).ToList();
