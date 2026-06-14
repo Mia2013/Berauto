@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
     Alert, Button, Grid, TextField, InputAdornment, IconButton, Container, Box,
-    Typography, FormControl, Link as MuiLink, Paper, Stack
+    Typography, Link as MuiLink, Paper
 } from "@mui/material";
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
@@ -11,7 +11,7 @@ import Send from '@mui/icons-material/Send';
 import { postData, endpoints } from '../API/apiCalls';
 import { useAuth } from '../provider/AuthProvider';
 import TitleComponent from './TitleComponent';
-import FormDivider from './FormDivider'; // A Profil oldalon használt elválasztó
+import FormDivider from './FormDivider'; 
 
 const RegisterForm = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -75,7 +75,6 @@ const RegisterForm = () => {
             <Paper elevation={6} sx={{ overflow: 'hidden', borderRadius: 4 }}>
                 <Grid container component="form" onSubmit={handleRegister}>
                     
-                    {/* BAL OLDAL: Háttérkép stílus (Pont mint a profilnál) */}
                     <Grid size={{ xs: 12, md: 4 }} sx={{ position: 'relative' }}>
                         <Box
                             component="img"
@@ -100,7 +99,6 @@ const RegisterForm = () => {
                         </Box>
                     </Grid>
 
-                    {/* JOBB OLDAL: Űrlap mezők */}
                     <Grid size={{ xs: 12, md: 8 }} sx={{ p: { xs: 3, md: 6 }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <Box sx={{ mb: 2 }}>
                             <TitleComponent title="Regisztráció" marginY={0} />
@@ -140,7 +138,6 @@ const RegisterForm = () => {
                                     helperText={errors?.email}
                                 />
                                 
-                                {/* Egységesített Standard TextField a Jelszónak ad some styling */}
                                 <TextField
                                     label="Jelszó"
                                     id="register-password"

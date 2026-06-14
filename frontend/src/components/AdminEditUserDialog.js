@@ -171,7 +171,7 @@ const AdminEditUserDialog = ({ open, user, onClose, onSuccess }) => {
                             select
                             value={formData.roleId}
                             onChange={handleChange}
-                            disabled={user.roleId === 1} // Főadmin szerepköre védett
+                            disabled={user.roleId === 1} 
                             helperText={user.roleId === 1 ? "A főadminisztrátori szerepkör biztonsági okokból nem módosítható." : ""}
                             fullWidth
                             required

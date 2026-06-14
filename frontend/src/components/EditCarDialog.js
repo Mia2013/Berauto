@@ -11,7 +11,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import SaveIcon from '@mui/icons-material/Save';
-import ValidationCaption from './ValidationCaption';
 
 const EditCarDialog = ({ open, car, onClose, onSuccess }) => {
     const [regNum, setRegNum] = useState("");
@@ -27,7 +26,6 @@ const EditCarDialog = ({ open, car, onClose, onSuccess }) => {
     const [error, setError] = useState(null);
     const [alert, setAlert] = useState(null);
 
-    // Form előtöltése az autó megnyitásakor
     useEffect(() => {
         if (open && car) {
             setRegNum(car.regNum ?? "");
@@ -199,7 +197,6 @@ const EditCarDialog = ({ open, car, onClose, onSuccess }) => {
                                 onChange={(e) => setFuelId(e.target.value)}
                                 fullWidth
                             >
-                                {/* Dinamikusan szűrjük ki a "Mind" (-1 id) opciót, mint az AddCar-nál */}
                                 {FUEL_FILTERS.filter(f => f.id !== -1).map(f => 
                                     <MenuItem key={f.id} value={f.id}>{f.label}</MenuItem>
                                 )}

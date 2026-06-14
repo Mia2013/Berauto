@@ -7,9 +7,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import CloseIcon from '@mui/icons-material/Close';
 import HistoryIcon from '@mui/icons-material/History';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import { getData, endpoints } from '../API/apiCalls';
-import { RENTAL_STATUS, RENTAL_STATUS_LABEL, STATUS_COLOR } from '../constants/constants';
+import {  RENTAL_STATUS_LABEL, STATUS_COLOR } from '../constants/constants';
 
 
 const RentalHistoryDialog = ({ user, onClose }) => {

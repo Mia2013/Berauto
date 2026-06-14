@@ -12,6 +12,7 @@ import { postData, endpoints } from '../API/apiCalls';
 import { useAuth } from '../provider/AuthProvider';
 import TitleComponent from './TitleComponent';
 import CustomAlert from './CustomAlert';
+import ValidationCaption from './ValidationCaption';
 
 const LoginForm = ({ formElevation = 0 }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -58,24 +59,24 @@ const LoginForm = ({ formElevation = 0 }) => {
         setLoading(true);
         setAlert(null);
 
-        postData(endpoints.login, { 
-            email: formData.email.trim(), 
-            password: formData.password 
+        postData(endpoints.login, {
+            email: formData.email.trim(),
+            password: formData.password
         })
-        .then((data) => {
-            logIn(data);
-            navigate("/");
-        })
-        .catch((err) => {
-             setAlert({ severity: "error", message: err.message || "Sikertelen bejelentkezés." });
-        })
-        .finally(() => {
-            setLoading(false);
-        });
+            .then((data) => {
+                logIn(data);
+                navigate("/");
+            })
+            .catch((err) => {
+                setAlert({ severity: "error", message: err.message || "Sikertelen bejelentkezés." });
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     };
 
     return (
-        <Paper 
+        <Paper
             elevation={formElevation}
             sx={{
                 p: formElevation === 0 ? 0 : 4,
@@ -91,10 +92,10 @@ const LoginForm = ({ formElevation = 0 }) => {
                 Kérjük, adja meg hitelesítési adatait a fiókjába való belépéshez.
             </Typography>
 
-            <Box 
-                component="form" 
-                noValidate 
-                onSubmit={handleLogin} 
+            <Box
+                component="form"
+                noValidate
+                onSubmit={handleLogin}
                 sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
             >
                 <TextField
@@ -134,9 +135,7 @@ const LoginForm = ({ formElevation = 0 }) => {
                         }
                     />
                     {errors?.password && (
-                        <Typography variant="caption" color="error.main" sx={{ mt: 0.5, ml: 1.5 }}>
-                            {errors.password}
-                        </Typography>
+                        <ValidationCaption message={errors.password} />
                     )}
                 </FormControl>
 
