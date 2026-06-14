@@ -1,7 +1,5 @@
-﻿namespace Berauto.Backend.DTO
+﻿namespace Berauto.Backend.DTOs
 {
-    // The "current user" shape returned by GET /api/Users/me and PUT /api/Users/me.
-    // Notice: Role and DrivingLicence are returned but cannot be modified through the profile endpoint.
     public class UserProfileDto
     {
         public int Id { get; set; }

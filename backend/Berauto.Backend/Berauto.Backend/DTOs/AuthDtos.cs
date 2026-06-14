@@ -37,4 +37,25 @@ namespace Berauto.Backend.DTOs
         public string Token { get; set; } = null!;
         public UserDto User { get; set; } = null!;
     }
+
+    public class AdminRegisterDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string? Phone { get; set; }
+        public string? Address { get; set; }
+        public string? DrivingLicence { get; set; }
+        public int RoleId { get; set; } 
+    }
+
+    public class AdminUpdateUserDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? Phone { get; set; }
+        public string? Address { get; set; }
+        public string? DrivingLicence { get; set; }
+        public int RoleId { get; set; }
+    }
 }

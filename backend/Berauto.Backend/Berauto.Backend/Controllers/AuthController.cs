@@ -1,5 +1,6 @@
+using Azure.Core;
 using Berauto.Backend.DTOs;
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +49,6 @@ namespace Berauto.Backend.Controllers
 
             _dbManager.AddUser(user);
 
-            // Reload with Role include so the token + DTO have the role name.
             var saved = _dbManager.GetUserByEmail(user.Email)!;
             var token = GenerateToken(saved);
 
@@ -70,7 +70,6 @@ namespace Berauto.Backend.Controllers
             if (user == null)
                 return Unauthorized(new { message = "Invalid email or password." });
 
-            // Empty/null hash means the account predates password support — reject cleanly.
             if (string.IsNullOrEmpty(user.PasswordHash))
                 return Unauthorized(new { message = "Account is not configured for password login." });
 
@@ -78,7 +77,6 @@ namespace Berauto.Backend.Controllers
             if (result == PasswordVerificationResult.Failed)
                 return Unauthorized(new { message = "Invalid email or password." });
 
-            // If the hasher recommends rehashing (older algorithm), upgrade transparently.
             if (result == PasswordVerificationResult.SuccessRehashNeeded)
             {
                 user.PasswordHash = _hasher.HashPassword(user, request.Password);
@@ -116,6 +114,40 @@ namespace Berauto.Backend.Controllers
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        // POST: api/Auth/admin-register 
+        [HttpPost("admin-register")]
+        [Authorize(Roles = "Admin")]
+        public ActionResult AdminRegister([FromBody] AdminRegisterDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var existing = _dbManager.GetUserByEmail(dto.Email);
+            if (existing != null)
+            {
+                return BadRequest(new { message = "Ez az email cím már regisztrálva van a rendszerben." });
+            }
+
+            if (dto.RoleId < 1 || dto.RoleId > 3)
+            {
+                return BadRequest(new { message = "Érvénytelen szerepkör azonosító!" });
+            }
+
+            var newUser = new User
+            {
+                Name = dto.Name.Trim(),
+                Email = dto.Email.Trim().ToLower(),
+                Phone = string.IsNullOrWhiteSpace(dto.Phone) ? null : dto.Phone.Trim(),
+                Address = string.IsNullOrWhiteSpace(dto.Address) ? null : dto.Address.Trim(),
+                DrivingLicence = string.IsNullOrWhiteSpace(dto.DrivingLicence) ? null : dto.DrivingLicence.Trim(),
+                RoleId = dto.RoleId
+            };
+
+            newUser.PasswordHash = _hasher.HashPassword(newUser, dto.Password);
+            _dbManager.AddUser(newUser);
+
+            return Ok(new { message = "Az új felhasználói fiók sikeresen létrehozva." });
         }
     }
 }

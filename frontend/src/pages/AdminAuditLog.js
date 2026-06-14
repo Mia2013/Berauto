@@ -7,9 +7,8 @@ import {
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { getData, endpoints } from '../API/apiCalls';
+import {ENTITY_TYPES, ACTIONS } from "../constants/constants";
 
-const ENTITY_TYPES = ["", "Car", "Rental", "User", "CarStatus", "RentalStatus", "Fuel", "Role", "AuditLog"];
-const ACTIONS = ["", "Insert", "Update", "Delete"];
 
 const formatTs = (iso) => {
     if (!iso) return "—";
@@ -71,7 +70,7 @@ const AdminAuditLog = () => {
         setError(null);
         try {
             const params = {
-                page: page + 1,        // backend is 1-based
+                page: page + 1,       
                 pageSize,
             };
             if (entityType) params.entityType = entityType;

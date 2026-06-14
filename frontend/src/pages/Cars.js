@@ -1,47 +1,41 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-    Box, Container, Typography, Grid, Chip, Stack, Alert, Snackbar,
+    Box, Container, Typography, Grid, Chip, Stack, Alert,
     CircularProgress, TextField, Paper, Button,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import UndoIcon from '@mui/icons-material/Undo';
+
 import { getData, endpoints } from '../API/apiCalls';
-import { useAuth } from '../provider/AuthProvider';
 import CarCard from '../components/CarCard';
 import BookingDialog from '../components/BookingDialog';
-
-// Fuel values come from the backend as Fuel.Name (the seeded English strings).
-// The chip label is the Hungarian translation.
-const FUEL_FILTERS = [
-    { key: "all", label: "Mind" },
-    { key: "Petrol", label: "Benzin" },
-    { key: "Diesel", label: "Dízel" },
-    { key: "Hybrid", label: "Hibrid" },
-    { key: "Electric", label: "Elektromos" },
-];
-
-const todayIso = () => new Date().toISOString().split("T")[0];
+import TitleComponent from '../components/TitleComponent';
+import CustomAlert from '../components/CustomAlert';
+import { FUEL_FILTERS } from '../constants/constants';
 
 const Cars = () => {
     const [cars, setCars] = useState([]);
     const [fuel, setFuel] = useState("all");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+    const [startDate, setStartDate] = useState(dayjs().add(1, 'day'));
+    const [endDate, setEndDate] = useState(dayjs().add(2, 'day'));
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedCar, setSelectedCar] = useState(null);
     const [toast, setToast] = useState(null);
 
-    const { isAuthenticated } = useAuth();
-    const navigate = useNavigate();
 
     const datesPartial = (!!startDate) !== (!!endDate);
-    const datesValid = startDate && endDate && new Date(endDate) > new Date(startDate);
+    const datesValid = startDate && endDate && !endDate.isBefore(startDate, 'day');
 
     const load = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            const params = datesValid ? { startDate, endDate } : {};
+            const params = datesValid ? {
+                startDate: startDate.format('YYYY-MM-DD'),
+                endDate: endDate.format('YYYY-MM-DD')
+            } : {};
+
             const data = await getData(endpoints.carRentable, params);
             setCars(Array.isArray(data) ? data : []);
         } catch (err) {
@@ -49,7 +43,7 @@ const Cars = () => {
         } finally {
             setLoading(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line 
     }, [startDate, endDate, datesValid]);
 
     useEffect(() => { load(); }, [load]);
@@ -60,8 +54,6 @@ const Cars = () => {
     }, [cars, fuel]);
 
     const handleReserve = (car) => {
-        // Both authenticated users and guests can open the dialog.
-        // BookingDialog itself decides which fields to show based on auth state.
         setSelectedCar(car);
     };
 
@@ -76,76 +68,86 @@ const Cars = () => {
     return (
         <Box sx={{ mt: 3 }}>
             <Container maxWidth="lg">
-                <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
-                    Elérhető autók
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                    Válasszon egy autót és foglalja le pár kattintással.
-                </Typography>
 
-                <Paper sx={{ p: 2, mb: 3 }} elevation={1}>
+                <Paper sx={{ p: 2, mb: 3 }} elevation={0}>
+                    <TitleComponent title="Elérhető autók" />
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 3, textAlign: "center" }}>
+                        Válasszon egy autót és foglalja le pár kattintással
+                    </Typography>
+
                     <Stack
                         direction={{ xs: "column", md: "row" }}
-                        spacing={2}
-                        alignItems={{ md: "center" }}
+                        sx={{ alignItems: 'center', justifyContent: 'space-between' }}
                     >
-                        <Typography variant="body2" sx={{ minWidth: 200, fontWeight: 600 }}>
-                            Mikor szeretne foglalni?
-                        </Typography>
-                        <TextField
-                            label="Kezdő dátum"
-                            type="date"
-                            size="small"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            slotProps={{
-                                inputLabel: { shrink: true },
-                                htmlInput: { min: todayIso() },
-                            }}
-                        />
-                        <TextField
-                            label="Záró dátum"
-                            type="date"
-                            size="small"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            slotProps={{
-                                inputLabel: { shrink: true },
-                                htmlInput: { min: startDate || todayIso() },
-                            }}
-                        />
-                        {(startDate || endDate) && (
-                            <Button
+                        <Stack
+                            direction={{ xs: "column", md: "row" }}
+                            spacing={2}
+                            alignItems={{ md: "center" }}
+                        >
+                            <Typography variant="body2" sx={{ minWidth: 200, fontWeight: 600 }}>
+                                Mikor szeretne foglalni?
+                            </Typography>
+
+                            <TextField
+                                label="Kezdő dátum"
+                                type="date"
                                 size="small"
-                                onClick={() => { setStartDate(""); setEndDate(""); }}
-                            >
-                                Törlés
-                            </Button>
-                        )}
+                                value={startDate ? startDate.format('YYYY-MM-DD') : ""}
+                                onChange={(e) => setStartDate(e.target.value ? dayjs(e.target.value) : null)}
+                                slotProps={{
+                                    inputLabel: { shrink: true },
+                                    htmlInput: { min: dayjs().format('YYYY-MM-DD') },
+                                }}
+                            />
+
+                            <TextField
+                                label="Záró dátum"
+                                type="date"
+                                size="small"
+                                value={endDate ? endDate.format('YYYY-MM-DD') : ""}
+                                onChange={(e) => setEndDate(e.target.value ? dayjs(e.target.value) : null)}
+                                slotProps={{
+                                    inputLabel: { shrink: true },
+                                    htmlInput: { min: startDate ? startDate.format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD') },
+                                }}
+                            />
+
+                            {(startDate || endDate) && (
+                                <Button
+                                    size="small"
+                                    onClick={() => { setStartDate(null); setEndDate(null); }}
+                                    color='info'
+                                    startIcon={<UndoIcon />}
+                                >
+                                    Alaphelyzet
+                                </Button>
+                            )}
+                            <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mt: 2, ml: 5 }}>
+                                {FUEL_FILTERS.map((f) => (
+                                    <Chip
+                                        key={f.key}
+                                        label={f.label}
+                                        color={fuel === f.key ? "primary" : "default"}
+                                        onClick={() => setFuel(f.key)}
+                                        variant={fuel === f.key ? "filled" : "outlined"}
+                                    />
+                                ))}
+                            </Stack>
+                        </Stack>
+
+
                     </Stack>
                     {datesPartial && (
                         <Alert severity="info" sx={{ mt: 2 }}>
-                            Mindkét dátum szükséges a szűréshez. Most a jelenleg elérhető autókat listázzuk.
+                            *Mindkét dátum szükséges a szűréshez. Most a jelenleg elérhető autókat listázzuk.
                         </Alert>
                     )}
                     {datesValid && (
                         <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-                            Csak azokat az autókat mutatjuk, amelyek a megadott időszakban szabadok.
+                            *Csak azokat az autókat mutatjuk, amelyek a megadott időszakban szabadok.
                         </Typography>
                     )}
                 </Paper>
-
-                <Stack direction="row" spacing={1} sx={{ mb: 3, flexWrap: "wrap", gap: 1 }}>
-                    {FUEL_FILTERS.map((f) => (
-                        <Chip
-                            key={f.key}
-                            label={f.label}
-                            color={fuel === f.key ? "primary" : "default"}
-                            onClick={() => setFuel(f.key)}
-                            variant={fuel === f.key ? "filled" : "outlined"}
-                        />
-                    ))}
-                </Stack>
 
                 {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
@@ -173,24 +175,13 @@ const Cars = () => {
             <BookingDialog
                 open={!!selectedCar}
                 car={selectedCar}
-                initialStart={datesValid ? startDate : undefined}
-                initialEnd={datesValid ? endDate : undefined}
+                initialStart={datesValid ? startDate.format('YYYY-MM-DD') : undefined}
+                initialEnd={datesValid ? endDate.format('YYYY-MM-DD') : undefined}
                 onClose={() => setSelectedCar(null)}
                 onSuccess={handleBookingSuccess}
             />
 
-            <Snackbar
-                open={!!toast}
-                autoHideDuration={5000}
-                onClose={() => setToast(null)}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            >
-                {toast && (
-                    <Alert severity={toast.severity} onClose={() => setToast(null)}>
-                        {toast.message}
-                    </Alert>
-                )}
-            </Snackbar>
+            {toast && <CustomAlert alert={toast} setAlert={setToast} />}
         </Box>
     );
 };

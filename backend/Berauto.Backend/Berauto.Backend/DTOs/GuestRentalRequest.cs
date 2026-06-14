@@ -1,16 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace Berauto.Backend.DTOs
-{
-    // Body of POST /api/Rentals/guest — bundles the booking with full personal data.
-    public class GuestRentalRequest
+{    public class GuestRentalRequest
     {
-        // Booking
         [Required] public int CarId { get; set; }
         [Required] public DateTime PlannedStart { get; set; }
         [Required] public DateTime PlannedEnd { get; set; }
 
-        // Personal data (mirrors what registration captures)
         [Required, StringLength(100, MinimumLength = 2)]
         public string Name { get; set; } = "";
 

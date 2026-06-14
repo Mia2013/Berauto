@@ -2,10 +2,6 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../provider/AuthProvider';
 
-/**
- * Wraps an element so it's only accessible to authenticated users (and optionally
- * only to users whose role is in `allowedRoles`). Otherwise redirects to /login.
- */
 const ProtectedRoute = ({ allowedRoles, children }) => {
     const { isAuthenticated, user } = useAuth();
     const location = useLocation();

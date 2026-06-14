@@ -1,19 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box, Container, Typography, Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, Chip, Button, Alert, CircularProgress, Stack, Snackbar,
+    TableHead, TableRow, Paper, Chip, Button, Alert, CircularProgress, Stack, 
 } from '@mui/material';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import dayjs from 'dayjs';
 import { getData, postData, endpoints } from '../API/apiCalls';
 import { RENTAL_STATUS, RENTAL_STATUS_LABEL } from '../constants/constants';
 import ReceiptDialog from '../components/ReceiptDialog';
-
-const formatDate = (iso) => {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return "—";
-    return d.toLocaleDateString("hu-HU");
-};
+import TitleComponent from '../components/TitleComponent';
+import CustomAlert from '../components/CustomAlert';
 
 const statusColor = (statusId) => {
     switch (statusId) {
@@ -21,7 +17,7 @@ const statusColor = (statusId) => {
         case RENTAL_STATUS.ACTIVE: return "warning";
         case RENTAL_STATUS.RETURNED: return "secondary";
         case RENTAL_STATUS.COMPLETED: return "success";
-        case RENTAL_STATUS.CANCELLED: return "default";
+        case RENTAL_STATUS.CANCELLED: return "error";
         default: return "default";
     }
 };
@@ -77,29 +73,27 @@ const MyRentals = () => {
     return (
         <Box sx={{ mt: 3 }}>
             <Container maxWidth="lg">
-                <Typography variant="h4" sx={{ fontWeight: 800, mb: 3 }}>
-                    Bérléseim
-                </Typography>
 
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                <TitleComponent title="Bérléseim" />
+                {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
                 {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
                         <CircularProgress />
                     </Box>
                 ) : rentals.length === 0 ? (
-                    <Alert severity="info">Még nincs egyetlen bérlése sem.</Alert>
+                    <Alert severity="info" sx={{ borderRadius: 2 }}>Még nincs egyetlen bérlése sem.</Alert>
                 ) : (
-                    <TableContainer component={Paper}>
+                    <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                         <Table>
-                            <TableHead>
+                            <TableHead sx={{ bgcolor: 'action.hover' }}>
                                 <TableRow>
-                                    <TableCell>#</TableCell>
-                                    <TableCell>Autó</TableCell>
-                                    <TableCell>Időszak</TableCell>
-                                    <TableCell>Összeg</TableCell>
-                                    <TableCell>Állapot</TableCell>
-                                    <TableCell align="right">Műveletek</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>#</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Autó</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Időszak</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Összeg</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Állapot</TableCell>
+                                    <TableCell align="right" sx={{ fontWeight: 700 }}>Műveletek</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -107,20 +101,24 @@ const MyRentals = () => {
                                     <TableRow key={r.id} hover>
                                         <TableCell>{r.id}</TableCell>
                                         <TableCell>
-                                            <strong>{r.carBrand} {r.carModel}</strong>
-                                            <Typography variant="caption" display="block" color="text.secondary">
+                                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                {r.carBrand} {r.carModel}
+                                            </Typography>
+                                            <Typography variant="caption" display="block" color="primary.main" sx={{ fontWeight: 700 }}>
                                                 {r.carRegNum}
                                             </Typography>
                                         </TableCell>
                                         <TableCell>
-                                            {formatDate(r.plannedStart)} – {formatDate(r.plannedEnd)}
+                                            {r.plannedStart ? dayjs(r.plannedStart).format('YYYY.MM.DD.') : '—'} – {r.plannedEnd ? dayjs(r.plannedEnd).format('YYYY.MM.DD.') : '—'}
                                         </TableCell>
-                                        <TableCell>{r.totalCost?.toLocaleString("hu-HU") ?? "—"} Ft</TableCell>
+                                        <TableCell sx={{ fontWeight: 600 }}>{r.totalCost?.toLocaleString("hu-HU") ?? "—"} Ft</TableCell>
                                         <TableCell>
                                             <Chip
-                                                label={RENTAL_STATUS_LABEL[r.statusId] ?? r.status}
+                                                label={RENTAL_STATUS_LABEL[r.statusId] || "Ismeretlen"}
                                                 size="small"
                                                 color={statusColor(r.statusId)}
+                                                variant="outlined"
+                                                sx={{ fontWeight: 700 }}
                                             />
                                         </TableCell>
                                         <TableCell align="right">
@@ -132,6 +130,7 @@ const MyRentals = () => {
                                                         variant="outlined"
                                                         disabled={busyId === r.id}
                                                         onClick={() => handleAction(r, "cancel", "Lemondás")}
+                                                        sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
                                                     >
                                                         Lemondás
                                                     </Button>
@@ -139,9 +138,11 @@ const MyRentals = () => {
                                                 {r.statusId === RENTAL_STATUS.ACTIVE && (
                                                     <Button
                                                         size="small"
+                                                        color="warning"
                                                         variant="outlined"
                                                         disabled={busyId === r.id}
                                                         onClick={() => handleAction(r, "return", "Visszaadás")}
+                                                        sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
                                                     >
                                                         Visszaadás
                                                     </Button>
@@ -149,9 +150,11 @@ const MyRentals = () => {
                                                 {r.statusId === RENTAL_STATUS.COMPLETED && (
                                                     <Button
                                                         size="small"
-                                                        variant="text"
+                                                        variant="outlined"
+                                                        color="primary"
                                                         startIcon={<ReceiptLongIcon />}
                                                         onClick={() => handleViewReceipt(r)}
+                                                        sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
                                                     >
                                                         Bizonylat
                                                     </Button>
@@ -172,18 +175,7 @@ const MyRentals = () => {
                 onClose={() => setSelectedReceipt(null)}
             />
 
-            <Snackbar
-                open={!!toast}
-                autoHideDuration={5000}
-                onClose={() => setToast(null)}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            >
-                {toast && (
-                    <Alert severity={toast.severity} onClose={() => setToast(null)}>
-                        {toast.message}
-                    </Alert>
-                )}
-            </Snackbar>
+            {toast && <CustomAlert alert={toast} setAlert={setToast} />}
         </Box>
     );
 };

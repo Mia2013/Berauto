@@ -1,4 +1,4 @@
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -58,18 +58,15 @@ public class AuditSaveChangesInterceptor : SaveChangesInterceptor
         _pending.Clear();
         if (ctx == null) return;
 
-        // Make sure ChangeTracker has up-to-date state.
         ctx.ChangeTracker.DetectChanges();
 
         foreach (var entry in ctx.ChangeTracker.Entries())
         {
-            // Never audit the audit log itself — would recurse forever.
             if (entry.Entity is AuditLog) continue;
             if (entry.State is not (EntityState.Added or EntityState.Modified or EntityState.Deleted))
                 continue;
 
-            // For Modified/Deleted the PK is already set; for Added it's populated by EF
-            // after the actual INSERT runs, so we re-read it in Persist().
+
             var capturedId = entry.State == EntityState.Added ? null : GetPk(entry);
 
             _pending.Add(new Pending(
@@ -88,8 +85,7 @@ public class AuditSaveChangesInterceptor : SaveChangesInterceptor
         if (logs.Count == 0) return;
 
         ctx.Set<AuditLog>().AddRange(logs);
-        // This nested save re-enters Stage(), but every entry is an AuditLog so the
-        // pending list stays empty — no infinite recursion.
+
         ctx.SaveChanges();
     }
 
@@ -111,7 +107,6 @@ public class AuditSaveChangesInterceptor : SaveChangesInterceptor
 
         foreach (var p in _pending)
         {
-            // For Added entries the PK is now populated post-save.
             var entityId = p.CapturedId ?? GetPk(p.Entry);
 
             logs.Add(new AuditLog
@@ -182,7 +177,7 @@ public class AuditSaveChangesInterceptor : SaveChangesInterceptor
 
                     var oldVal = SafeValue(prop.OriginalValue);
                     var newVal = SafeValue(prop.CurrentValue);
-                    if (Equals(oldVal, newVal)) continue; // ignore no-op modifications
+                    if (Equals(oldVal, newVal)) continue; 
 
                     diffs[prop.Metadata.Name] = new { old = oldVal, @new = newVal };
                 }

@@ -1,10 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Berauto.Backend.DTO
+namespace Berauto.Backend.DTOs
 {
-    // Only Phone and Address are user-editable per the spec.
-    // The controller intentionally ignores any other field, so users
-    // cannot escalate their role or change their email here.
     public class UpdateProfileDto
     {
         [StringLength(20, ErrorMessage = "A telefonszám maximum 20 karakter lehet.")]

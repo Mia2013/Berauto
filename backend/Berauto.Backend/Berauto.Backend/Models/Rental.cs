@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Berauto.Backend.Models;
 
-namespace Berauto.Models;
 
 public partial class Rental
 {

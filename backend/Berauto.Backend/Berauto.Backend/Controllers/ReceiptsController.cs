@@ -1,5 +1,5 @@
 using Berauto.Backend.DTOs;
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -24,14 +24,14 @@ namespace Berauto.Backend.Controllers
         private bool IsStaff =>
             User.IsInRole(RoleName.Admin) || User.IsInRole(RoleName.Officer);
 
-        // GET: api/receipts/mine  — current user's receipts
+        // GET: api/receipts/mine
         [HttpGet("mine")]
         public ActionResult<List<ReceiptDto>> GetMine()
         {
             return Ok(_dbManager.GetReceiptsByUser(CurrentUserId).Select(DtoMapper.ToDto));
         }
 
-        // GET: api/receipts/{id}  — owner or staff
+        // GET: api/receipts/{id}
         [HttpGet("{id}")]
         public ActionResult<ReceiptDto> GetById(int id)
         {
@@ -41,7 +41,7 @@ namespace Berauto.Backend.Controllers
             return Ok(DtoMapper.ToDto(r));
         }
 
-        // GET: api/receipts/by-rental/{rentalId}  — convenience for the MyRentals page
+        // GET: api/receipts/by-rental/{rentalId}
         [HttpGet("by-rental/{rentalId}")]
         public ActionResult<ReceiptDto> GetByRentalId(int rentalId)
         {

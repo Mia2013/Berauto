@@ -1,5 +1,5 @@
 using Berauto.Backend.DTOs;
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -18,7 +18,6 @@ namespace Berauto.Backend.Controllers
             _dbManager = dbManager;
         }
 
-        //Helpers
         private int CurrentUserId =>
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -28,9 +27,8 @@ namespace Berauto.Backend.Controllers
         private bool CanAccessRental(Rental rental) =>
             IsStaff || rental.UserId == CurrentUserId;
 
-        //Queries
 
-        // GET: api/rentals  (admin/officer: all rentals)
+        // GET: api/rentals 
         [HttpGet]
         [Authorize(Roles = "Admin,Officer")]
         public ActionResult<List<RentalDto>> GetAllRentals()
@@ -38,14 +36,14 @@ namespace Berauto.Backend.Controllers
             return Ok(_dbManager.GetAllRentals().Select(DtoMapper.ToDto));
         }
 
-        // GET: api/rentals/mine  (current user's rentals)
+        // GET: api/rentals/mine 
         [HttpGet("mine")]
         public ActionResult<List<RentalDto>> GetMyRentals()
         {
             return Ok(_dbManager.GetRentalsByUser(CurrentUserId).Select(DtoMapper.ToDto));
         }
 
-        // GET: api/rentals/user/{userId}  (staff only)
+        // GET: api/rentals/user/{userId} 
         [HttpGet("user/{userId}")]
         [Authorize(Roles = "Admin,Officer")]
         public ActionResult<List<RentalDto>> GetRentalsByUser(int userId)
@@ -54,18 +52,17 @@ namespace Berauto.Backend.Controllers
         }
 
         // GET: api/rentals/{id}
-        [HttpGet("{id}")]
-        public ActionResult<RentalDto> GetRental(int id)
+        [HttpGet("{rentalId}")]
+        public ActionResult<RentalDto> GetRental(int rentalId)
         {
-            var rental = _dbManager.GetRentalById(id);
+            var rental = _dbManager.GetRentalById(rentalId);
             if (rental == null) return NotFound();
             if (!CanAccessRental(rental)) return Forbid();
             return Ok(DtoMapper.ToDto(rental));
         }
 
-        //State transitions
 
-        // POST: api/rentals  (reserve a car; auto-confirms)
+        // POST: api/rentals 
         [HttpPost]
         public ActionResult<RentalDto> CreateRental([FromBody] CreateRentalRequest request)
         {
@@ -87,14 +84,14 @@ namespace Berauto.Backend.Controllers
             }
         }
 
-        // POST: api/rentals/{id}/handover  (staff hands car over to customer)
-        [HttpPost("{id}/handover")]
+        // POST: api/rentals/{id}/handover 
+        [HttpPost("{rentalId}/handover")]
         [Authorize(Roles = "Admin,Officer")]
-        public ActionResult<RentalDto> Handover(int id)
+        public ActionResult<RentalDto> Handover(int rentalId)
         {
             try
             {
-                var rental = _dbManager.HandoverRental(id);
+                var rental = _dbManager.HandoverRental(rentalId);
                 return Ok(DtoMapper.ToDto(rental));
             }
             catch (InvalidOperationException ex)
@@ -103,17 +100,17 @@ namespace Berauto.Backend.Controllers
             }
         }
 
-        // POST: api/rentals/{id}/return  (user or staff marks rental returned)
-        [HttpPost("{id}/return")]
-        public ActionResult<RentalDto> Return(int id)
+        // POST: api/rentals/{id}/return 
+        [HttpPost("{rentalId}/return")]
+        public ActionResult<RentalDto> Return(int rentalId)
         {
-            var existing = _dbManager.GetRentalById(id);
+            var existing = _dbManager.GetRentalById(rentalId);
             if (existing == null) return NotFound();
             if (!CanAccessRental(existing)) return Forbid();
 
             try
             {
-                var rental = _dbManager.ReturnRental(id);
+                var rental = _dbManager.ReturnRental(rentalId);
                 return Ok(DtoMapper.ToDto(rental));
             }
             catch (InvalidOperationException ex)
@@ -122,17 +119,17 @@ namespace Berauto.Backend.Controllers
             }
         }
 
-        // POST: api/rentals/{id}/inspect  (staff records inspection results)
-        [HttpPost("{id}/inspect")]
+        // POST: api/rentals/{id}/inspect 
+        [HttpPost("{rentalId}/inspect")]
         [Authorize(Roles = "Admin,Officer")]
-        public ActionResult<RentalDto> Inspect(int id, [FromBody] InspectRequest request)
+        public ActionResult<RentalDto> Inspect(int rentalId, [FromBody] InspectRequest request)
         {
             if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
             try
             {
                 var rental = _dbManager.InspectRental(
-                    id, request.ReturnMileage, request.Condition, request.Accept);
+                    rentalId, request.ReturnMileage, request.Condition, request.Accept);
                 return Ok(DtoMapper.ToDto(rental));
             }
             catch (InvalidOperationException ex)
@@ -141,17 +138,17 @@ namespace Berauto.Backend.Controllers
             }
         }
 
-        // POST: api/rentals/{id}/cancel  (owner or staff)
-        [HttpPost("{id}/cancel")]
-        public ActionResult<RentalDto> Cancel(int id)
+        // POST: api/rentals/{rentalId}/cancel  
+        [HttpPost("{rentalId}/cancel")]
+        public ActionResult<RentalDto> Cancel(int rentalId)
         {
-            var existing = _dbManager.GetRentalById(id);
+            var existing = _dbManager.GetRentalById(rentalId);
             if (existing == null) return NotFound();
             if (!CanAccessRental(existing)) return Forbid();
 
             try
             {
-                var rental = _dbManager.CancelRental(id);
+                var rental = _dbManager.CancelRental(rentalId);
                 return Ok(DtoMapper.ToDto(rental));
             }
             catch (InvalidOperationException ex)
@@ -160,16 +157,16 @@ namespace Berauto.Backend.Controllers
             }
         }
 
-        // PUT: api/rentals/{id}  (admin direct edit)
-        [HttpPut("{id}")]
+        // PUT: api/rentals/{rentalId} 
+        [HttpPut("{rentalId}")]
         [Authorize(Roles = "Admin")]
-        public ActionResult<RentalDto> EditRental(int id, [FromBody] EditRentalRequest request)
+        public ActionResult<RentalDto> EditRental(int rentalId, [FromBody] EditRentalRequest request)
         {
-            if (_dbManager.GetRentalById(id) == null) return NotFound();
+            if (_dbManager.GetRentalById(rentalId) == null) return NotFound();
 
             try
             {
-                var rental = _dbManager.EditRental(id, request);
+                var rental = _dbManager.EditRental(rentalId, request);
                 return Ok(DtoMapper.ToDto(rental));
             }
             catch (InvalidOperationException ex)
@@ -178,7 +175,7 @@ namespace Berauto.Backend.Controllers
             }
         }
 
-        // POST: api/rentals/guest  (no auth — anonymous booking)
+        // POST: api/rentals/guest 
         [HttpPost("guest")]
         [AllowAnonymous]
         public ActionResult<RentalDto> ReserveAsGuest([FromBody] GuestRentalRequest req)
@@ -197,7 +194,7 @@ namespace Berauto.Backend.Controllers
                     req.Address,
                     req.DrivingLicence);
 
-                return Ok(DtoMapper.ToDto(rental));   // adjust if your mapper has a different name
+                return Ok(DtoMapper.ToDto(rental));   
             }
             catch (InvalidOperationException ex)
             {

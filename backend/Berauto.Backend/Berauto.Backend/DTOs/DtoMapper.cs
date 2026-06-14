@@ -1,4 +1,4 @@
-﻿using Berauto.Models;
+﻿using Berauto.Backend.Models;
 
 namespace Berauto.Backend.DTOs
 {
@@ -14,7 +14,8 @@ namespace Berauto.Backend.DTOs
             IsRentable = car.IsRentable,
             Fee = car.Fee,
             Fuel = car.Fuel.Name,
-            Status = car.Status.Name
+            Status = car.Status.Name,
+            ImgUrl = car.ImgUrl
         };
 
         public static UserDto ToDto(User user) => new UserDto
@@ -64,6 +65,7 @@ namespace Berauto.Backend.DTOs
             CarRegNum = rental.Car.RegNum,
             CarBrand = rental.Car.Brand,
             CarModel = rental.Car.Model,
+            CarMileage = rental.Car?.Mileage ?? 0,
             UserId = rental.UserId,
             UserName = rental.User.Name,
             UserEmail = rental.User.Email,
@@ -76,7 +78,7 @@ namespace Berauto.Backend.DTOs
             ReturnDate = rental.ReturnDate,
             TotalCost = rental.TotalCost,
             ReturnMileage = rental.ReturnMileage,
-            Condition = rental.Condition
+            Condition = rental.Condition,
         };
     }
 }

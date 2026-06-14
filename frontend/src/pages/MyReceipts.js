@@ -4,14 +4,10 @@ import {
     TableHead, TableRow, Paper, Button, Alert, CircularProgress,
 } from '@mui/material';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import dayjs from 'dayjs';
 import { getData, endpoints } from '../API/apiCalls';
 import ReceiptDialog from '../components/ReceiptDialog';
-
-const formatDate = (iso) => {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString("hu-HU");
-};
+import TitleComponent from '../components/TitleComponent';
 
 const MyReceipts = () => {
     const [receipts, setReceipts] = useState([]);
@@ -37,31 +33,31 @@ const MyReceipts = () => {
     return (
         <Box sx={{ mt: 3 }}>
             <Container maxWidth="lg">
-                <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
-                    Bizonylataim
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                    Egy bizonylat akkor jön létre, amikor egy bérlést az adminisztrátor lezár.
+
+                <TitleComponent title="Bizonylataim" />
+
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 3, textAlign: "center" }}>
+                    Itt tekintheti meg és töltheti le a korábbi, sikeresen lezárt autóbérlései után kiállított hivatalos bizonylatokat.
                 </Typography>
 
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
                 {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
                         <CircularProgress />
                     </Box>
                 ) : receipts.length === 0 ? (
-                    <Alert severity="info">Még nincs egyetlen bizonylata sem.</Alert>
+                    <Alert severity="info" sx={{ borderRadius: 2 }}>Még nem rendelkezik lezárt bérléssel, így bizonylat sem érhető el.</Alert>
                 ) : (
-                    <TableContainer component={Paper}>
+                    <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2 }}>
                         <Table>
-                            <TableHead>
+                            <TableHead sx={{ bgcolor: 'action.hover' }}>
                                 <TableRow>
-                                    <TableCell>Bizonylatszám</TableCell>
-                                    <TableCell>Kibocsátva</TableCell>
-                                    <TableCell>Autó</TableCell>
-                                    <TableCell>Napok</TableCell>
-                                    <TableCell>Összeg</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Bizonylatszám</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Kibocsátva</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Autó</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Napok</TableCell>
+                                    <TableCell sx={{ fontWeight: 700 }}>Összeg</TableCell>
                                     <TableCell align="right" />
                                 </TableRow>
                             </TableHead>
@@ -69,24 +65,30 @@ const MyReceipts = () => {
                                 {receipts.map((r) => (
                                     <TableRow key={r.id} hover>
                                         <TableCell>
-                                            <strong>{r.receiptNumber}</strong>
+                                            <strong>{r.receiptNumber || `#${r.id}`}</strong>
                                         </TableCell>
-                                        <TableCell>{formatDate(r.issuedAt)}</TableCell>
                                         <TableCell>
-                                            {r.carBrand} {r.carModel}
-                                            <Typography variant="caption" display="block" color="text.secondary">
+                                            {r.issuedAt ? dayjs(r.issuedAt).format('YYYY.MM.DD.') : '—'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                                                {r.carBrand} {r.carModel}
+                                            </Typography>
+                                            <Typography variant="caption" display="block" color="primary.main" sx={{ fontWeight: 700 }}>
                                                 {r.carRegNum}
                                             </Typography>
                                         </TableCell>
-                                        <TableCell>{r.daysRented}</TableCell>
-                                        <TableCell sx={{ fontWeight: 600 }}>
+                                        <TableCell>{r.daysRented} nap</TableCell>
+                                        <TableCell sx={{ fontWeight: 700 }}>
                                             {r.amount?.toLocaleString("hu-HU")} Ft
                                         </TableCell>
                                         <TableCell align="right">
                                             <Button
                                                 size="small"
+                                                variant="outlined"
                                                 startIcon={<ReceiptLongIcon />}
                                                 onClick={() => setSelected(r)}
+                                                sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
                                             >
                                                 Megtekintés
                                             </Button>

@@ -1,5 +1,6 @@
 import React from "react";
 import { ROLES } from "../constants/constants";
+import AdminUsers from "./AdminUsers";
 
 const Home = React.lazy(() => import("./Home"));
 const Cars = React.lazy(() => import("./Cars"));
@@ -12,8 +13,6 @@ const AdminRentals = React.lazy(() => import("./AdminRentals"));
 const AdminCars = React.lazy(() => import("./AdminCars"));
 const AdminAuditLog = React.lazy(() => import("./AdminAuditLog"));
 
-// Visible in the nav for everyone; visible-when-logged-out flag controls hiding
-// auth pages once the user is authenticated.
 export const pagesForPublic = [
     { name: "Kezdőlap", path: "/", component: <Home />, hideWhenAuthed: false },
     { name: "Autók", path: "/cars", component: <Cars />, hideWhenAuthed: false },
@@ -45,5 +44,11 @@ export const pagesForStaff = [
         path: "/admin/audit-log",
         component: <AdminAuditLog />,
         allowedRoles: [ROLES.ADMIN, ROLES.UGYINTEZO],
+    },
+    {
+        name: "Felhasználók",
+        path: "/admin/users",
+        component: <AdminUsers />,
+        allowedRoles: [ROLES.ADMIN],
     },
 ];

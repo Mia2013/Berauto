@@ -1,8 +1,5 @@
-namespace Berauto.Models;
+namespace Berauto.Backend.Models;
 
-/// <summary>
-/// Seeded lookup-table IDs. Keep these in sync with the migration's seed data.
-/// </summary>
 public static class CarStatusId
 {
     public const int Available = 1;

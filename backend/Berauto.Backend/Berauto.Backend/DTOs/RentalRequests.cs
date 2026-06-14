@@ -28,17 +28,11 @@ namespace Berauto.Backend.DTOs
 
     public class InspectRequest
     {
-        /// <summary>The car's mileage at return. Optional — if provided, Car.Mileage is updated.</summary>
         public int? ReturnMileage { get; set; }
 
-        /// <summary>Free-text condition notes from the admin's inspection.</summary>
         [MaxLength(500)]
         public string? Condition { get; set; }
 
-        /// <summary>
-        /// If true, the car is accepted and goes back to Available.
-        /// If false, the car is moved to Maintenance instead.
-        /// </summary>
         public bool Accept { get; set; } = true;
     }
 }

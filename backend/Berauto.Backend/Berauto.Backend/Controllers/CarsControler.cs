@@ -1,6 +1,5 @@
-using Berauto.Backend.DTO;
 using Berauto.Backend.DTOs;
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +17,6 @@ namespace Berauto.Backend.Controllers
             _dbManager = dbManager;
         }
 
-        // PUT: api/cars/{id}  (staff edits an existing car at any time)
         [Authorize(Roles = "Admin,Officer")]
         [HttpPut("{id:int}")]
         public ActionResult<CarDto> UpdateCar(int id, [FromBody] UpdateCarDto dto)
@@ -48,19 +46,16 @@ namespace Berauto.Backend.Controllers
             }
             catch (DbUpdateException ex)
             {
-                // e.g. unique-key violation on RegNum if it slips past the explicit check
                 return BadRequest(new { message = ex.InnerException?.Message ?? ex.Message });
             }
         }
 
-        // GET: api/cars  (available cars — for the public browsing page)
         [HttpGet]
         public ActionResult<List<CarDto>> GetAvailableCars()
         {
             return Ok(_dbManager.GetAvailableCars().Select(DtoMapper.ToDto));
         }
 
-        // GET: api/cars/{id}
         [HttpGet("{id}")]
         public ActionResult<CarDto> GetCar(int id)
         {
@@ -70,9 +65,6 @@ namespace Berauto.Backend.Controllers
         }
 
         // GET: api/cars/rentable?startDate=2026-05-13&endDate=2026-05-20
-        // Both dates are optional. If both are provided, returns cars with no
-        // conflicting rental in that window. If both are omitted, returns cars
-        // whose current status is Available. Mixing one with the other is rejected.
         [HttpGet("rentable")]
         public ActionResult<List<CarDto>> GetRentableCars(
             [FromQuery] DateOnly? startDate,
@@ -112,7 +104,7 @@ namespace Berauto.Backend.Controllers
             return Ok(_dbManager.GetAvailableDieselCars().Select(DtoMapper.ToDto));
         }
 
-        // GET: api/cars/rented  (staff only)
+        // GET: api/cars/rented 
         [HttpGet("rented")]
         [Authorize(Roles = "Admin,Officer")]
         public ActionResult<List<CarDto>> GetRentedCars()
@@ -120,7 +112,7 @@ namespace Berauto.Backend.Controllers
             return Ok(_dbManager.GetRentedCars().Select(DtoMapper.ToDto));
         }
 
-        // GET: api/cars/awaiting-inspection  (staff queue of cars to inspect)
+        // GET: api/cars/awaiting-inspection 
         [HttpGet("awaiting-inspection")]
         [Authorize(Roles = "Admin,Officer")]
         public ActionResult<List<CarDto>> GetAwaitingInspection()
@@ -136,7 +128,7 @@ namespace Berauto.Backend.Controllers
             return Ok(_dbManager.GetServicedCars().Select(DtoMapper.ToDto));
         }
 
-        // POST: api/cars  (staff adds a new car)
+        // POST: api/cars  
         [Authorize(Roles = "Admin,Officer")]
         [HttpPost]
         public ActionResult<CarDto> AddCar([FromBody] CreateCarRequest request)
@@ -153,6 +145,7 @@ namespace Berauto.Backend.Controllers
                 FuelId = request.FuelId,
                 StatusId = request.StatusId == 0 ? CarStatusId.Available : request.StatusId,
                 IsRentable = request.IsRentable,
+                ImgUrl = request.ImgUrl
             };
 
             try
@@ -161,7 +154,6 @@ namespace Berauto.Backend.Controllers
             }
             catch (DbUpdateException ex)
             {
-                // Most likely a unique-RegNum violation; surface a clean message.
                 return BadRequest(new { message = ex.InnerException?.Message ?? ex.Message });
             }
 
@@ -169,7 +161,7 @@ namespace Berauto.Backend.Controllers
             return CreatedAtAction(nameof(GetCar), new { id = reloaded.Id }, DtoMapper.ToDto(reloaded));
         }
 
-        // POST: api/cars/{id}/maintenance  (admin pulls a car off the road)
+        // POST: api/cars/{id}/maintenance 
         [Authorize(Roles = "Admin,Officer")]
         [HttpPost("{id}/maintenance")]
         public ActionResult<CarDto> SetMaintenance(int id)
@@ -185,7 +177,7 @@ namespace Berauto.Backend.Controllers
             }
         }
 
-        // POST: api/cars/{id}/activate  (admin returns a car to the Available pool)
+        // POST: api/cars/{id}/activate 
         [Authorize(Roles = "Admin,Officer")]
         [HttpPost("{id}/activate")]
         public ActionResult<CarDto> Activate(int id)
@@ -202,5 +194,36 @@ namespace Berauto.Backend.Controllers
         }
 
 
+    [HttpGet("validate-regnum/{regNum}")]
+        public ActionResult<bool> ValidateRegNum(string regNum)
+        {
+            bool exists = _dbManager.CarExistsWithRegNum(regNum);
+
+            if (exists)
+            {
+                 return BadRequest(new { message = "Ez a rendszám már létezik a rendszerben!" });
+            }
+
+            return Ok(new { available = true });
+        }
+
+        [Authorize(Roles = "Admin,Officer")]
+        [HttpDelete("{id:int}")]
+        public IActionResult DeleteCar(int id)
+        {
+            try
+            {
+                _dbManager.DeleteCar(id);
+                return Ok(new { message = "Autó sikeresen törölve." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(new { message = "Adatbázis hiba történt a törlés során: " + (ex.InnerException?.Message ?? ex.Message) });
+            }
+        }
     }
 }
