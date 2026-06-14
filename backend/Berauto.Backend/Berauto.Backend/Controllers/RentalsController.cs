@@ -18,7 +18,6 @@ namespace Berauto.Backend.Controllers
             _dbManager = dbManager;
         }
 
-        //Helpers
         private int CurrentUserId =>
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -28,7 +27,6 @@ namespace Berauto.Backend.Controllers
         private bool CanAccessRental(Rental rental) =>
             IsStaff || rental.UserId == CurrentUserId;
 
-        //Queries
 
         // GET: api/rentals 
         [HttpGet]
