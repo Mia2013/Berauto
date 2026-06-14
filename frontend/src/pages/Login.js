@@ -1,23 +1,23 @@
-import React, { useEffect } from 'react';
-import { Box, Container } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Box, Container, Paper } from '@mui/material';
 import LoginForm from '../components/LoginForm';
-import { useAuth } from '../provider/AuthProvider';
 
 const Login = () => {
-    const { isAuthenticated } = useAuth();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        if (isAuthenticated) navigate("/", { replace: true });
-    }, [isAuthenticated, navigate]);
-
     return (
-        <Box>
-            <Container>
-                <LoginForm />
-            </Container>
-        </Box>
+        <Container maxWidth="sm" sx={{ mt: 8, mb: 8 }}>
+            <Paper 
+                elevation={0} 
+                sx={{ 
+                    p: { xs: 3, sm: 5 }, 
+                    borderRadius: 4, 
+                    border: '1px solid', 
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper'
+                }}
+            >
+                <LoginForm formElevation={0} />
+            </Paper>
+        </Container>
     );
 };
 

@@ -1,15 +1,15 @@
 import axios from "axios";
 
-// Matches the backend's HTTPS profile in Properties/launchSettings.json.
-// All endpoints are scoped under /api by the controllers' [Route("api/[controller]")].
 const BASE_URL = "https://localhost:7011/api";
 
 export const endpoints = {
+    adminRegister: "Auth/admin-register",
+    adminuserUpdateById: (id) => `Users/${id}`,
     auditLog: "AuditLog",
     carActivate: (id) => `Cars/${id}/activate`,
     carAwaitingInspection: "Cars/awaiting-inspection",
     carById: (id) => `Cars/${id}`,
-    carDelById: (id) =>`Cars/${id}`,
+    carDelById: (id) => `Cars/${id}`,
     carDiesel: "Cars/diesel",
     carMaintenance: (id) => `Cars/${id}/maintenance`,
     cars: "Cars",
@@ -21,17 +21,19 @@ export const endpoints = {
     myRentals: "Rentals/mine",
     myReceipts: "Receipts/mine",
     register: "Auth/register",
+    receiptById: (id) => `Receipts/${id}`,
     receiptByRental: (rentalId) => `Receipts/by-rental/${rentalId}`,
     rentalById: (id) => `Rentals/${id}`,
     rentals: "Rentals",
-    receiptById: (id) => `Receipts/${id}`,
-    receiptByRental: (rentalId) => `Receipts/by-rental/${rentalId}`,
+    rentalsByUserId: (id) => `Rentals/user/${id}`,
     rentalCancel: (id) => `Rentals/${id}/cancel`,
     rentalsGuest: "Rentals/guest",
     rentalHandover: (id) => `Rentals/${id}/handover`,
     rentalInspect: (id) => `Rentals/${id}/inspect`,
     rentalReturn: (id) => `Rentals/${id}/return`,
     usersMe: "Users/me",
+    users: "Users",
+    userDelById: (id) => `Users/${id}`,
     validateRegnum: (id) => `cars/validate-regnum/${id}`,
 
 };

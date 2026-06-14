@@ -26,11 +26,8 @@ public partial class CarRentalDbContext : DbContext
     }
 
 
-    //local db path:
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Fallback only — DI from Program.cs supplies the real connection string
-        // from appsettings.json, so this branch usually isn't taken at runtime.
         if (!optionsBuilder.IsConfigured)
         {
             optionsBuilder.UseSqlServer(

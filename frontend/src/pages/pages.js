@@ -1,5 +1,6 @@
 import React from "react";
 import { ROLES } from "../constants/constants";
+import AdminUsers from "./AdminUsers";
 
 const Home = React.lazy(() => import("./Home"));
 const Cars = React.lazy(() => import("./Cars"));
@@ -11,7 +12,6 @@ const Profile = React.lazy(() => import("./Profile"));
 const AdminRentals = React.lazy(() => import("./AdminRentals"));
 const AdminCars = React.lazy(() => import("./AdminCars"));
 const AdminAuditLog = React.lazy(() => import("./AdminAuditLog"));
-
 
 export const pagesForPublic = [
     { name: "Kezdőlap", path: "/", component: <Home />, hideWhenAuthed: false },
@@ -44,5 +44,11 @@ export const pagesForStaff = [
         path: "/admin/audit-log",
         component: <AdminAuditLog />,
         allowedRoles: [ROLES.ADMIN, ROLES.UGYINTEZO],
+    },
+    {
+        name: "Felhasználók",
+        path: "/admin/users",
+        component: <AdminUsers />,
+        allowedRoles: [ROLES.ADMIN],
     },
 ];

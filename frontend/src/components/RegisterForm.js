@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
     Alert, Button, Grid, TextField, InputAdornment, IconButton, Container, Box,
-    Typography, FilledInput, InputLabel, FormControl, Link as MuiLink,
+    Typography, FormControl, Link as MuiLink, Paper, Stack
 } from "@mui/material";
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
@@ -11,6 +11,7 @@ import Send from '@mui/icons-material/Send';
 import { postData, endpoints } from '../API/apiCalls';
 import { useAuth } from '../provider/AuthProvider';
 import TitleComponent from './TitleComponent';
+import FormDivider from './FormDivider'; // A Profil oldalon használt elválasztó
 
 const RegisterForm = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -44,6 +45,7 @@ const RegisterForm = () => {
         if (!email) validationErrors.email = 'Az email cím megadása kötelező!';
         if (!password) validationErrors.password = 'A jelszó megadása kötelező!';
         else if (password.length < 6) validationErrors.password = 'A jelszónak legalább 6 karakter hosszúnak kell lennie!';
+        
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length > 0) return;
 
@@ -58,7 +60,6 @@ const RegisterForm = () => {
                 address,
                 drivingLicence,
             });
-            // Backend returns AuthResponse { token, user } — auto-login.
             logIn(data);
             setAlert({ severity: "success", message: `Sikeres regisztráció, ${name}!` });
             navigate("/");
@@ -70,96 +71,152 @@ const RegisterForm = () => {
     };
 
     return (
-        <form onSubmit={handleRegister}>
-            <Container maxWidth="sm">
-                <Box sx={{ p: 3 }}>
-                    <Grid size={{ xs: 12 }} sx={{ textAlign: "center" }}>
-                        <Box sx={{ display: "flex", alignItems: "center", flexDirection: "column", my: 5 }}>
-                            <TitleComponent title="Regisztráció" />
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Paper elevation={6} sx={{ overflow: 'hidden', borderRadius: 4 }}>
+                <Grid container component="form" onSubmit={handleRegister}>
+                    
+                    {/* BAL OLDAL: Háttérkép stílus (Pont mint a profilnál) */}
+                    <Grid size={{ xs: 12, md: 4 }} sx={{ position: 'relative' }}>
+                        <Box
+                            component="img"
+                            sx={{
+                                width: '100%',
+                                height: '100%',
+                                minHeight: { xs: 200, sm: 250, md: 650 },
+                                objectFit: 'cover',
+                                display: 'block'
+                            }}
+                            src={`${process.env.PUBLIC_URL}/bmw.jpg`}
+                            alt="Regisztráció háttér"
+                        />
+                        <Box sx={{
+                            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                            background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%)',
+                            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', p: 4, color: 'white'
+                        }}>
+                            <Typography variant="h3" fontWeight={900} sx={{ textTransform: 'uppercase', lineHeight: 1 }}>
+                                Új <br /> Fiók
+                            </Typography>
                         </Box>
                     </Grid>
 
-                    {alert && (
-                        <Alert severity={alert.severity} sx={{ mb: 2 }} onClose={() => setAlert(null)}>
-                            {alert.message}
-                        </Alert>
-                    )}
+                    {/* JOBB OLDAL: Űrlap mezők */}
+                    <Grid size={{ xs: 12, md: 8 }} sx={{ p: { xs: 3, md: 6 }, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <Box sx={{ mb: 2 }}>
+                            <TitleComponent title="Regisztráció" marginY={0} />
+                        </Box>
 
-                    <Grid size={{ xs: 12 }} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                        <TextField
-                            label="Név"
-                            inputRef={nameRef}
-                            variant="filled"
-                            required
-                            error={!!errors?.name}
-                            helperText={errors?.name}
-                        />
-                        <TextField
-                            label="Email cím"
-                            inputRef={emailRef}
-                            variant="filled"
-                            type="email"
-                            required
-                            error={!!errors?.email}
-                            helperText={errors?.email}
-                        />
-                        <FormControl variant="filled">
-                            <InputLabel htmlFor="register-password">Jelszó *</InputLabel>
-                            <FilledInput
-                                required
-                                id="register-password"
-                                inputRef={passwordRef}
-                                type={showPassword ? 'text' : 'password'}
-                                error={!!errors?.password}
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            aria-label={showPassword ? 'Jelszó elrejtése' : 'Jelszó megjelenítése'}
-                                            onClick={handleClickShowPassword}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                            />
-                            <Typography variant='caption' sx={{ color: "#D3302F", ml: 2 }}>
-                                {errors?.password}
-                            </Typography>
-                        </FormControl>
-                        <TextField
-                            label="Telefonszám"
-                            inputRef={phoneRef}
-                            variant="filled"
-                        />
-                        <TextField
-                            label="Cím"
-                            inputRef={addressRef}
-                            variant="filled"
-                        />
-                        <TextField
-                            label="Jogosítvány száma"
-                            inputRef={drivingLicenceRef}
-                            variant="filled"
-                        />
-
-                        <Button
-                            type="submit"
-                            variant='contained'
-                            startIcon={<Send />}
-                            disabled={submitting}
-                        >
-                            {submitting ? "Regisztráció..." : "Regisztráció"}
-                        </Button>
-
-                        <Typography variant="body2" sx={{ textAlign: "center" }}>
-                            Már van fiókja?{" "}
-                            <MuiLink component={RouterLink} to="/login">Jelentkezzen be itt</MuiLink>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                            Hozzon létre egy új fiókot a bérlési rendszer teljes körű használatához.
                         </Typography>
+
+                        {alert && (
+                            <Alert severity={alert.severity} sx={{ mb: 2, borderRadius: 2 }} onClose={() => setAlert(null)}>
+                                {alert.message}
+                            </Alert>
+                        )}
+
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+                            
+                            <FormDivider text="KÖTELEZŐ ADATOK" />
+
+                            <TextField
+                                label="Teljes név"
+                                inputRef={nameRef}
+                                required
+                                fullWidth
+                                error={!!errors?.name}
+                                helperText={errors?.name}
+                            />
+
+                            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
+                                <TextField
+                                    label="Email cím"
+                                    inputRef={emailRef}
+                                    type="email"
+                                    required
+                                    fullWidth
+                                    error={!!errors?.email}
+                                    helperText={errors?.email}
+                                />
+                                
+                                {/* Egységesített Standard TextField a Jelszónak ad some styling */}
+                                <TextField
+                                    label="Jelszó"
+                                    id="register-password"
+                                    inputRef={passwordRef}
+                                    type={showPassword ? 'text' : 'password'}
+                                    required
+                                    fullWidth
+                                    error={!!errors?.password}
+                                    helperText={errors?.password}
+                                    slotProps={{
+                                        input: {
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        aria-label={showPassword ? 'Jelszó elrejtése' : 'Jelszó megjelenítése'}
+                                                        onClick={handleClickShowPassword}
+                                                        edge="end"
+                                                    >
+                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            )
+                                        }
+                                    }}
+                                />
+                            </Box>
+
+                            <FormDivider text="OPCIONÁLIS / KAPCSOLATTARTÁSI ADATOK" />
+
+                            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
+                                <TextField
+                                    label="Telefonszám"
+                                    inputRef={phoneRef}
+                                    placeholder="+36 ..."
+                                    fullWidth
+                                />
+                                <TextField
+                                    label="Jogosítvány száma"
+                                    inputRef={drivingLicenceRef}
+                                    fullWidth
+                                />
+                            </Box>
+
+                            <TextField
+                                label="Lakcím"
+                                inputRef={addressRef}
+                                placeholder="Irányítószám, város, utca, házszám"
+                                fullWidth
+                                multiline
+                                minRows={2}
+                            />
+
+                            <Button
+                                type="submit"
+                                variant='contained'
+                                color='primary'
+                                startIcon={<Send />}
+                                disabled={submitting}
+                                sx={{ py: 1.8, fontWeight: 'bold', borderRadius: 2, mt: 2 }}
+                                fullWidth
+                            >
+                                {submitting ? "Regisztráció..." : "Fiók létrehozása"}
+                            </Button>
+
+                            <Typography variant="body2" sx={{ textAlign: "center", mt: 1 }}>
+                                Már van fiókja?{" "}
+                                <MuiLink component={RouterLink} to="/login" sx={{ fontWeight: 'bold' }}>
+                                    Jelentkezzen be itt
+                                </MuiLink>
+                            </Typography>
+                        </Box>
                     </Grid>
-                </Box>
-            </Container>
-        </form>
+
+                </Grid>
+            </Paper>
+        </Container>
     );
 };
 

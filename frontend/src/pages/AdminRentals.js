@@ -13,23 +13,13 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import EditIcon from '@mui/icons-material/Edit';
 
 import { getData, postData, endpoints } from '../API/apiCalls';
-import { RENTAL_STATUS, RENTAL_STATUS_LABEL } from '../constants/constants';
+import { RENTAL_STATUS, RENTAL_STATUS_LABEL, STATUS_COLOR } from '../constants/constants';
 import InspectDialog from '../components/InspectDialog';
 import EditRentalDialog from '../components/EditRentalDialog';
 import ReceiptDialog from '../components/ReceiptDialog';
 import CustomAlert from '../components/CustomAlert';
 import TitleComponent from '../components/TitleComponent';
 
-const statusColor = (statusId) => {
-    switch (statusId) {
-        case RENTAL_STATUS.CONFIRMED: return "info";
-        case RENTAL_STATUS.ACTIVE: return "warning";
-        case RENTAL_STATUS.RETURNED: return "secondary";
-        case RENTAL_STATUS.COMPLETED: return "default";
-        case RENTAL_STATUS.CANCELLED: return "error";
-        default: return "default";
-    }
-};
 
 const AdminRentals = () => {
     const [rentals, setRentals] = useState([]);
@@ -159,7 +149,7 @@ const receiptData = await getData(endpoints.receiptByRental(rental.id));
                 <Chip
                     label={RENTAL_STATUS_LABEL[params.value] || "Ismeretlen"}
                     size="small"
-                    color={statusColor(params.value)}
+                    color={STATUS_COLOR(params.value)}
                     variant="outlined"
                     sx={{ fontWeight: 700 }}
                 />

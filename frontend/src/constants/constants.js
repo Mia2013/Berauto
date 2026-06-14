@@ -1,12 +1,10 @@
-// Must match the seeded Role.Name values in the backend (Migrations/InitBerautoState).
-export const ROLES = {
+ export const ROLES = {
     ADMIN: "Admin",
     UGYINTEZO: "Officer",
     USER: "Client",
 };
 
-// CarStatus.Id values, matching the backend's CarStatusId constants.
-export const CAR_STATUS = {
+ export const CAR_STATUS = {
     AVAILABLE: 1,
     RESERVED: 2,
     RENTED: 3,
@@ -22,7 +20,6 @@ export const CAR_STATUS_LABEL = {
     [CAR_STATUS.MAINTENANCE]: "Szervizben",
 };
 
-// RentalStatus.Id values.
 export const RENTAL_STATUS = {
     CONFIRMED: 1,
     ACTIVE: 2,
@@ -61,4 +58,15 @@ export const EMPTY_GUEST = {
     phone: "",
     address: "",
     drivingLicence: "",
+};
+
+export const STATUS_COLOR = (statusId) => {
+    switch (statusId) {
+        case RENTAL_STATUS.CONFIRMED: return "info";
+        case RENTAL_STATUS.ACTIVE: return "warning";
+        case RENTAL_STATUS.RETURNED: return "secondary";
+        case RENTAL_STATUS.COMPLETED: return "default";
+        case RENTAL_STATUS.CANCELLED: return "error";
+        default: return "default";
+    }
 };

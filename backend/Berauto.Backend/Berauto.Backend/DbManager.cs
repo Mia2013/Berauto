@@ -41,6 +41,26 @@ public class DbManager
     public List<User> GetClients() =>
         _db.Users.Include(u => u.Role).Where(u => u.RoleId == RoleId.Client).ToList();
 
+    public List<User> GetAllUsers() =>
+        _db.Users.Include(u => u.Role).OrderBy(u => u.Name).ToList();
+
+    public void DeleteUser(int userId)
+    {
+        var user = _db.Users.Include(u => u.Rentals).FirstOrDefault(u => u.Id == userId);
+
+        if (user == null)
+            throw new InvalidOperationException("A törölni kívánt felhasználó nem található a rendszerben.");
+
+        bool hasActiveRentals = user.Rentals.Any(r =>
+            r.StatusId != RentalStatusId.Completed && r.StatusId != RentalStatusId.Cancelled);
+
+        if (hasActiveRentals)
+            throw new InvalidOperationException("A felhasználó nem törölhető, mert jelenleg aktív vagy jövőbeli bérléssel/foglalással rendelkezik!");
+
+        _db.Users.Remove(user);
+        _db.SaveChanges();
+    }
+
     // CARS
     public void AddCar(Car car)
     {
@@ -178,8 +198,8 @@ public class DbManager
     public List<Rental> GetRentalsByUser(int userId) =>
          RentalsWithIncludes().Where(r => r.UserId == userId).ToList();
 
-    public Rental? GetRentalById(int id) =>
-        RentalsWithIncludes().FirstOrDefault(r => r.Id == id);
+    public Rental? GetRentalById(int rentalId) =>
+        RentalsWithIncludes().FirstOrDefault(r => r.Id == rentalId);
 
     public Rental ReserveCar(int carId, int userId, DateTime plannedStart, DateTime plannedEnd)
     {
