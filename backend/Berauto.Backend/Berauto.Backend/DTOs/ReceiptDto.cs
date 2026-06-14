@@ -3,8 +3,6 @@ namespace Berauto.Backend.DTOs
     public class ReceiptDto
     {
         public int Id { get; set; }
-
-        /// <summary>Formatted human-readable receipt number, e.g. "BR-2026-00042".</summary>
         public string ReceiptNumber { get; set; } = null!;
 
         public int RentalId { get; set; }

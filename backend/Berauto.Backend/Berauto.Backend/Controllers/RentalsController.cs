@@ -1,5 +1,5 @@
 using Berauto.Backend.DTOs;
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -30,7 +30,7 @@ namespace Berauto.Backend.Controllers
 
         //Queries
 
-        // GET: api/rentals  (admin/officer: all rentals)
+        // GET: api/rentals 
         [HttpGet]
         [Authorize(Roles = "Admin,Officer")]
         public ActionResult<List<RentalDto>> GetAllRentals()
@@ -38,7 +38,7 @@ namespace Berauto.Backend.Controllers
             return Ok(_dbManager.GetAllRentals().Select(DtoMapper.ToDto));
         }
 
-        // GET: api/rentals/mine  (current user's rentals)
+        // GET: api/rentals/mine 
         [HttpGet("mine")]
         public ActionResult<List<RentalDto>> GetMyRentals()
         {

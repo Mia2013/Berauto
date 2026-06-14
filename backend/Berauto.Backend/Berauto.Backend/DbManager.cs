@@ -1,8 +1,8 @@
 using Berauto.Backend.DTOs;
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Berauto;
+namespace Berauto.Backend;
 
 public class DbManager
 {

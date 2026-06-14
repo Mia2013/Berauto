@@ -1,6 +1,5 @@
-using Berauto.Backend.DTO;
 using Berauto.Backend.DTOs;
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -105,7 +104,7 @@ namespace Berauto.Backend.Controllers
             return Ok(_dbManager.GetAvailableDieselCars().Select(DtoMapper.ToDto));
         }
 
-        // GET: api/cars/rented  (staff only)
+        // GET: api/cars/rented 
         [HttpGet("rented")]
         [Authorize(Roles = "Admin,Officer")]
         public ActionResult<List<CarDto>> GetRentedCars()

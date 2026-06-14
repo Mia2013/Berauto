@@ -1,6 +1,6 @@
 using Azure.Core;
 using Berauto.Backend.DTOs;
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

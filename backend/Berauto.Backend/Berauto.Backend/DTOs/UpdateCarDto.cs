@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Berauto.Backend.DTO
+namespace Berauto.Backend.DTOs
 {
-    // The shape the frontend sends to PUT /api/Cars/{id}.
     public class UpdateCarDto
     {
         [Required]

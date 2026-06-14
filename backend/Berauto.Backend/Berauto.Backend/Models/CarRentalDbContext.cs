@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Berauto.Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Berauto.Models;
+namespace Berauto.Backend.Models;
 
 public partial class CarRentalDbContext : DbContext
 {

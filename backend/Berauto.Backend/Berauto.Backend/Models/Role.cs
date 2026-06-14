@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Berauto.Models;
+﻿namespace Berauto.Backend.Models;
 
 public partial class Role
 {

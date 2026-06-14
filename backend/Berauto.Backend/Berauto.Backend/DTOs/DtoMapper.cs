@@ -1,4 +1,4 @@
-﻿using Berauto.Models;
+﻿using Berauto.Backend.Models;
 
 namespace Berauto.Backend.DTOs
 {

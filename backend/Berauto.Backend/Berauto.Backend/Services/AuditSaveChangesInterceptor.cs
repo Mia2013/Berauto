@@ -1,4 +1,4 @@
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -182,7 +182,7 @@ public class AuditSaveChangesInterceptor : SaveChangesInterceptor
 
                     var oldVal = SafeValue(prop.OriginalValue);
                     var newVal = SafeValue(prop.CurrentValue);
-                    if (Equals(oldVal, newVal)) continue; // ignore no-op modifications
+                    if (Equals(oldVal, newVal)) continue; 
 
                     diffs[prop.Metadata.Name] = new { old = oldVal, @new = newVal };
                 }

@@ -1,5 +1,5 @@
 ﻿using Berauto.Backend.Services;
-using Berauto.Models;
+using Berauto.Backend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,24 +16,19 @@ namespace Berauto.Backend
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Audit interceptor needs the current HTTP context to know who made the change.
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<AuditSaveChangesInterceptor>();
 
-            // Register DbContext with DI; resolve and attach the audit interceptor per scope.
             builder.Services.AddDbContext<CarRentalDbContext>((serviceProvider, options) =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
                 options.AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
             });
 
-            // Register DbManager with DI
             builder.Services.AddScoped<DbManager>();
 
-            // Password hashing (PBKDF2 via ASP.NET Identity's PasswordHasher<T>)
             builder.Services.AddSingleton<IPasswordHasher<User>, PasswordHasher<User>>();
 
-            // CORS for React frontend
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("ReactPolicy", policy =>
@@ -51,7 +46,6 @@ namespace Berauto.Backend
                         System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
                 });
 
-            // JWT Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
