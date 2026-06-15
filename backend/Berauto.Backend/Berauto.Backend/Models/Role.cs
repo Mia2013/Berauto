@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Berauto.Backend.Models;
+﻿namespace Berauto.Backend.Models;
 
 public partial class Role
 {
@@ -10,4 +7,9 @@ public partial class Role
     public string Name { get; set; } = string.Empty;
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
+    
+    public override string ToString()
+    {
+        return $"{Name}";
+    }
 }

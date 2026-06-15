@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿
 namespace Berauto.Backend.Models;
 
 public partial class Car
@@ -21,14 +19,18 @@ public partial class Car
 
     public int FuelId { get; set; }
 
-    public virtual Fuel? Fuel { get; set; }
+    public int StatusId { get; set; }
+    public string ImgUrl { get; set; } = string.Empty;
+
+    public virtual Fuel Fuel { get; set; } = null!;
 
     public virtual ICollection<Rental> Rentals { get; set; } = new List<Rental>();
 
-    public virtual ICollection<Service> Services { get; set; } = new List<Service>();
-
+    public virtual CarStatus Status { get; set; } = null!;
+    
     public override string ToString()
     {
-        return $"{Id} {Brand} {Model} {RegNum}";
+        return $"{RegNum} - {Brand} {Model} {Fuel}";
     }
+
 }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Berauto.Backend.Models;
 
-namespace Berauto.Backend.Models;
 
 public partial class Rental
 {
@@ -15,15 +13,23 @@ public partial class Rental
 
     public DateTime? RequestDate { get; set; }
 
+    public DateTime PlannedStart { get; set; }
+
+    public DateTime PlannedEnd { get; set; }
+
     public DateTime? HandoverDate { get; set; }
 
     public DateTime? ReturnDate { get; set; }
 
     public int? TotalCost { get; set; }
 
-    public virtual Car? Car { get; set; }
+    public int? ReturnMileage { get; set; }
 
-    public virtual RentalStatus? Status { get; set; }
+    public string? Condition { get; set; }
 
-    public virtual User? User { get; set; }
+    public virtual Car Car { get; set; } = null!;
+
+    public virtual RentalStatus Status { get; set; } = null!;
+
+    public virtual User User { get; set; } = null!;
 }
