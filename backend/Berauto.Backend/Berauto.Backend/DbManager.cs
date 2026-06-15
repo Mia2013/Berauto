@@ -1,4 +1,5 @@
-using Berauto.Models;
+using Berauto.Backend.Models;
+using Berauto.Backend.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Berauto;
