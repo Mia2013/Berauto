@@ -1,123 +1,186 @@
-import { useRef, useState } from 'react'
-import { Button, Grid, TextField, InputAdornment, IconButton, Container, Box, Typography, FilledInput, InputLabel, FormControl } from "@mui/material";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {
+    Button, TextField, InputAdornment, IconButton,
+    Box, Typography, Paper, FormControl, OutlinedInput, InputLabel, Link as MuiLink
+} from "@mui/material";
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Visibility from '@mui/icons-material/Visibility';
-import Send from '@mui/icons-material/Send';
+import LoginIcon from '@mui/icons-material/Login';
 
-import { postData } from '../API/apiCalls';
+import { postData, endpoints } from '../API/apiCalls';
+import { useAuth } from '../provider/AuthProvider';
 import TitleComponent from './TitleComponent';
+import CustomAlert from './CustomAlert';
+import ValidationCaption from './ValidationCaption';
 
-const RegisterForm = () => {
+const LoginForm = ({ formElevation = 0 }) => {
     const [showPassword, setShowPassword] = useState(false);
+    const [formData, setFormData] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState({});
-    const [alert, setAlert] = useState('');
+    const [alert, setAlert] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    const emailRef = useRef();
-    const passwordRef = useRef();
+    const { logIn } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        setFormData({ email: "", password: "" });
+        setErrors({});
+        setAlert(null);
+    }, []);
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        const email = emailRef.current.value;
-        const password = passwordRef.current.value;
-
-        const formData = {
-            email,
-            password,
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(p => ({ ...p, [name]: value }));
+        if (errors[name]) {
+            setErrors(p => ({ ...p, [name]: null }));
         }
+    };
 
-        if (validateRegisterFormData(formData)) {
-            postData("login", formData)
-                .then((data) => {
-                    setAlert({ message: `Sikeres bejelentkezés! `, severity: "success" })
-                })
-                .then(() => {
-                    emailRef.current.value = "";
-                    passwordRef.current.value = "";
-                })
-                .catch((e) => {
-                    setAlert({ message: e.message || "Hiba történt!", severity: "error" })
-                })
-        }
-    }
-
-    const validateRegisterFormData = (formData) => {
-        const { password, email } = formData;
+    const validateForm = () => {
         const validationErrors = {};
-
-        if (!password) {
-            validationErrors.password = 'A jelszó megadása kötelező!';
-        }
-        if (!email) {
+        if (!formData.email.trim()) {
             validationErrors.email = 'Az email cím megadása kötelező!';
+        }
+        if (!formData.password) {
+            validationErrors.password = 'A jelszó megadása kötelező!';
         }
         setErrors(validationErrors);
         return Object.keys(validationErrors).length === 0;
     };
 
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+
+        setLoading(true);
+        setAlert(null);
+
+        postData(endpoints.login, {
+            email: formData.email.trim(),
+            password: formData.password
+        })
+            .then((data) => {
+                logIn(data);
+                navigate("/");
+            })
+            .catch((err) => {
+                setAlert({ severity: "error", message: err.message || "Sikertelen bejelentkezés." });
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    };
+
     return (
-        <form>
-            <Container maxWidth="sm">
-                <Box sx={{ p: 3 }} >
-                    <Grid  size={{ xs: 12}} sx={{ textAlign: "center" }}>
-                        <Box
+        <Paper
+            elevation={formElevation}
+            sx={{
+                p: formElevation === 0 ? 0 : 4,
+                borderRadius: 4,
+                maxWidth: 450,
+                width: '100%',
+                mx: 'auto',
+                background: 'transparent'
+            }}
+        >
+            <TitleComponent title="Bejelentkezés" alignItems='flex-start' marginY={0} />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 3 }}>
+                Kérjük, adja meg hitelesítési adatait a fiókjába való belépéshez.
+            </Typography>
+
+            <Box
+                component="form"
+                noValidate
+                onSubmit={handleLogin}
+                sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}
+            >
+                <TextField
+                    fullWidth
+                    label="Email cím"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    variant="outlined"
+                    type="email"
+                    required
+                    error={!!errors?.email}
+                    helperText={errors?.email}
+                    disabled={loading}
+                />
+
+                <FormControl variant="outlined" fullWidth error={!!errors?.password} required>
+                    <InputLabel htmlFor="outlined-adornment-password">Jelszó</InputLabel>
+                    <OutlinedInput
+                        id="outlined-adornment-password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        type={showPassword ? 'text' : 'password'}
+                        label="Jelszó"
+                        disabled={loading}
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label={showPassword ? 'Jelszó elrejtése' : 'Jelszó megjelenítése'}
+                                    onClick={handleClickShowPassword}
+                                    edge="end"
+                                >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        }
+                    />
+                    {errors?.password && (
+                        <ValidationCaption message={errors.password} />
+                    )}
+                </FormControl>
+
+                <Button
+                    type="submit"
+                    variant='contained'
+                    startIcon={<LoginIcon />}
+                    disabled={loading}
+                    sx={{
+                        py: 1.5,
+                        fontWeight: 'bold',
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontSize: '1rem',
+                        boxShadow: 'none',
+                        '&:hover': { boxShadow: 'none' }
+                    }}
+                >
+                    {loading ? "Kapcsolódás..." : "Belépés a fiókba"}
+                </Button>
+
+                <Box sx={{ textAlign: 'center', mt: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                        Még nincs fiókja?{" "}
+                        <MuiLink
+                            component={RouterLink}
+                            to="/register"
+                            underline="hover"
                             sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                flexDirection: "column",
-                                my: 5,
+                                fontWeight: 700,
+                                color: 'primary.main',
+                                cursor: 'pointer'
                             }}
                         >
-
-                            <TitleComponent title="Bejelentkezés" />
-                        </Box>
-                    </Grid>
-
-                    <Grid size={{ xs: 12}}  sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                        <TextField
-                            label="Email cím"
-                            inputRef={emailRef}
-                            variant="filled"
-                            required
-                            error={!!errors?.email}
-                            helperText={errors?.email}
-                        />
-                        <FormControl variant="filled">
-                            <InputLabel htmlFor="filled-adornment-password">Jelszó *</InputLabel>
-                            <FilledInput
-                                required
-                                id="filled-adornment-password"
-                                inputRef={passwordRef}
-                                type={showPassword ? 'text' : 'password'}
-                                error={!!errors?.password}
-                                endAdornment={
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            aria-label={
-                                                showPassword ? 'hide the password' : 'display the password'
-                                            }
-                                            onClick={handleClickShowPassword}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                }
-                            />
-                            <Typography variant='caption' sx={{ color: "#D3302F", ml: 2 }}>{errors?.password}</Typography>
-                        </FormControl>
-
-
-
-                        <Button variant='contained' startIcon={<Send />}
-                            onClick={handleLogin}
-                        >Bejelentkezés</Button>
-                    </Grid>
+                            Regisztráljon itt!
+                        </MuiLink>
+                    </Typography>
                 </Box>
-            </Container>
-        </form>
-    )
-}
+            </Box>
 
-export default RegisterForm;
+            {alert && (
+                <CustomAlert alert={alert} setAlert={setAlert} />
+            )}
+        </Paper>
+    );
+};
+
+export default LoginForm;
