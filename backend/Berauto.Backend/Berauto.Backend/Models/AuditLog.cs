@@ -12,11 +12,11 @@ public partial class AuditLog
 
     public string? UserEmail { get; set; }
 
-    public string EntityType { get; set; } = null!;
+    public string EntityType { get; set; } = string.Empty;
 
     public string? EntityId { get; set; }
 
-    public string Action { get; set; } = null!;
+    public string Action { get; set; } = string.Empty;
 
-    public string Changes { get; set; } = null!;
+    public string Changes { get; set; } = string.Empty;
 }

@@ -13,11 +13,11 @@ public partial class Receipt
 
     public int DaysRented { get; set; }
 
-    public string CarRegNum { get; set; } = null!;
-    public string CarBrand { get; set; } = null!;
-    public string CarModel { get; set; } = null!;
+    public string CarRegNum { get; set; } = string.Empty;
+    public string CarBrand { get; set; } = string.Empty;
+    public string CarModel { get; set; } = string.Empty;
 
-    public string UserName { get; set; } = null!;
-    public string UserEmail { get; set; } = null!;
+    public string UserName { get; set; } = string.Empty;
+    public string UserEmail { get; set; } = string.Empty;
     public string? UserAddress { get; set; }
 }

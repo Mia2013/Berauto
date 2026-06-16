@@ -140,10 +140,17 @@ public partial class CarRentalDbContext : DbContext
             entity.Property(e => e.Phone).HasMaxLength(20);
             entity.Property(e => e.PasswordHash).HasMaxLength(255);
 
-            entity.HasOne(d => d.Role).WithMany(p => p.Users)
+            entity.HasOne(d => d.Role)
+                .WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Users_Roles");
+            
+            entity.HasOne(d => d.RequestedRole)
+                .WithMany()
+                .HasForeignKey(d => d.RequestedRoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Users_RequestedRoles");
         });
 
         modelBuilder.Entity<AuditLog>(entity =>
