@@ -46,9 +46,9 @@ const EditRentalDialog = ({ open, rental, onClose, onSuccess }) => {
         if (!plannedStart) errors.plannedStart = "Az átvétel dátuma kötelező!";
         if (!plannedEnd) errors.plannedEnd = "A visszaadás dátuma kötelező!";
         
-        if (plannedStart && plannedEnd && !plannedEnd.isAfter(plannedStart)) {
-            errors.plannedEnd = "A visszaadás dátumának későbbinek kell lennie, mint az átvételé!";
-        }
+if (plannedStart && plannedEnd && !plannedEnd.isAfter(plannedStart, 'day') && !plannedEnd.isSame(plannedStart, 'day')) {
+    errors.plannedEnd = "A visszaadás dátuma nem lehet korábbi, mint az átvételé!";
+}
 
         if (totalCost !== "" && Number(totalCost) < 0) {
             errors.totalCost = "A bérlési összeg nem lehet negatív!";
