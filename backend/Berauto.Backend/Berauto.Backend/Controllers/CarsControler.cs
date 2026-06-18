@@ -17,7 +17,7 @@ namespace Berauto.Backend.Controllers
             _dbManager = dbManager;
         }
 
-        [Authorize(Roles = "Admin,Officer")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:int}")]
         public ActionResult<CarDto> UpdateCar(int id, [FromBody] UpdateCarDto dto)
         {
@@ -129,7 +129,7 @@ namespace Berauto.Backend.Controllers
         }
 
         // POST: api/cars  
-        [Authorize(Roles = "Admin,Officer")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult<CarDto> AddCar([FromBody] CreateCarRequest request)
         {
@@ -224,6 +224,13 @@ namespace Berauto.Backend.Controllers
             {
                 return BadRequest(new { message = "Adatbázis hiba történt a törlés során: " + (ex.InnerException?.Message ?? ex.Message) });
             }
+        }
+
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin,Officer")]
+        public ActionResult<List<CarDto>> GetAllCarsForAdmin()
+        {
+            return Ok(_dbManager.GetAllCarsForAdmin().Select(DtoMapper.ToDto));
         }
     }
 }

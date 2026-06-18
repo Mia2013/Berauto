@@ -100,33 +100,32 @@ public class DbManager
         _db.Cars.Include(c => c.Fuel).Include(c => c.Status).FirstOrDefault(c => c.Id == id);
 
     private IQueryable<Car> CarsWithIncludes() =>
-        _db.Cars.Include(c => c.Fuel).Include(c => c.Status);
+        _db.Cars.Include(c => c.Fuel).Include(c => c.Status).Where(c => !c.IsDeleted);
 
     public List<Car> GetAvailableCars() =>
         CarsWithIncludes().Where(c => c.StatusId == CarStatusId.Available).ToList();
 
     public List<Car> GetAvailableRentableCars(DateOnly? startDate = null, DateOnly? endDate = null)
     {
-        var query = CarsWithIncludes().Where(c => c.IsRentable);
+        var query = CarsWithIncludes().Where(c =>
+            c.IsRentable
+            && c.StatusId != CarStatusId.Maintenance
+            && c.StatusId != CarStatusId.AwaitingInspection);
 
         if (startDate.HasValue && endDate.HasValue)
         {
             if (endDate.Value < startDate.Value)
             {
                 throw new InvalidOperationException("A visszaadás dátuma nem lehet korábbi, mint az átvételé.");
-
             }
 
             var start = startDate.Value.ToDateTime(TimeOnly.MinValue);
             var end = endDate.Value.ToDateTime(TimeOnly.MaxValue);
 
-            query = query.Where(c =>
-                c.StatusId != CarStatusId.Maintenance
-                && c.StatusId != CarStatusId.AwaitingInspection
-                && !c.Rentals.Any(r =>
-                    (r.StatusId == RentalStatusId.Confirmed || r.StatusId == RentalStatusId.Active)
-                    && r.PlannedStart < end
-                    && r.PlannedEnd > start));
+            query = query.Where(c => !c.Rentals.Any(r =>
+                (r.StatusId == RentalStatusId.Confirmed || r.StatusId == RentalStatusId.Active)
+                && r.PlannedStart < end
+                && r.PlannedEnd > start));
         }
         else
         {
@@ -196,7 +195,9 @@ public class DbManager
         .ToList();
 
     public List<Rental> GetRentalsByUser(int userId) =>
-         RentalsWithIncludes().Where(r => r.UserId == userId).ToList();
+         RentalsWithIncludes().Where(r => r.UserId == userId)
+        .OrderByDescending(r=>r.PlannedStart)
+        .ToList();
 
     public Rental? GetRentalById(int rentalId) =>
         RentalsWithIncludes().FirstOrDefault(r => r.Id == rentalId);
@@ -206,14 +207,24 @@ public class DbManager
         if (plannedEnd.Date < plannedStart.Date)
             throw new InvalidOperationException("A visszaadás dátuma nem lehet korábbi, mint az átvételé.");
 
-        var car = _db.Cars.FirstOrDefault(c => c.Id == carId)
+        var car = _db.Cars
+            .Include(c => c.Rentals)
+            .FirstOrDefault(c => c.Id == carId)
             ?? throw new InvalidOperationException("A kiválasztott autó nem található a rendszerben.");
-
-        if (car.StatusId != CarStatusId.Available)
-            throw new InvalidOperationException("Sajnáljuk, de ezt az autót időközben már lefoglalták vagy bérbe adták.");
 
         if (!car.IsRentable)
             throw new InvalidOperationException("Ez a jármű jelenleg nem kiadható.");
+
+        if (car.StatusId == CarStatusId.Maintenance || car.StatusId == CarStatusId.AwaitingInspection)
+            throw new InvalidOperationException("Sajnáljuk, de a jármű jelenleg nem elérhető (szervizben vagy szemlére vár).");
+
+        bool hasCollision = car.Rentals.Any(r =>
+            (r.StatusId == RentalStatusId.Confirmed || r.StatusId == RentalStatusId.Active)
+            && r.PlannedStart < plannedEnd
+            && r.PlannedEnd > plannedStart);
+
+        if (hasCollision)
+            throw new InvalidOperationException("Sajnáljuk, de ezt az autót a választott időszakra időközben már lefoglalták.");
 
         var days = Math.Max(1, (int)Math.Ceiling((plannedEnd.Date - plannedStart.Date).TotalDays));
         var totalCost = days * car.Fee;
@@ -228,7 +239,10 @@ public class DbManager
             TotalCost = totalCost
         };
 
-        car.StatusId = CarStatusId.Reserved;
+        if (car.StatusId == CarStatusId.Available)
+        {
+            car.StatusId = CarStatusId.Reserved;
+        }
 
         _db.Rentals.Add(rental);
         _db.SaveChanges();
@@ -403,18 +417,13 @@ public class DbManager
 
     public void DeleteCar(int carId)
     {
-        var car = _db.Cars.Include(c => c.Rentals).FirstOrDefault(c => c.Id == carId);
+         var car = _db.Cars.FirstOrDefault(c => c.Id == carId)
+            ?? throw new InvalidOperationException("A jármű nem található.");
 
-        if (car == null)
-            throw new InvalidOperationException("A törölni kívánt jármű nem található az adatbázisban.");
+         car.IsDeleted = true;
 
-        bool hasActiveRentals = car.Rentals.Any(r =>
-            r.StatusId != RentalStatusId.Completed && r.StatusId != RentalStatusId.Cancelled);
-
-        if (hasActiveRentals)
-            throw new InvalidOperationException("A gépjármű nem törölhető, mivel jelenleg aktív vagy jövőbeli foglalás kapcsolódik hozzá!");
-
-        _db.Cars.Remove(car);
         _db.SaveChanges();
     }
+    public List<Car> GetAllCarsForAdmin() =>
+    CarsWithIncludes().OrderBy(c => c.Brand).ThenBy(c => c.Model).ToList();
 }

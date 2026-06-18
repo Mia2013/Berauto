@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-    Box, Container, Typography, Paper, Chip, IconButton, Tooltip,Alert
+    Box, Container, Typography, Paper, Chip, IconButton, Tooltip, Alert
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
@@ -67,7 +67,7 @@ const AdminRentals = () => {
 
     const handleOpenReceipt = async (rental) => {
         try {
-const receiptData = await getData(endpoints.receiptByRental(rental.id));
+            const receiptData = await getData(endpoints.receiptByRental(rental.id));
             if (receiptData) setViewReceipt(receiptData);
             else setToast({ severity: "warning", message: "Ehhez a bérléshez még nem áll rendelkezésre a bizonylat." });
         } catch (err) {
@@ -231,7 +231,7 @@ const receiptData = await getData(endpoints.receiptByRental(rental.id));
                 <Box sx={{ mb: 3 }}>
                     <TitleComponent title="Bérlések kezelése" marginY={0} alignItems="start" />
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                        Vezérelje a foglalások életciklusát, rögzítse az átadásokat és kezelje a pénzügyi bizonylatokat.
+                        Vezérelje a foglalásokat, rögzítse az átadásokat és kezelje a pénzügyi bizonylatokat.
                     </Typography>
                 </Box>
 
@@ -247,12 +247,32 @@ const receiptData = await getData(endpoints.receiptByRental(rental.id));
                     }}
                     pageSizeOptions={[5, 10, 25, 50]}
                     disableRowSelectionOnClick
+                    
+                    // 1. MEGOLDÁS: Osztály hozzáadása a sorhoz, ha ma van az átadás napja
+                    getRowClassName={(params) => {
+                        if (!params.row.plannedStart) return '';
+                        
+                        const isToday = dayjs(params.row.plannedStart).isSame(dayjs(), 'day');
+                        const isRelevant = params.row.statusId !== RENTAL_STATUS.CANCELLED && params.row.statusId !== RENTAL_STATUS.COMPLETED;
+
+                        return isToday && isRelevant ? 'today-handover-row' : '';
+                    }}
+
                     sx={{
                         border: '1px solid',
                         borderColor: 'divider',
                         borderRadius: 2,
                         '& .MuiDataGrid-columnHeaders': { bgcolor: 'action.hover', borderBottom: '2px solid', borderColor: 'divider' },
-                        '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' }
+                        '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' },
+                        
+                        // 2. MEGOLDÁS: A generált osztály testreszabása sárga kiemeléssel
+                        '& .today-handover-row': {
+                            backgroundColor: 'rgba(255, 235, 59, 0.15)', // Halvány borostyán/sárga háttér
+                            borderLeft: '4px solid #fbc02d', // Erősebb sárga csík a sor elején
+                            '&:hover': {
+                                backgroundColor: 'rgba(255, 235, 59, 0.25)', // Hover állapotban kicsit sötétebb sárga
+                            }
+                        }
                     }}
                 />
             </Container>

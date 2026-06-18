@@ -10,6 +10,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import TitleComponent from './TitleComponent';
 import FormDivider from './FormDivider';
 import { putData, endpoints } from '../API/apiCalls';
+import { ROLES } from "../constants/constants"
+
 
 const AdminEditUserDialog = ({ open, user, onClose, onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -19,6 +21,15 @@ const AdminEditUserDialog = ({ open, user, onClose, onSuccess }) => {
     const [validationErrors, setValidationErrors] = useState({});
     const [error, setError] = useState(null);
 
+const getRoleIdByRoleName = (roleName) => {
+    switch (roleName) {
+        case ROLES.ADMIN: return 1;
+        case ROLES.UGYINTEZO: return 2;
+        case ROLES.USER: return 3;
+        default: return 3; 
+    }
+};
+
     useEffect(() => {
         if (open && user) {
             setFormData({
@@ -27,13 +38,14 @@ const AdminEditUserDialog = ({ open, user, onClose, onSuccess }) => {
                 phone: user.phone || "",
                 address: user.address || "",
                 drivingLicence: user.drivingLicence || "",
-                roleId: user.roleId ?? 3
+                roleId: getRoleIdByRoleName(user.role)
             });
             setError(null);
             setValidationErrors({});
         }
     }, [open, user]);
 
+    console.log(user)
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(p => ({ ...p, [name]: value }));

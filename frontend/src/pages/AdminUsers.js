@@ -21,7 +21,7 @@ const getRoleUi = (role) => {
     switch (role) {
         case "Admin": return { label: "Adminisztrátor", color: "error", icon: <ShieldIcon fontSize="small" /> };
         case "Officer": return { label: "Ügyintéző", color: "warning", icon: null };
-        case "Client": return { label: "Ügyfél / Kliens", color: "primary", icon: null };
+        case "Client": return { label: "Ügyfél", color: "primary", icon: null };
         default: return { label: "Vendég", color: "default", icon: null };
     }
 };
@@ -122,7 +122,7 @@ const AdminUsers = () => {
         { field: 'address', headerName: 'Lakcím', flex: 1.8, minWidth: 200, valueFormatter: (value) => value || "—" },
         { field: 'drivingLicence', headerName: 'Jogosítvány', flex: 1, minWidth: 120, valueFormatter: (value) => value || "—" },
         {
-            field: 'roleId',
+            field: 'role',
             headerName: 'Szerepkör',
             flex: 1.2,
             minWidth: 140,

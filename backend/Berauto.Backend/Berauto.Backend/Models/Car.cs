@@ -33,4 +33,6 @@ public partial class Car
         return $"{RegNum} - {Brand} {Model} {Fuel}";
     }
 
+    public bool IsDeleted { get; set; } = false;
+
 }

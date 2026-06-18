@@ -76,7 +76,7 @@ namespace Berauto.Backend.Controllers
                     request.PlannedStart,
                     request.PlannedEnd);
 
-                return CreatedAtAction(nameof(GetRental), new { id = rental.Id }, DtoMapper.ToDto(rental));
+                return CreatedAtAction(nameof(GetRental), new { rentalId = rental.Id }, DtoMapper.ToDto(rental));
             }
             catch (InvalidOperationException ex)
             {

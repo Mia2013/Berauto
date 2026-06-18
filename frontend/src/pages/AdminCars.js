@@ -15,8 +15,10 @@ import AddCarDialog from '../components/AddCarDialog';
 import EditCarDialog from '../components/EditCarDialog';
 import CustomAlert from '../components/CustomAlert';
 import TitleComponent from '../components/TitleComponent';
+import { useAuth } from '../provider/AuthProvider';
 
 const TABS = [
+    { key: "all", label: "Összes autó", endpoint: endpoints.carAllAdmin },
     { key: "available", label: "Elérhető", endpoint: endpoints.cars },
     { key: "rented", label: "Bérelt", endpoint: endpoints.carRented },
     { key: "inspection", label: "Ellenőrzésre vár", endpoint: endpoints.carAwaitingInspection },
@@ -24,6 +26,8 @@ const TABS = [
 ];
 
 const AdminCars = () => {
+const { isAdmin } = useAuth();
+
     const [tabIndex, setTabIndex] = useState(0);
     const [cars, setCars] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -85,16 +89,16 @@ const AdminCars = () => {
 
     const renderActions = (car) => {
         return (
-            <Grid container spacing={1} sx={{ mt: 0.5 }}>
-                 <Grid size={activeTab.key === "rented" ? 12 : 6}>
+                <Grid container spacing={1} sx={{ mt: 0.5, width: '100%' }}>
+                     <Grid size={ 6}>
                     <Button
                         fullWidth
                         size="small"
                         variant="outlined"
-                        disabled={busyId === car.id}
                         onClick={() => setEditCar(car)}
                         sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 600 }}
                         startIcon={<EditIcon sx={{ fontSize: '14px !important' }} />}
+                        disabled={busyId === car.id || !isAdmin}
                     >
                         Szerkesztés
                     </Button>
@@ -134,7 +138,7 @@ const AdminCars = () => {
                     </Grid>
                 )}
 
-                 {activeTab.key !== "rented" && (
+                 {(activeTab.key !== "rented"&& isAdmin ) &&  (
                     <Grid size={12}>
                       <Divider  sx={{ my: 1}}/>
                         <Button
@@ -152,7 +156,7 @@ const AdminCars = () => {
                             startIcon={<DeleteIcon sx={{ fontSize: '14px !important' }} />}
 
                         >
-                            Jármű végleges törlése
+                            Jármű törlése
                         </Button>
                     </Grid>
                 )}
@@ -171,15 +175,17 @@ const AdminCars = () => {
                                 Rendszerezze, szerkessze vagy vonja ki a forgalomból a flotta gépjárműveit.
                             </Typography>
                         </Box>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<AddIcon />}
-                            onClick={() => setAddOpen(true)}
-                            sx={{ py: 1.2, px: 3, fontWeight: 'bold', borderRadius: 2, textTransform: 'none', boxShadow: 'none' }}
-                        >
-                            Új autó hozzáadása
-                        </Button>
+{isAdmin && (
+    <Button
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
+        onClick={() => setAddOpen(true)}
+        sx={{ py: 1.2, px: 3, fontWeight: 'bold', borderRadius: 2, textTransform: 'none', boxShadow: 'none' }}
+    >
+        Új autó hozzáadása
+    </Button>
+)}
                     </Stack>
 
                     <Tabs

@@ -4,6 +4,7 @@ const BASE_URL = "https://localhost:7011/api";
 
 export const endpoints = {
     adminRegister: "Auth/admin-register",
+    carAllAdmin: `/Cars/all`,
     adminuserUpdateById: (id) => `Users/${id}`,
     auditLog: "AuditLog",
     carActivate: (id) => `Cars/${id}/activate`,
@@ -34,6 +35,7 @@ export const endpoints = {
     usersMe: "Users/me",
     users: "Users",
     userDelById: (id) => `Users/${id}`,
+    userUpdateById:  (id) => `Users/${id}`,
     validateRegnum: (id) => `cars/validate-regnum/${id}`,
 
 };
