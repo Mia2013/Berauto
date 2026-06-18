@@ -99,8 +99,8 @@ const BookingDialog = ({ open, car, onClose, onSuccess, initialStart, initialEnd
         try {
             const dates = {
                 carId: car.id,
-                plannedStart: start.toISOString(),
-                plannedEnd: end.toISOString(),
+                plannedStart: start.format('YYYY-MM-DD'),
+                plannedEnd: end.format('YYYY-MM-DD'),
             };
 
             const rental = isAuthenticated

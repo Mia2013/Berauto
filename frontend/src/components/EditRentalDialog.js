@@ -71,8 +71,8 @@ const EditRentalDialog = ({ open, rental, onClose, onSuccess }) => {
 
         try {
             const payload = {
-                plannedStart: plannedStart ? plannedStart.toISOString() : null,
-                plannedEnd: plannedEnd ? plannedEnd.toISOString() : null,
+                plannedStart: plannedStart ? plannedStart.format('YYYY-MM-DD'): null,
+                plannedEnd: plannedEnd ? plannedEnd.format('YYYY-MM-DD') : null,
                 totalCost: totalCost === "" ? null : Number(totalCost),
                 statusId: statusId === "" ? null : Number(statusId),
                 condition: condition === "" ? null : condition,
